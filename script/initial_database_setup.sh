@@ -22,6 +22,8 @@ set -x # turns on stacktrace mode which gives useful debug information
 #   cp config/database.yml.example config/database.yml
 # fi
 
+sudo apt-get install wkhtmltopdf
+
 USERNAME=`ruby -ryaml -e "puts YAML::load_file('config/database.yml')['${ENV}']['username']"`
 PASSWORD=`ruby -ryaml -e "puts YAML::load_file('config/database.yml')['${ENV}']['password']"`
 DATABASE=`ruby -ryaml -e "puts YAML::load_file('config/database.yml')['${ENV}']['database']"`
