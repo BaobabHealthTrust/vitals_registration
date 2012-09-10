@@ -15,6 +15,7 @@ production:
  create.from.remote: false
  create.from.dde.server: true
  demographics.home_village: true
+ portal_url: 192.100.100.200:80
  
 development:
  create_from_remote: no
@@ -34,6 +35,7 @@ development:
  create.from.remote: false
  create.from.dde.server: true
  demographics.home_village: true
+ portal_url: 192.100.100.200:80
  
 test: &TEST
  create_from_remote: no

@@ -28,4 +28,7 @@ DATABASE=`ruby -ryaml -e "puts YAML::load_file('config/database.yml')['${ENV}'][
 
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/data/${SITE}/anc.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/data/${SITE}/anc_tasks.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/triggers/birth_report.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/triggers/relationship_after_delete.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/triggers/relationship_after_insert.sql
 

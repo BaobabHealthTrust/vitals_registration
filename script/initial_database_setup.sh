@@ -56,6 +56,9 @@ mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/migrate/insert_weight
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/migrate/global_property.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/relationships.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/custom.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/triggers/birth_report.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/triggers/relationship_after_delete.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/triggers/relationship_after_insert.sql
 
 #rake openmrs:bootstrap:load:defaults RAILS_ENV=$ENV
 #rake openmrs:bootstrap:load:site SITE=$SITE RAILS_ENV=production#
