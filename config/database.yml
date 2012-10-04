@@ -1,9 +1,9 @@
-# production:
-#   adapter: mysql
-#   database: openmrs
-#   username: root
-#   password:
-#   host: localhost
+production:
+  adapter: mysql
+  database: vitals_registration_development
+  username: root
+  password: admin
+  host: localhost
 
 development:
   adapter: mysql
