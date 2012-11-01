@@ -76,7 +76,7 @@ class PeopleController < GenericPeopleController
   end
 
 	def search
-      
+
 		found_person = nil
 		if params[:identifier]
 			local_results = PatientService.search_by_identifier(params[:identifier])
@@ -126,16 +126,16 @@ class PeopleController < GenericPeopleController
 
 	# This method is just to allow the select box to submit, we could probably do this better
 	def select
-    
+
     if params[:person][:id] != '0' && Person.find(params[:person][:id]).dead == 1
 
 			redirect_to :controller => :patients, :action => :show, :id => params[:person]
 		else
 			redirect_to search_complete_url(params[:person][:id], params[:relation], 
         params[:cat]) and return if params[:person][:id] != "0" && params[:cat] == "baby"
-      
+
       redirect_to "/relationships/new?patient_id=#{params[:patient_id]}&relation=#{params[:person][:id]
-            }&cat=#{params[:cat]}" and return if (!params[:person][:id].blank? || !params[:person][:id] == '0') and
+            }&cat=#{params[:cat]}" and return if (!params[:person][:id].blank? && !params[:person][:id] == '0') and
         (params[:cat] and params[:cat] != "baby")
 
       if params[:cat] and params[:cat] == "baby"
