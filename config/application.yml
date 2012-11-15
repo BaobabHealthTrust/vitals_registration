@@ -7,7 +7,7 @@ production:
  ask.multiple.phone.numbers: false
  demographics.ground_phone: false
  list.of.clinical.encounters.sequentially: weight and height,ttv vaccination,bp,anc visit type,obstetric history,medical history,surgical history,social history,lab results,current pregnancy,anc examination,manage appointments,give drugs,hiv reception
- statistics.show_encounter_types: REGISTRATION,ANC VISIT TYPE,VITALS,OBSERVATIONS,TREATMENT
+ statistics.show_encounter_types: REGISTRATION
  registration.clerk.roles: Registration,View Reports
  hsa.roles: Registration,Weight and Height,TTV Vaccination
  nurse.roles: Weight and Height,TTV Vaccination,BP,ANC Visit Type,Obstetric History,Medical History,Surgical History,Social History,Lab Results,ANC Examination,Current Pregnancy,Manage Appointments,Give Drugs,Update Outcome,HIV Clinic Registration,HIV Staging,HIV Reception,HIV Clinic Consultation,ART Adherence,Manage ART Prescriptions,ART Drug Dispensations,Registration,View Reports
@@ -27,7 +27,7 @@ development:
  ask.multiple.phone.numbers: false
  demographics.ground_phone: false
  list.of.clinical.encounters.sequentially: weight and height,ttv vaccination,bp,anc visit type,obstetric history,medical history,surgical history,social history,lab results,current pregnancy,anc examination,manage appointments,give drugs,hiv reception
- statistics.show_encounter_types: REGISTRATION,ANC VISIT TYPE,VITALS,OBSERVATIONS,TREATMENT
+ statistics.show_encounter_types: REGISTRATION
  registration.clerk.roles: Registration,Weight and Height,View Reports
  hsa.roles: Registration,Weight and Height,TTV Vaccination
  nurse.roles: Weight and Height,TTV Vaccination,BP,ANC Visit Type,Obstetric History,Medical History,Surgical History,Social History,Lab Results,ANC Examination,Current Pregnancy,Manage Appointments,Give Drugs,Update Outcome,HIV Clinic Registration,HIV Staging,HIV Reception,HIV Clinic Consultation,ART Adherence,Manage ART Prescriptions,ART Drug Dispensations,Registration,View Reports

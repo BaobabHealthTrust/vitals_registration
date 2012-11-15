@@ -74,13 +74,13 @@ class ClinicController < GenericClinicController
                       Date.today.strftime('%Y-%m-%d 00:00:00'),
                       Date.today.strftime('%Y-%m-%d 23:59:59')])
 
-    if !simple_overview
+    # if !simple_overview
       @year = Encounter.statistics(@types,
         :conditions => ['encounter_datetime BETWEEN ? AND ?',
                         Date.today.strftime('%Y-01-01 00:00:00'),
                         Date.today.strftime('%Y-12-31 23:59:59')])
       @ever = Encounter.statistics(@types)
-    end
+    # end
 
     # raise current_user.to_yaml
     

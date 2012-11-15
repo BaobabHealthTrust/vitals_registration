@@ -2,6 +2,20 @@
   <!--
   tt_cancel_show = "/clinic";
   tt_cancel_destination = "/clinic";
+
+  function checkLabel(){
+    if(!__$("id")){
+      setTimeout("checkLabel()", 200);
+      return;
+    }
+
+    __$("id").innerHTML = "Child ID";
+
+    if(__$("id").innerHTML != "Child ID"){
+      setTimeout("checkLabel()", 200);
+    }
+  }
+  setTimeout("checkLabel()", 520);
   //-->
 </script>
 

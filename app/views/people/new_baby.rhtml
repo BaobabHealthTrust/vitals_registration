@@ -21,6 +21,11 @@
   .nota #qwerty {
     display: none;
   }
+
+.NoKeyboard, .NoControls { height: 640px !important }
+.NoKeyboard .inputFrameClass { height: 575px !important }
+.NoKeyboard .options { height: 521px !important }
+
 </style>
 
 <script>
@@ -124,6 +129,7 @@
     {:helpText => 'Month of Birth',
     :condition => '$("person_birth_year").value.toLowerCase() != "unknown"',
     :validationJS => "validateDOB();",
+    :tt_pageStyleClass => "NoKeyboard",
     :validationMessage => 'Please enter a valid date'}%>
 
   <%= text_field_tag "person[age_estimate]", nil, {

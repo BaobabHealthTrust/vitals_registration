@@ -209,7 +209,7 @@
   <%= text_field_tag "person[birth_year]", nil, {
     :helpText => "#{params[:cat].titleize} Year of Birth",
     :field_type => 'number',
-    :absoluteMin => ((session[:datetime] || Date.today).to_date.year - 55),
+    :absoluteMin => ((session[:datetime] || Date.today).to_date.year - 100),
     :min => ((session[:datetime] || Date.today).to_date.year - 50),
     :max => ((session[:datetime] || Date.today).to_date.year),
     :absoluteMax => ((session[:datetime] || Date.today).to_date.year),
@@ -227,7 +227,7 @@
   <%= text_field_tag "person[age_estimate]", nil, {
     :helpText => "#{params[:cat].titleize} age estimate",
     :absoluteMin => 0,
-    :absoluteMax => 55,
+    :absoluteMax => 100,
     :field_type => 'number',
     :condition => '$("person_birth_year").value == "Unknown"',
     :tt_onLoad => "$('nextButton').style.display = 'block';",
@@ -377,7 +377,7 @@
 
   <%#= select_tag("person[occupation]", options_for_select([" ", "Housewife", "Farmer", "Police", "Soldier", "Business", "Teacher", "Student", "Healthcare Worker"].sort.concat(["Other"]) ,params[:occupation]),:helpText =>"Occupation",:allowFreeText => true, :tt_onLoad => 'seen(tstCurrentPage);')%>
 
-  <%= select_tag("person[occupation]", options_for_select(@occupations ,params[:occupation]),
+  <%#= select_tag("person[occupation]", options_for_select(@occupations ,params[:occupation]),
     :helpText =>"Occupation",
     :id => "occupation",
     :allowFreeText => false,
