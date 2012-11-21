@@ -2042,32 +2042,35 @@ module ANCService
           :relationship => mother_type)
       end
 
-      found_father_data = self.search_by_identifier(person["father"]["patient"]["identifiers"]["national_id"], false) rescue nil?
-      found_father = self.create_from_form(person["father"]) if found_father_data.blank?
+      if !person["father"]["birthdate_estimated"].blank?
+        found_father_data = self.search_by_identifier(person["father"]["patient"]["identifiers"]["national_id"], false) rescue nil?
+        found_father = self.create_from_form(person["father"]) if found_father_data.blank? &&
+          !person["father"]["birthdate_estimated"].blank? rescue nil
 
-      father_id = nil
-      if !found_father_data.blank?
-        father_id = found_father_data.last.id # rescue nil
-      else
-        father_id = found_father.id # rescue nil
+        father_id = nil
+        if !found_father_data.blank?
+          father_id = found_father_data.last.id # rescue nil
+        else
+          father_id = found_father.id # rescue nil
+        end
+
+        if !father_id.blank?
+          father_type = RelationshipType.find_by_b_is_to_a("Father").relationship_type_id
+
+          Relationship.find(:all, :conditions => ["person_a = ? AND relationship = ?",
+              child_id, father_type]).each{|r|
+            r.void
+          }
+
+          Relationship.create(
+            # :creator => User.first.id,
+            :person_a => child_id,
+            :person_b => father_id,
+            :relationship => father_type)
+
+        end
       end
-
-      if !father_id.blank?
-        father_type = RelationshipType.find_by_b_is_to_a("Father").relationship_type_id
-
-        Relationship.find(:all, :conditions => ["person_a = ? AND relationship = ?",
-            child_id, father_type]).each{|r|
-          r.void
-        }
-
-        Relationship.create(
-          # :creator => User.first.id,
-          :person_a => child_id,
-          :person_b => father_id,
-          :relationship => father_type)
-
-      end
-
+      
       facility = ["Health Center", "Provider Name", "Provider Title", "Hospital Date", "Health District"]
 
       patient = ANCService::ANC.new(Patient.find(child_id)) rescue nil
