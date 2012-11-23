@@ -53,6 +53,15 @@
       :allowFreeText => true,
       :tt_onLoad => 'seen(tstCurrentPage);' } %>
 
+  <%when 'middle_name'%>
+    <%= text_field_tag "person[names][middle_name]", params[:middle_name],
+      {:id => 'middle_name',
+      :field_type => 'alpha',
+      :helpText => 'Middle name',
+      :ajaxURL => '/person_names/family_names?search_string=',
+      :allowFreeText => true,
+      :tt_onLoad => 'seen(tstCurrentPage);' } %>
+
   <%when 'maiden_name'%>
     <%= text_field_tag "person[names][family_name2]", params[:family_name2],
       {:id => 'family_name2',

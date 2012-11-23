@@ -63,6 +63,15 @@
           </td>
           <td class='data' style='border-width:1px 1px 1px'><%= @first_name %></td>
         </tr>
+	     <tr>
+          <td class='title' style='border-width:1px 1px 1px'>
+            <a href="edit_demographics?patient_id=<%=@patient.id%>&field=middle_name&person_id=<%= 
+                    @person.id %>&cat=<%= (params["cat"] rescue "") %>&middle_name=<%= @middle_name %>">
+              Middle Name
+            </a>
+          </td>
+          <td class='data' style='border-width:1px 1px 1px'><%= @middle_name %></td>
+        </tr>
         <tr>
           <td class='title'><a href="edit_demographics?patient_id=<%=@patient.id%>&field=last_name&person_id=<%=
                     @person.id %>&cat=<%= (params["cat"] rescue "") %>&family_name=<%= @last_name %>">Last Name</a></td>

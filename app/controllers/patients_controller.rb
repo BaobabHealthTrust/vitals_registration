@@ -24,7 +24,8 @@ class PatientsController < ApplicationController
     @national_id = @update_patient.national_id_with_dashes rescue nil
 
     @first_name = @person.person.names.first.given_name rescue nil
-    @last_name = @person.person.names.first.family_name rescue nil
+    @middle_name = @person.person.names.first.middle_name rescue nil
+	@last_name = @person.person.names.first.family_name rescue nil
     @maiden_name = @person.person.names.first.family_name2 rescue nil
     @birthdate = @update_patient.birthdate_formatted rescue nil
     @gender = @update_patient.sex rescue ''
