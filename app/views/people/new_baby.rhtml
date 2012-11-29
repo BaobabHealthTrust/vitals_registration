@@ -116,7 +116,7 @@
   <%= text_field_tag "person[birth_year]", nil, {
     :helpText => 'Year of Birth',
     :field_type => 'number',
-    :absoluteMin => ((session[:datetime] || Date.today).to_date.year - 55),
+    :absoluteMin => ((session[:datetime] || Date.today).to_date.year - 1),
     :min => ((session[:datetime] || Date.today).to_date.year - 50),
     :max => ((session[:datetime] || Date.today).to_date.year),
     :absoluteMax => ((session[:datetime] || Date.today).to_date.year),
