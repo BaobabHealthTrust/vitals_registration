@@ -20,13 +20,14 @@
   }
   .odd {
     background-color: #eeeef7;
+    max-height: 58px;
   }
   .even {
     background-color: #fff;
+    max-height: 58px;
   }
 
   #table_div {
-    overflow:auto;
     height: 320px;
     background-color: white;
     border: solid 1px #eee;
@@ -55,6 +56,13 @@
     -moz-user-select:none;
     -moz-user-focus:disabled;
   }
+  .nest1{
+    font-style: italic;
+    padding-left: 15px;
+  }
+  .nest{
+    font-style: italic;
+  }
 
   .btn:active {
     background:url(../images/btn_yellow.png) right repeat;
@@ -65,24 +73,24 @@
 <div id="tab" style="background-color: #fff; border-top: 1px #fff solid; margin-top: 0px;">
   <h2 style="text-align: center; color: #6281a7; margin-top: -2px; margin-bottom: 0px;">Current Patient Statistics</h2>
   <table id="stats" style="height: 315px; margin-bottom: 8px;" cellpadding="5">
-    <tr style="color: #fff; background-color: #6281a7;">
+    <tr id ="heder" height ="60px" style="color: #fff; background-color: #6281a7;">
       <th style="text-align:left;">Task Type</th>
       <th>Me</th>
       <th>Today</th>
       <th>This Year</th>
       <th>Total to Date</th>
     </tr>
+
     <% @types.each do |type| %>
-      <tr class="<%= cycle('even', 'odd') %>">
+      <tr <%= (type.downcase == "registration" ? "id = 'reg_row'": "" ) %> class="<%= cycle('even', 'odd') %>">
         <td style="text-align:left;"><%= (type == "HIV STATUS" ? "HIV Status" :
-              (type == "PMTCT MANAGEMENT" ? "PMTCT Management" : (type == "OBSERVATIONS" ? 
-                  "ANC Management" : (type == "TREATMENT" ? "Drug Administration" : 
-                    (type == "APPOINTMENT" ? "Appointments" : (type == "UPDATE OUTCOME" ? "Outcome Updates" : 
-                        type.titleize)))))) %></td>
-        <td><%= @me[type] %></td>
-        <td><%= @today[type] %></td>
-        <td><%= @year[type] %></td>
-        <td><%= @ever[type] %></td>
+              (type == "PMTCT MANAGEMENT" ? "PMTCT Management" : (type == "OBSERVATIONS" ?
+                  "ANC Management" : (type == "TREATMENT" ? "Drug Administration" :
+                    (type == "APPOINTMENT" ? "Appointments" : (type == "UPDATE OUTCOME" ? "Outcome Updates" : (type.downcase == "registration" )? type.titleize + "<div class='nest1'>Males </div>   <div class='nest1'> Females </div>": type.titleize)))))) %></td>
+        <td><%= ((@me[type].blank?)? "0" : @me[type]) + ((type.downcase == "registration" )? "<div class='nest' align ='center'> #{@males_me.length}</div> <div class='nest' align ='center'>#{@females_me.length}</div>": "") %></td>
+        <td><%= ((@today[type].blank?)? "0" : @today[type]) + ((type.downcase == "registration" )? "<div class='nest' align ='center'> #{@males_today.length}</div> <div class='nest' align ='center'>#{@females_today.length}</div>": "") %></td>
+        <td><%= ((@year[type].blank?)? "0" : @year[type]) + ((type.downcase == "registration" )? "<div class='nest' align ='center'> #{@males_year.length}</div> <div class='nest' align ='center'>#{@females_year.length}</div>": "") %></td>
+        <td><%= ((@ever[type].blank?)? "0" : @ever[type]) + ((type.downcase == "registration" )? "<div class='nest' align ='center'> #{@males_ever.length}</div> <div class='nest' align ='center'>#{@females_ever.length}</div>": "") %></td>
       </tr>
     <% end %>
   </table>
