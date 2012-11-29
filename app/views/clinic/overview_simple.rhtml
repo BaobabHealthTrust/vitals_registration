@@ -50,6 +50,13 @@
     -moz-user-select:none;
     -moz-user-focus:disabled;
   }
+  .nest1{
+    font-style: italic;
+    padding-left: 15px;
+  }
+  .nest{
+    font-style: italic;
+  }
 
   .btn:active {
     background:url(../images/btn_yellow.png) right repeat;
@@ -67,15 +74,15 @@
         <th><%= @user rescue 'Me'%></th>
         <th>Today</th>
         <th>This Year</th>
-         <th>Total to Date</th>
+        <th>Total to Date</th>
       </tr>
       <% @types.each do |type| %>
         <tr class="<%= cycle('even', 'odd') %>">
-          <td style="text-align:left;"><%= type.capitalize.humanize.gsub('hiv','HIV').gsub('Hiv','HIV').gsub('art','ART').gsub('Art','ART') %></td>
-          <td><%= @me[type].to_i %></td>
-          <td><%= @today[type].to_i %></td>
-          <td><%= @year[type].to_i %></td>
-          <td><%= @ever[type].to_i %></td>
+          <td style="text-align:left;"><%= (type.downcase == "registration" )? type.titleize + "<div class='nest1'>Males </div>   <div class='nest1'> Females </div>" : type.capitalize.humanize.gsub('hiv','HIV').gsub('Hiv','HIV').gsub('art','ART').gsub('Art','ART') %></td>
+          <td><%= ((@me[type].blank?)? "0" : @me[type]) + ((type.downcase == "registration" )? "<div class='nest' align ='center'> #{@males_me.length}</div> <div class='nest' align ='center'>#{@females_me.length}</div>": "") %></td>
+          <td><%= ((@today[type].blank?)? "0" : @today[type]) + ((type.downcase == "registration" )? "<div class='nest' align ='center'> #{@males_today.length}</div> <div class='nest' align ='center'>#{@females_today.length}</div>": "") %></td>
+          <td><%= ((@year[type].blank?)? "0" : @year[type]) + ((type.downcase == "registration" )? "<div class='nest' align ='center'> #{@males_year.length}</div> <div class='nest' align ='center'>#{@females_year.length}</div>": "") %></td>
+          <td><%= ((@ever[type].blank?)? "0" : @ever[type]) + ((type.downcase == "registration" )? "<div class='nest' align ='center'> #{@males_ever.length}</div> <div class='nest' align ='center'>#{@females_ever.length}</div>": "") %></td>
         </tr>
       <% end %>
     </table>
