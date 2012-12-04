@@ -105,10 +105,15 @@ class ClinicController < GenericClinicController
         Date.today.strftime('%Y-%m-%d 00:00:00'),
         Date.today.strftime('%Y-%m-%d 23:59:59'),
         current_user.user_id])
+
+    @me["REGISTRATION"] = (@males_me.length.to_i + @females_me.length.to_i).to_s
+
     @today = Encounter.statistics(@types,
       :conditions => ['encounter_datetime BETWEEN ? AND ?',
         Date.today.strftime('%Y-%m-%d 00:00:00'),
         Date.today.strftime('%Y-%m-%d 23:59:59')])
+
+    @today["REGISTRATION"] = (@males_today.length.to_i + @females_today.length.to_i).to_s
 
     #if !simple_overview
     @year = Encounter.statistics(@types,
@@ -116,7 +121,11 @@ class ClinicController < GenericClinicController
         Date.today.strftime('%Y-01-01 00:00:00'),
         Date.today.strftime('%Y-12-31 23:59:59')])
         
+	@year["REGISTRATION"] = (@males_year.length.to_i + @females_year.length.to_i).to_s
+
     @ever = Encounter.statistics(@types) rescue {}
+
+	@ever["REGISTRATION"] = (@males_ever.length.to_i + @females_ever.length.to_i).to_s
     # end
 
     # raise current_user.to_yaml
