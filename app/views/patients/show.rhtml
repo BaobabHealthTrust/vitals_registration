@@ -58,6 +58,13 @@
     text-align: center;
     -moz-user-select: none;
   }
+.blue{
+ font-size: 1.0em !important;
+}
+#nav .blue{
+ font-size: 1.3em !important;
+}
+ 
 </style>
 <form id = 'dashboard' action=''>
   <table cellpadding=10>
@@ -106,12 +113,12 @@
           <option value="/patients/demographics?patient_id=<%= @patient.id %>&person_id=<%= @patient.id %>&cat=baby">
             Baby Demographics
           </option>
-          <option value="<%= (@mother.nil? ? 
+          <option id = "mother" value="<%= (@mother.nil? ? 
               "/patients/search?patient_id=#{@patient.id}&cat=mother&name=#{@anc_patient.name}" :
                       "/patients/demographics?patient_id=#{@patient.id}&person_id=#{@mother.relation.patient.id}&cat=mother") %>">
             Mother Demographics
           </option>
-          <option value="<%= (@father.nil? ?
+          <option id = "father" value="<%= (@father.nil? ?
               "/patients/search?patient_id=#{@patient.id}&cat=father&name=#{@anc_patient.name}" :
                       "/patients/demographics?patient_id=#{@patient.id}&person_id=#{@father.relation.patient.id}&cat=father") %>">
             Father Demographics
