@@ -41,7 +41,7 @@
         </tr>
         <tr>
           <td>
-            <table width="95%" style="margin-top: 20px; margin-left: 40px;" cellspacing="10" cellpadding="2">
+            <table width="95%" style="margin-top: 15px; margin-left: 40px;" cellspacing="10" cellpadding="2">
               <tr>
                 <td>
                   1.
@@ -83,13 +83,13 @@
                 <td>
                   Date of birth:
                 </td>
-                <td id="ddob" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="ddob" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @patient.person.birthdate.to_date.strftime("%d") rescue "&nbsp;" %>
                 </td>
-                <td id="mdob" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="mdob" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @patient.person.birthdate.to_date.strftime("%B").titleize rescue "&nbsp;" %>
                 </td>
-                <td id="ydob" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="ydob" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @patient.person.birthdate.to_date.strftime("%Y") rescue "&nbsp;" %>
                 </td>
               </tr>
@@ -125,10 +125,10 @@
                 </td>
               </tr>
               <tr>
-                <td style="text-align: left; padding-top: 20px;">
+                <td style="text-align: left; padding-top: 10px;">
                   4.
                 </td>
-                <td colspan="4" style="text-align: left; padding-top: 20px;">
+                <td colspan="4" style="text-align: left; padding-top: 10px;">
                   Name of parents:
                 </td>
               </tr>
@@ -136,16 +136,16 @@
                 <td>
                   &nbsp;
                 </td>
-                <td style="text-align: left; padding-left: 20px; padding-top: 20px;">
+                <td style="text-align: left; padding-left: 20px; padding-top: 10px;">
                   Mother (Maiden Name):
                 </td>
-                <td id="fnm" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="fnm" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_mother.first_name rescue nil %>&nbsp;
                 </td>
-                <td id="mnm" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="mnm" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_mother.middle_name rescue nil %>&nbsp;
                 </td>
-                <td id="lnm" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="lnm" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_mother.maiden_name rescue nil %>&nbsp;
                 </td>
               </tr>
@@ -170,16 +170,16 @@
                 <td>
                   &nbsp;
                 </td>
-                <td style="text-align: left; padding-left: 20px; padding-top: 20px;">
+                <td style="text-align: left; padding-left: 20px; padding-top: 10px;">
                   Father (if known):
                 </td>
-                <td id="fnf" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="fnf" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_father.first_name rescue nil %>&nbsp;
                 </td>
-                <td id="mnf" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="mnf" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_father.middle_name rescue nil %>&nbsp;
                 </td>
-                <td id="lnf" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="lnf" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_father.last_name rescue nil %>&nbsp;
                 </td>
               </tr>
@@ -201,10 +201,10 @@
                 </td>
               </tr>
               <tr>
-                <td style="text-align: left; padding-top: 20px;">
+                <td style="text-align: left; padding-top: 10px;">
                   5.
                 </td>
-                <td colspan="4" style="text-align: left; padding-top: 20px;">
+                <td colspan="4" style="text-align: left; padding-top: 10px;">
                   Nationality of parents:
                 </td>
               </tr>
@@ -212,16 +212,16 @@
                 <td>
                   &nbsp;
                 </td>
-                <td style="text-align: right; padding-left: 20px; padding-top: 20px;">
+                <td style="text-align: right; padding-left: 20px; padding-top: 10px;">
                   Mother:
                 </td>
-                <td id="ntm" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="ntm" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_mother.nationality rescue nil %>&nbsp;
                 </td>
-                <td id="idm" style="text-align: left; padding-bottom: 0px; padding-top: 20px; padding-left: 20px;">
+                <td id="idm" style="text-align: left; padding-bottom: 0px; padding-top: 10px; padding-left: 20px;">
                   ID No: <div class="cell" style="float: right;"><%= @anc_mother.national_id_with_dashes rescue nil %>&nbsp;</div>
                 </td>
-                <td style="text-align: center; padding-bottom: 0px; padding-top: 20px;">
+                <td style="text-align: center; padding-bottom: 0px; padding-top: 10px;">
                   &nbsp;
                 </td>
               </tr>
@@ -229,24 +229,24 @@
                 <td>
                   &nbsp;
                 </td>
-                <td style="text-align: right; padding-left: 20px; padding-top: 20px;">
+                <td style="text-align: right; padding-left: 20px; padding-top: 10px;">
                   Father :
                 </td>
-                <td id="ntf" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="ntf" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_father.nationality rescue nil %>&nbsp;
                 </td>
-                <td id="idf" style="text-align: left; padding-bottom: 0px; padding-top: 20px; padding-left: 20px;">
+                <td id="idf" style="text-align: left; padding-bottom: 0px; padding-top: 10px; padding-left: 20px;">
                   ID No: <div class="cell" style="float: right;"><%= @anc_father.national_id_with_dashes rescue nil %>&nbsp;</div>
                 </td>
-                <td style="text-align: center; padding-bottom: 0px; padding-top: 20px;">
+                <td style="text-align: center; padding-bottom: 0px; padding-top: 10px;">
                   &nbsp;
                 </td>
               </tr>
               <tr>
-                <td style="text-align: left; padding-top: 20px;">
+                <td style="text-align: left; padding-top: 10px;">
                   6.
                 </td>
-                <td colspan="4" style="text-align: left; padding-top: 20px;">
+                <td colspan="4" style="text-align: left; padding-top: 10px;">
                   Physical Residential:
                 </td>
               </tr>
@@ -254,13 +254,13 @@
                 <td>
                   &nbsp;
                 </td>
-                <td style="text-align: right; padding-top: 20px;">
+                <td style="text-align: right; padding-top: 10px;">
                   Address of Parent(s)
                 </td>
-                <td id="resm" colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="resm" colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_mother.current_address rescue nil %>
                 </td>
-                <td style="text-align: center; padding-bottom: 0px; padding-top: 20px;">
+                <td style="text-align: center; padding-bottom: 0px; padding-top: 10px;">
                   &nbsp;
                 </td>
               </tr>
@@ -268,22 +268,22 @@
                 <td>
                   &nbsp;
                 </td>
-                <td style="text-align: right; padding-top: 20px;">
+                <td style="text-align: right; padding-top: 10px;">
                   &nbsp;
                 </td>
-                <td id="resf" colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="resf" colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= (@anc_father.current_address != @anc_mother.current_address ?
                       @anc_father.current_address : "") rescue nil %>
                 </td>
-                <td style="text-align: left; padding-bottom: 0px; padding-top: 20px;">
+                <td style="text-align: left; padding-bottom: 0px; padding-top: 10px;">
                   &nbsp;
                 </td>
               </tr>
               <tr>
-                <td style="text-align: left; padding-top: 20px;">
+                <td style="text-align: left; padding-top: 10px;">
                   7.
                 </td>
-                <td colspan="4" style="text-align: left; padding-top: 20px;">
+                <td colspan="4" style="text-align: left; padding-top: 10px;">
                   Home Address of Parent(s) (<i>bona fide</i> citizens):
                 </td>
               </tr>
@@ -291,16 +291,16 @@
                 <td>
                   &nbsp;
                 </td>
-                <td style="text-align: left; padding-left: 20px; padding-top: 20px;">
+                <td style="text-align: left; padding-left: 20px; padding-top: 10px;">
                   Mother:
                 </td>
-                <td id="vm" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="vm" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_mother.home_village rescue nil %>&nbsp;
                 </td>
-                <td id="tam" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="tam" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_mother.home_ta rescue nil %>&nbsp;
                 </td>
-                <td id="dim" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="dim" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_mother.home_district rescue nil %>&nbsp;
                 </td>
               </tr>
@@ -325,16 +325,16 @@
                 <td>
                   &nbsp;
                 </td>
-                <td style="text-align: left; padding-left: 20px; padding-top: 20px;">
+                <td style="text-align: left; padding-left: 20px; padding-top: 10px;">
                   Father (if known):
                 </td>
-                <td id="vf" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="vf" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_father.home_village rescue nil %>&nbsp;
                 </td>
-                <td id="taf" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="taf" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_father.home_ta rescue nil %>&nbsp;
                 </td>
-                <td id="dif" style="text-align: center; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td id="dif" style="text-align: center; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   <%= @anc_father.home_district rescue nil %>&nbsp;
                 </td>
               </tr>
@@ -356,10 +356,10 @@
                 </td>
               </tr>
               <tr>
-                <td style="text-align: left; padding-top: 20px;">
+                <td style="text-align: left; padding-top: 10px;">
                   8.
                 </td>
-                <td colspan="4" style="text-align: left; padding-top: 20px;">
+                <td colspan="4" style="text-align: left; padding-top: 10px;">
                   Details of Medical Officer/Hospital Official Registering the Birth:
                 </td>
               </tr>
@@ -367,15 +367,15 @@
                 <td>
                   &nbsp;
                 </td>
-                <td style="text-align: left; padding-top: 20px; padding-left: 80px;">
+                <td style="text-align: left; padding-top: 10px; padding-left: 80px;">
                   Name:
                 </td>
-                <td colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 20px;  padding-left: 20px;"
+                <td colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 10px;  padding-left: 20px;"
                     class="cell">
                   <% @name = @anc_patient.get_full_attribute("Provider Name") rescue nil %>
                   <%= @name.value if !@name.nil? %>&nbsp;
                 </td>
-                <td style="text-align: center; padding-bottom: 0px; padding-top: 20px;">
+                <td style="text-align: center; padding-bottom: 0px; padding-top: 10px;">
                   &nbsp;
                 </td>
               </tr>
@@ -383,15 +383,15 @@
                 <td>
                   &nbsp;
                 </td>
-                <td style="text-align: left; padding-top: 20px; padding-left: 80px;">
+                <td style="text-align: left; padding-top: 10px; padding-left: 80px;">
                   Title:
                 </td>
-                <td colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 20px;  padding-left: 20px;"
+                <td colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 10px;  padding-left: 20px;"
                     class="cell">
                   <% @title = @anc_patient.get_full_attribute("Provider Title") rescue nil %>
                   <%= @title.value if !@title.nil? %>&nbsp;
                 </td>
-                <td style="text-align: center; padding-bottom: 0px; padding-top: 20px;">
+                <td style="text-align: center; padding-bottom: 0px; padding-top: 10px;">
                   &nbsp;
                 </td>
               </tr>
@@ -399,13 +399,13 @@
                 <td>
                   &nbsp;
                 </td>
-                <td style="text-align: left; padding-top: 20px; padding-left: 80px;">
+                <td style="text-align: left; padding-top: 10px; padding-left: 80px;">
                   Signature:
                 </td>
-                <td colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 20px;" class="cell">
+                <td colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 10px;" class="cell">
                   &nbsp;
                 </td>
-                <td style="text-align: center; padding-bottom: 0px; padding-top: 20px;">
+                <td style="text-align: center; padding-bottom: 0px; padding-top: 10px;">
                   &nbsp;
                 </td>
               </tr>
@@ -413,15 +413,15 @@
                 <td>
                   &nbsp;
                 </td>
-                <td style="text-align: left; padding-top: 20px; padding-left: 80px;">
+                <td style="text-align: left; padding-top: 10px; padding-left: 80px;">
                   Hospital Date:
                 </td>
-                <td colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 20px;  padding-left: 20px;"
+                <td colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 10px;  padding-left: 20px;"
                     class="cell">
                   <% @facility_date = @anc_patient.get_full_attribute("Hospital Date") rescue nil %>
                   <%= @facility_date.value.to_date.strftime("%d/%b/%Y") if !@facility_date.nil? %>&nbsp;
                 </td>
-                <td style="text-align: center; padding-bottom: 0px; padding-top: 20px;">
+                <td style="text-align: center; padding-bottom: 0px; padding-top: 10px;">
                   &nbsp;
                 </td>
               </tr>
