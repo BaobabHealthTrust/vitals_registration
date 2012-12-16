@@ -1,9 +1,9 @@
-# production:
-#   adapter: mysql
-#   database: openmrs
-#   username: root
-#   password:
-#   host: localhost
+production:
+  adapter: mysql
+  database: vreg
+  username: root
+  password: masula
+  host: localhost
 
 bart2:
   adapter: mysql
@@ -21,9 +21,9 @@ development:
 
 test: &TEST
   adapter: mysql
-  database: bart2_test
+  database: vreg
   username: root
-  password: password
+  password: masula
   host: localhost
 
 cucumber:
@@ -31,8 +31,8 @@ cucumber:
 
 migration:
   adapter: mysql
-  database: test
+  database: vreg
   username: root
-  password: password
+  password: masula
   host: localhost
 

@@ -25,7 +25,8 @@
           <option>Date of birth</option>
           <option>Nationality</option>
           <option>District of birth</option>
-        </select>
+		  <option>Health Facility</option>
+		</select>
 
         <select id="nationality" name="nationality" helpText="Nationality" condition="__$('select_by').value=='Nationality'">
           <option></option>
@@ -56,7 +57,8 @@
 
         <input type="text" id="home_district" name="home_district" helpText="Home District"
                condition="__$('select_by').value=='Home District'"
-               ajaxURL="/people/district/District?search_string=" />
+               ajaxURL="/people/distri
+ct/District?search_string=" />
 
         <input type="text" id="birth_region" name="birth_region" helpText="Region of birth"
                condition="__$('select_by').value=='District of birth'"
@@ -65,7 +67,16 @@
 
         <input type="text" id="birth_district" name="birth_district" helpText="District of birth"
                condition="__$('select_by').value=='District of birth'"
-               ajaxURL="/people/district/District?search_string=" />
+               ajaxURL="/people/district/District?search_string=" />		
+		
+		<%= text_field_tag "Hospital", nil,
+		{:id => "health_facility",
+		:helptext => "Health Facility",
+		:allowFreeText => true,
+		:condition => "__$('select_by').value=='Health Facility'",
+		:ajaxURL => "/patients/static_locations?search_string="		
+	 	 } %>
+
       </form>
     </div>
   </body>
