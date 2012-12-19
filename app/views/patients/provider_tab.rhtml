@@ -114,7 +114,7 @@
         </td>
         <td>
           <% @facility_date = @anc_patient.get_full_attribute("Hospital Date") rescue nil %>
-          <%= @facility_date.value.to_date.strftime("%d/%b/%Y") if !@facility_date.nil? %>
+          <%= @facility_date.value.to_date.strftime("%d/%b/%Y") rescue "unknown"%>
         </td>
         <td>
           <% if !@facility_date.nil?  %>

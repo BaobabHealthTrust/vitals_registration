@@ -1393,13 +1393,15 @@ module ANCService
     end
 
     def get_attribute(attribute)
-      PersonAttribute.find(:first,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND person_id = ?",
-          PersonAttributeType.find_by_name(attribute).id,self.person.id]).value rescue nil
+      PersonAttribute.find(:last,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND person_id = ?",
+          PersonAttributeType.find_by_name(attribute).id,self.person.id],
+			:order => ["date_created ASC"]).value rescue nil
     end
 
     def get_full_attribute(attribute)
-      PersonAttribute.find(:first,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND person_id = ?",
-          PersonAttributeType.find_by_name(attribute).id,self.person.id]) rescue nil
+      PersonAttribute.find(:last,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND person_id = ?",
+          PersonAttributeType.find_by_name(attribute).id,self.person.id],
+			:order => ["date_created ASC"]) rescue nil
     end
 
     def set_attribute(attribute, value)
