@@ -7,9 +7,17 @@ class PeopleController < GenericPeopleController
     if current_program_location == "HIV program"
       hiv_session = true
     end
-    
     person = ANCService.create_patient_from_dde(params) if create_from_dde_server
-
+    if params[:cat] == "baby"
+      print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}") and return if !person.nil?
+    else
+      if !params[:cat].nil? && !params[:patient_id].nil?
+        print_and_redirect("/patients/national_id_label?patient_id=#{person.id}",
+          "/relationships/new?patient_id=#{params[:patient_id]}&relation=#{person.id}&cat=#{params[:cat]}") and return if !person.nil?
+      else
+         redirect_to next_task(person.patient) and return if !person.nil?
+      end
+    end
     # raise person.to_yaml
     
     unless person.blank?
@@ -18,17 +26,9 @@ class PeopleController < GenericPeopleController
       encounter.patient_id = person.id
       encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
       encounter.save rescue nil
-
-      if !params[:cat].nil? && !params[:patient_id].nil?
-        redirect_to "/relationships/new?patient_id=#{params[:patient_id]}&relation=#{person.id
-            }&cat=#{params[:cat]}" and return
-      else
-
-        # print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", next_task(person.patient))
-
+     
         redirect_to next_task(person.patient) and return
-
-      end
+      
     end
 
     success = false
@@ -185,7 +185,7 @@ class PeopleController < GenericPeopleController
             }&cat=#{params[:cat]}" and return if (!params[:person][:id].blank? && !(params[:person][:id] == '0')) and
         (params[:cat] and params[:cat] != "baby")
       
-       if params[:cat] and params[:cat] == "baby"
+      if params[:cat] and params[:cat] == "baby"
         redirect_to :action => :new_baby,
           :gender => params[:gender],
           :given_name => params[:given_name],

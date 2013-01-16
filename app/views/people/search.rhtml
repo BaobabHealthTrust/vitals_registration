@@ -252,7 +252,7 @@ end -%>
    
   function search_remote(){
     var url = "/people/dde_search?given_name=<%= params[:given_name] %>" + 
-      "&family_name=<%= params[:family_name] %>&gender=<%= params[:gender] %>";  
+      "&family_name=<%= params[:family_name] %>&gender=<%= params[:gender]%>&cat=<%= params[:cat]%>";
     
     ajaxGeneralRequest(url, "loadPatient()");
     
