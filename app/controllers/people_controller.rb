@@ -178,7 +178,7 @@ class PeopleController < GenericPeopleController
 			redirect_to search_complete_url(params[:person][:id], params[:relation], 
         params[:cat]) and return if params[:person][:id] != "0" && params[:cat] == "baby"
       
-      related_person = PatientService.search_by_identifier(params[:identifier]).first.patient
+      related_person = PatientService.search_by_identifier(params[:identifier]).first.patient rescue nil
       params[:person][:id] = related_person.id if related_person
      
       redirect_to "/relationships/new?patient_id=#{params[:patient_id]}&relation=#{params[:person][:id]
@@ -235,7 +235,7 @@ class PeopleController < GenericPeopleController
 			# TODO: This needs to be redesigned!!!!!!!!!!!
 			#
 			#url_for(:controller => :encounters, :action => :new, :patient_id => found_person_id)
-			patient = PatientService.search_by_identifier(params[:identifier]).first.patient
+			patient = PatientService.search_by_identifier(params[:identifier]).first.patient rescue nil
       params[:patient_id] = patient.id if patient
       params[:person][:id] = patient.id if patient
       found_person_id = patient.id if patient
