@@ -88,110 +88,112 @@ end -%>
   function changeNextButtonText(text, pos){
     __$('nextButton').innerHTML = "<span>" + text + "</span>";
     
+    
+    clearFields();
+      
+    pos = parseInt(pos);
+      
+    var fields = [
+      "identifier",
+      "gender",
+      "given_name",
+      "family_name",
+      "family_name2",
+      "address2",
+      "relation",
+      "birthdate",
+      "birthdate_estimated",
+      "state_province",
+      "city_village",
+      "county_district",
+      "occupation",
+      "cell_phone_number",
+      "national_id"
+    ]
+    
+    createControlAndAssignValue("remote", "remote", "true");
+    try{
+    for(var i = 0; i < fields.length; i++){
+      switch(fields[i]){
+        case "identifier":
+          createControlAndAssignValue("identifier", "person[identifiers]",
+          remote_people[pos]["person"]["data"]["patient"]["identifiers"]["diabetes_number"]);
+          break;
+        case "gender":
+          createControlAndAssignValue("gender", "person[gender]",
+          remote_people[pos]["person"]["gender"]);
+          break;
+        case "given_name":
+          createControlAndAssignValue("given_name", "person[names][given_name]",
+          remote_people[pos]["person"]["given_name"]);
+          break;
+        case "family_name":
+          createControlAndAssignValue("family_name", "person[names][family_name]",
+          remote_people[pos]["person"]["family_name"]);
+          break;
+        case "family_name2":
+          break;
+        case "address2":
+          createControlAndAssignValue("address2", "person[addresses][address2]",
+          remote_people[pos]["person"]["data"]["addresses"]["address2"]);
+          break;
+        case "relation":
+          break;
+        case "birthdate":
+          try{
+            var birthdate = new Date(remote_people[pos]["person"]["data"]["birthdate"]);
+              
+            if(birthdate){
+              createControlAndAssignValue("person_birth_year", "person[birth_year]",
+              birthdate.getFullYear());
+              
+              createControlAndAssignValue("person_birth_month", "person[birth_month]",
+              birthdate.getMonth() + 1);
+              
+              createControlAndAssignValue("person_birth_day", "person[birth_day]",
+              birthdate.getDate());
+            }
+          } catch(e){}
+          break;
+        case "birthdate_estimated":
+          createControlAndAssignValue("birthdate_estimated", "person[age_estimate]",
+          remote_people[pos]["person"]["data"]["birthdate_estimated"]);
+          break;
+        case "state_province":
+          createControlAndAssignValue("state_province", "person[addresses][state_province]",
+          remote_people[pos]["person"]["data"]["addresses"]["state_province"]);
+          break;
+        case "city_village":
+          createControlAndAssignValue("city_village", "person[addresses][city_village]",
+          remote_people[pos]["person"]["data"]["addresses"]["city_village"]);
+          break;
+        case "county_district":
+          createControlAndAssignValue("county_district", "person[addresses][county_district]",
+          remote_people[pos]["person"]["data"]["addresses"]["county_district"]);
+          break;
+        case "occupation":
+          createControlAndAssignValue("occupation", "person[occupation]",
+          remote_people[pos]["person"]["data"]["attributes"]["occupation"]);
+          break;
+        case "cell_phone_number":
+          createControlAndAssignValue("cellphone", "person[cell_phone_number]",
+          remote_people[pos]["person"]["data"]["attributes"]["cell_phone_number"]);
+          break;
+        case "national_id":
+          createControlAndAssignValue("national_id", "person[patient][identifiers][National id]",
+          remote_people[pos]["person"]["value"]);
+          break;
+      }
+    }
+    }catch(ex){}
     if(pos){
       document.forms[0].action = "create?patient_id=<%= params[:patient_id] %>&cat=<%= params[:cat] %>";
       __$('nextButton').onmousedown = function(){
         document.forms[0].submit();
       }
       
-      clearFields();
-      
-      pos = parseInt(pos);
-      
-      var fields = [
-        "identifier", 
-        "gender",
-        "given_name",
-        "family_name",
-        "family_name2",
-        "address2",
-        "relation",
-        "birthdate",
-        "birthdate_estimated",
-        "state_province",
-        "city_village",
-        "county_district",
-        "occupation",
-        "cell_phone_number",
-        "national_id"
-      ]
-    
-      createControlAndAssignValue("remote", "remote", "true");
-    
-      for(var i = 0; i < fields.length; i++){
-        switch(fields[i]){
-          case "identifier":
-            createControlAndAssignValue("identifier", "person[identifiers]",
-            remote_people[pos]["person"]["data"]["patient"]["identifiers"]["diabetes_number"]);
-            break;
-          case "gender":
-            createControlAndAssignValue("gender", "person[gender]", 
-            remote_people[pos]["person"]["gender"]);
-            break;
-          case "given_name":
-            createControlAndAssignValue("given_name", "person[names][given_name]", 
-            remote_people[pos]["person"]["given_name"]);
-            break;
-          case "family_name":
-            createControlAndAssignValue("family_name", "person[names][family_name]", 
-            remote_people[pos]["person"]["family_name"]);
-            break;
-          case "family_name2":
-            break;
-          case "address2":
-            createControlAndAssignValue("address2", "person[addresses][address2]",
-            remote_people[pos]["person"]["data"]["addresses"]["address2"]);
-            break;
-          case "relation":
-            break;
-          case "birthdate":
-            try{
-              var birthdate = new Date(remote_people[pos]["person"]["data"]["birthdate"]);
-              
-              if(birthdate){
-                createControlAndAssignValue("person_birth_year", "person[birth_year]",
-                birthdate.getFullYear());
-              
-                createControlAndAssignValue("person_birth_month", "person[birth_month]",
-                birthdate.getMonth() + 1);
-              
-                createControlAndAssignValue("person_birth_day", "person[birth_day]",
-                birthdate.getDate());
-              }
-            } catch(e){}
-            break;
-          case "birthdate_estimated":
-            createControlAndAssignValue("birthdate_estimated", "person[age_estimate]",
-            remote_people[pos]["person"]["data"]["birthdate_estimated"]);
-            break;
-          case "state_province":
-            createControlAndAssignValue("state_province", "person[addresses][state_province]",
-            remote_people[pos]["person"]["data"]["addresses"]["state_province"]);
-            break;
-          case "city_village":
-            createControlAndAssignValue("city_village", "person[addresses][city_village]",
-            remote_people[pos]["person"]["data"]["addresses"]["city_village"]);
-            break;
-          case "county_district":
-            createControlAndAssignValue("county_district", "person[addresses][county_district]",
-            remote_people[pos]["person"]["data"]["addresses"]["county_district"]);
-            break;
-          case "occupation":
-            createControlAndAssignValue("occupation", "person[occupation]",
-            remote_people[pos]["person"]["data"]["attributes"]["occupation"]);
-            break;
-          case "cell_phone_number":
-            createControlAndAssignValue("cellphone", "person[cell_phone_number]",
-            remote_people[pos]["person"]["data"]["attributes"]["cell_phone_number"]);
-            break;
-          case "national_id":
-            createControlAndAssignValue("national_id", "person[patient][identifiers][National id]", 
-            remote_people[pos]["person"]["value"]);
-            break;
-        }
-      }
     } else {
-      document.forms[0].action = "select?patient_id=<%= params[:patient_id] %>&cat=<%= params[:cat] %>";
+        document.forms[0].action = "select?patient_id=<%= params[:patient_id] %>&cat=<%= params[:cat] %>";
       __$('nextButton').onmousedown = function(){
         gotoNextPage();
       }
@@ -236,7 +238,7 @@ end -%>
 
   function newSearch() {
     document.location = "/people/search?relation=<%=h params[:relation] -%>&cat=<%= params[:cat] %><%= 
-          ((params[:cat] rescue "") != "baby" ?  "&patient_id=#{params[:patient_id]}" : "") -%>"
+((params[:cat] rescue "") != "baby" ?  "&patient_id=#{params[:patient_id]}" : "") -%>"
   }
 
   function setAttributes() {
@@ -349,19 +351,19 @@ end -%>
         :helpText => "#{params[:cat].titleize} First name",
         :ajaxURL => '/person_names/given_names?search_string=',
         :allowFreeText => true }%>
-  
+
       <%= text_field_tag :family_name, params[:family_name],
         {:field_type => 'alpha',
         :helpText => "#{params[:cat].titleize} Last name",
         :ajaxURL => '/person_names/family_names?search_string=',
         :allowFreeText => true }%>
 
-      Gender: <%= select_tag :gender, options_for_select({"" => "", "Male" => "M", "Female" => "F"}), 
+      Gender: <%= select_tag :gender, options_for_select({"" => "", "Male" => "M", "Female" => "F"}),
         {:helpText => "#{params[:cat].titleize} Gender"} %>
       <%= hidden_field_tag :create_patient, params[:create_patient] %>
       <%= hidden_field_tag :relation, params[:relation] %>
       <input type="hidden" id="cat" name="cat" value="<%=h params[:cat] -%>" />
-      
+
       <% if !params[:patient_id].blank? %>
         <input type="hidden" id="patient_id" name="patient_id" value="<%=h params[:patient_id] -%>" />
       <% end %>
@@ -371,8 +373,8 @@ end -%>
   <% end -%>
   <% unless (params[:gender].blank? || params[:given_name].blank? || params[:family_name].blank?) && (params[:identifier].blank?) %>
     <% form_tag "select", :method => :post do %>
-      <% if @people.blank? %>
-        <% if @relation.blank? %>
+      <% if @patient.blank? %>
+        <% if params[:cat] && params[:cat] == "baby" %>
           <label for="person">No people were found:</label>
         <% else %>
           <label for="person">No guardians were found:</label>
@@ -408,13 +410,14 @@ end -%>
             </option>
           <% end %>
         <% end %>
-
+          <%counter = 0%>
         <% @patients.each do | patient |
           next if patient.blank? -%>
+            <%counter = counter + 1%>
           <% if @relation.blank? %>
-            <option value="<%= patient.person_id %>" onmousedown="changeNextButtonText('Select Person')">
+            <option value="<%= params[:identifier] %>" onmousedown="changeNextButtonText('Select Person'); $('identifier').value = people[<%=h counter%>]['Person National ID']">
             <% else %>
-            <option value="<%= patient.person_id %>" onmousedown="changeNextButtonText('Select Guardian')">
+            <option value="<%= params[:identifier] %>" onmousedown="changeNextButtonText('Select Guardian'); $('identifier').value = people[<%=h counter%>]['Person National ID']">
             <% end %>
             <%=h patient.name -%> (<%= patient.sex %>)
             <% unless patient.birth_date.blank? %> <%=h patient.birth_date -%><% end %>,

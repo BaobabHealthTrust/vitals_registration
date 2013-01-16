@@ -33,7 +33,7 @@
     </style>
 
     <script>
-      var tt_cancel_destination = "/people/search?patient_id=<%= @patient.id %>&cat=<%= params[:cat] %>"
+      var tt_cancel_destination = "/people/search?patient_id=<%= @patient.id  rescue params[:patient_id]%>&cat=<%= params[:cat] %>"
     </script>
   </head>
   <body>
@@ -54,7 +54,7 @@
       </div>
     </div>
     <button id="btnCancel" class="red" style="position: absolute; top: 680px; z-index: 100;"
-            onclick="window.location='/patients/show/<%= @patient.id %>'">
+            onclick="window.location='/patients/show/<%= @patient.id rescue params[:patient_id]%>'">
       <span>Cancel</span>
     </button>
     <script type="text/javascript" language="javascript">
@@ -87,10 +87,10 @@
           } else {
             if(tt_cancel_show){
               window.location = tt_cancel_show + '?identifier=' + barcode_element.value + 
-                "&cat=<%= params[:cat] %>&patient_id=<%= @patient.id %>";
+                "&cat=<%= params[:cat] %>&patient_id=<%= @patient.id rescue params[:patient_id]%>";
             } else {
               window.location = '/people/search?identifier=' + barcode_element.value + 
-                "&cat=<%= params[:cat] %>&patient_id=<%= @patient.id %>";
+                "&cat=<%= params[:cat] %>&patient_id=<%= @patient.id rescue params[:patient_id]%>";
             }
           }
         }
