@@ -6,7 +6,7 @@ class PatientsController < ApplicationController
     @father = @anc_patient.father rescue nil
     @mother = @anc_patient.mother rescue nil
 
-    redirect_to "/patients/serial_number/#{@patient.id}" and return if @anc_patient.serial_number.nil? && (params[:cat] == "baby")
+    redirect_to "/patients/serial_number/#{@patient.id}" and return if @anc_patient.serial_number.nil? && (params[:cat] == "baby" || @anc_patient.age < 5)
 
     render :layout => 'dynamic-dashboard'
   end
@@ -15,8 +15,8 @@ class PatientsController < ApplicationController
     render :layout => false
   end
   def national_id_label
-     @patient = Patient.find(params[:patient_id]) if @patient.nil?
-     print_string = PatientService.patient_national_id_label(@patient) rescue (raise "Unable to find patient (#{params[:patient_id]}) or generate a national id label for that patient")
+    @patient = Patient.find(params[:patient_id]) if @patient.nil?
+    print_string = PatientService.patient_national_id_label(@patient) rescue (raise "Unable to find patient (#{params[:patient_id]}) or generate a national id label for that patient")
     send_data(print_string,:type=>"application/label; charset=utf-8", :stream=> false, :filename=>"#{params[:patient_id]}#{rand(10000)}.lbl", :disposition => "inline")
   end
   def demographics
