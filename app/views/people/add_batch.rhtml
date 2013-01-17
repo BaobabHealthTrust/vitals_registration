@@ -1,0 +1,11 @@
+<script>
+  tt_cancel_destination = "/clinic/?user_id=<%params[:user_id]%>";
+</script>
+<form id='batch_limits' action="/people/create_batch">
+  <%= hidden_field_tag "user_id", params[:id]%>
+
+  <%= text_field_tag("start_serial_number", nil, {:field_type => 'number', :tt_PageStyleClass => 'NumbersOnly', :helpText => 'Start Serial Number'}) %> <br>
+  <%= text_field_tag("end_serial_number", nil, {:field_type => 'number', :tt_PageStyleClass => 'NumbersOnly', :helpText => 'End Serial Number'})%><br>
+
+  <%= submit_tag value="Submit"%>
+</form>

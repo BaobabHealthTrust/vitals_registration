@@ -75,6 +75,23 @@ class PeopleController < GenericPeopleController
     end
   end
 
+  def create_batch
+	 @initial_numbers = SerialNumber.all.size
+
+	if ((!params[:start_serial_number].blank? rescue false) && (!params[:end_serial_number].blank? rescue false) &&
+			(params[:start_serial_number].to_i < params[:end_serial_number].to_i) rescue false)
+		(params[:start_serial_number]..params[:end_serial_number]).each do |number|
+			snum = SerialNumber.new()
+			snum.serial_number = number
+			snum.creator = params[:user_id]
+			snum.save if (SerialNumber.find(number).nil? rescue true)
+		end
+ 		@final_numbers = initial_numbers = SerialNumber.all.size
+	else
+	end
+	redirect_to "/clinic/?user_id=#{params[:user_id]}"
+  end
+
 	def search
 
 		found_person = nil
@@ -282,7 +299,7 @@ class PeopleController < GenericPeopleController
     else                                                                        
       birthdate.strftime("%d/%b/%Y")                                     
     end                                                                         
-  end
+  end 
  
 end
  

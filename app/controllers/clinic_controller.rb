@@ -145,5 +145,11 @@ class ClinicController < GenericClinicController
   def no_males
     render :layout => "menu"
   end
+  def serial_numbers
+	@remaining_serial_numbers = SerialNumber.all.collect{|number| number if !number.national_id.nil?}.size
+	@print_string = (@remaining_serial_numbers ==1)?  "" + @remaining_serial_numbers.to_s + " Serial Number Remaining" : "" + @remaining_serial_numbers.to_s + " Serial Numbers Remaining"
+	@limited_serial_numbers = (SerialNumber.all.size  <= 100) rescue false
+	render :layout => false
+  end  
   
 end
