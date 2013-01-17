@@ -150,7 +150,7 @@
     :validationJS => "validateDOB()",
     :validationMessage => 'Please enter a valid date'%>
 
-  <%= text_field_tag "person[patient][identifiers][serial number]", nil, {
+  <%#= text_field_tag "person[patient][identifiers][serial number]", nil, {
     :helpText => 'Serial Number',
     :tt_onLoad => "$('nextButton').style.display = 'block';"
   } %>

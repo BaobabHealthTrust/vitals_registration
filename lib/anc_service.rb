@@ -2163,7 +2163,8 @@ module ANCService
           "names"=>{"family_name"=> names_params["family_name"],
             "given_name"=> names_params["given_name"]
           }}}}
-
+        params[:person][:patient] = Hash.new if params[:person][:patient].blank? and params[:cat] == "baby"
+        
     if !params["remote"]
 
       @dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
@@ -2182,7 +2183,6 @@ module ANCService
 
 	  person = self.create_from_form(params[:person])
     identifier_type = PatientIdentifierType.find_by_name("National id") || PatientIdentifierType.find_by_name("Unknown id")
-
     person.patient.patient_identifiers.create("identifier" => national_id,
       "identifier_type" => identifier_type.patient_identifier_type_id) unless national_id.blank?
 
