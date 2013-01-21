@@ -18,10 +18,7 @@
     </option>
      <option value="/clinic/user_activities/?user_id=<%= current_user.user_id %>" >My Preferences</option>
 <%#=  raise (current_user).to_yaml%>
-    <% if current_user.admin?%>
-      <option value="/clinic/users_tab">
-        Administration
-      </option>
+    <% if current_user.admin?%>      
       <option value="/clinic/serial_numbers/?user_id=<%= current_user.user_id %>" >Serial Numbers</option>
     <% end %>
 
