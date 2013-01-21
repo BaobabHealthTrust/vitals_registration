@@ -25,9 +25,9 @@
   <body>
   <center>
 	<% if @limited_serial_numbers %>
-     <h2 style="color:red;"> <blink> <%= @print_string%> </blink></h2>
+     <h2 style="color:red;text-align:center;"> <blink> <%= @print_string%> </blink></h2>
 	 <% else %>
- 	<h2 style="color: #6281a7;"><%= @print_string%></h2>
+ 	<h2 style="color: #6281a7;text-align:center;"><%= @print_string%></h2>
 	 <% end %>
     <button onclick="parent.window.location = '/people/add_batch/<%= current_user.user_id %>';">
       Add New Batch

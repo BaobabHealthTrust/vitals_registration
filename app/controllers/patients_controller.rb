@@ -6,11 +6,8 @@ class PatientsController < ApplicationController
     @father = @anc_patient.father rescue nil
     @mother = @anc_patient.mother rescue nil
 
-    if @anc_patient.serial_number.nil? && (params[:cat] == "baby" || @anc_patient.age < 5)      
-      serial_num = SerialNumber.find(:first, :conditions =>["national_id IS NULL"]) rescue nil
-      @anc_patient.set_identifier("Serial Number", serial_num) if !serial_num.blank? && !serial_num.nil?
-      SerialNumber.set_national_id(serial_num, @anc_patient.national_id) if !serial_num.blank? && !serial_num.nil?      
-      redirect_to "/patients/serial_number/#{@patient.id}" if serial_num.blank? && serial_num.nil?
+    if @anc_patient.serial_number.nil? && (params[:cat] == "baby" || @anc_patient.age < 5)              
+      redirect_to "/patients/serial_number/#{@patient.id}" 
     end
     
     render :layout => 'dynamic-dashboard'
