@@ -1,22 +1,6 @@
-<%
-@reports = []
-@reports << ['Change password',"/user/change_password/#{current_user.id}"]
-@reports << ['Edit name',"/user/edit/#{current_user.id}"]
-@reports << ['Preffered keyboard',"/user/properties/#{current_user.id}"]
-if not Location.current_location.name.match(/Outpatient/i)
-  @reports << ['Activities',"/user/activities/#{current_user.id}"]
-end
-if current_user.admin?
-  @reports << ['Create user',"/user/new"]
-  @reports << ['Edit user',"/user/select_user"]
-end
-%>
-
-
+<head>
 <style type="text/css">
-  
-
-  #stats a {
+     button {
         min-height: 50px;
         min-width: 350px;
         margin: 5px;
@@ -29,40 +13,20 @@ end
         border: 5px outset #000;
         padding: 10px;
         cursor: pointer;
-  }
-
- 
-
-  #table_div {
-    overflow:auto;
-    height: 320px;
-    background-color: white;
-    border: 1px #eee solid;
-    border-width: 1px;
-  }
-
+      }
+ 	 h2 {
+		padding-top: 50px;
+	  }
 </style>
-
-<script>
-  function setInnerHtmlData(id,result,path) {
-    td = document.getElementById(id);
-    td.innerHTML = "<a href =" + path + ">" +  result + "</a>"
-  }
-</script>
-
+</head>
 <body>
   <center>
     <h2 style="color: #6281a7;">Create/Edit User</h2>
-    <%@reports.each do |but|%>
-    <%unless but.blank?%>
-    <button onclick="parent.window.location = '<% but[1]%>'">
-      <%=  but[0]%>
+    <button onclick="parent.window.location = '/user/new/<%= current_user.user_id %>';">
+      Create User
+    </button>    
+    <button onclick="parent.window.location = '/user/select_user/<%= current_user.user_id %>';">
+      Edit User
     </button>
-    <%end%>
-    <%end%>
-    
-    <!--button onclick="parent.window.location = '/user/activities/<%= current_user.user_id %>';">
-      Activities
-    </button-->
   </center>
 </body>

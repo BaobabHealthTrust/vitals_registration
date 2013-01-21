@@ -11,7 +11,7 @@ module PatientService
     dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
     uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json/"
 
-    return JSON.parse(RestClient.post(uri,params))
+    return JSON.parse(RestClient.post(uri,params)) rescue nil
   end
   def self.create_patient_from_dde(params)
 	  address_params = params["person"]["addresses"]
@@ -1069,9 +1069,10 @@ EOF
       dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
       uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json"
       uri += "?value=#{identifier}"                          
-      p = JSON.parse(RestClient.get(uri)).first rescue nil
-   
-      return [] if p.blank?
+      people = JSON.parse(RestClient.get(uri)) rescue nil
+      p = people.first if people
+      return nil if people.nil?
+      return [] if p.nil?
  
       birthdate_year = p["person"]["birthdate"].to_date.year rescue "Unknown"
       birthdate_month = p["person"]["birthdate"].to_date.month rescue nil

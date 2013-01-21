@@ -151,5 +151,7 @@ class ClinicController < GenericClinicController
 	@limited_serial_numbers = (SerialNumber.all.size  <= 100) rescue false
 	render :layout => false
   end  
-  
+  def link_error
+    render :layout => "menu"
+  end
 end

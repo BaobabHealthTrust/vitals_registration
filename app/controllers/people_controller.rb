@@ -15,7 +15,7 @@ class PeopleController < GenericPeopleController
         print_and_redirect("/patients/national_id_label?patient_id=#{person.id}",
           "/relationships/new?patient_id=#{params[:patient_id]}&relation=#{person.id}&cat=#{params[:cat]}") and return if !person.nil?
       else
-         redirect_to next_task(person.patient) and return if !person.nil?
+        redirect_to next_task(person.patient) and return if !person.nil?
       end
     end
     # raise person.to_yaml
@@ -27,7 +27,7 @@ class PeopleController < GenericPeopleController
       encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
       encounter.save rescue nil
      
-        redirect_to next_task(person.patient) and return
+      redirect_to next_task(person.patient) and return
       
     end
 
@@ -76,28 +76,39 @@ class PeopleController < GenericPeopleController
   end
 
   def create_batch
-	 @initial_numbers = SerialNumber.all.size
+    @initial_numbers = SerialNumber.all.size
 
-	if ((!params[:start_serial_number].blank? rescue false) && (!params[:end_serial_number].blank? rescue false) &&
-			(params[:start_serial_number].to_i < params[:end_serial_number].to_i) rescue false)
-		(params[:start_serial_number]..params[:end_serial_number]).each do |number|
-			snum = SerialNumber.new()
-			snum.serial_number = number
-			snum.creator = params[:user_id]
-			snum.save if (SerialNumber.find(number).nil? rescue true)
-		end
- 		@final_numbers = initial_numbers = SerialNumber.all.size
-	else
-	end
-	redirect_to "/clinic/?user_id=#{params[:user_id]}"
+    if ((!params[:start_serial_number].blank? rescue false) && (!params[:end_serial_number].blank? rescue false) &&
+          (params[:start_serial_number].to_i < params[:end_serial_number].to_i) rescue false)
+      (params[:start_serial_number]..params[:end_serial_number]).each do |number|
+        snum = SerialNumber.new()
+        snum.serial_number = number
+        snum.creator = params[:user_id]
+        snum.save if (SerialNumber.find(number).nil? rescue true)
+      end
+      @final_numbers = initial_numbers = SerialNumber.all.size
+    else
+    end
+    redirect_to "/clinic/?user_id=#{params[:user_id]}"
   end
 
 	def search
 
 		found_person = nil
 		if params[:identifier]
-			local_results = PatientService.search_by_identifier(params[:identifier])
-
+			pdata = PatientService.search_by_identifier(params[:identifier])
+      local_results = pdata ? pdata : []
+     if (pdata.nil?) && create_from_dde_server
+        if ["", "baby"].include?(params[:cat]) || !params[:cat]
+          params[:cancel_show] = params[:cancel_show]? params[:cancel_show] : "/"
+          params[:cancel_destination] = params[:cancel_destination]? params[:cancel_destination] : "/"
+        else
+          params[:cancel_show] = params[:cancel_show]? params[:cancel_show] : "/patients/show/#{params[:patient_id]}"
+          params[:cancel_destination] = params[:cancel_destination]? params[:cancel_destination] : "/patients/show/#{params[:patient_id]}"
+        end
+        #redirect_to :controller => :clinic, :action => :link_error, :link => dde_server
+        redirect_to "/clinic/link_error?cancel_show=#{params[:cancel_show]}&cancel_destination=#{params[:cancel_destination]}" and return
+      end
 			if local_results.length > 1
 				@people = PatientService.person_search(params)
 			elsif local_results.length == 1
@@ -137,8 +148,20 @@ class PeopleController < GenericPeopleController
     #raise PatientService.search_from_remote(params).to_yaml
     @search_results = {}
     @patients = []
-
-    (PatientService.search_from_remote(params) || []).each do |data|
+    result_set = PatientService.search_from_remote(params) rescue nil
+    
+    if result_set.nil?
+      if ["", "baby"].include?(params[:cat]) || !params[:cat]
+        params[:cancel_show] = params[:cancel_show]? params[:cancel_show] : "/"
+        params[:cancel_destination] = params[:cancel_destination]? params[:cancel_destination] : "/"
+      else
+        params[:cancel_show] = params[:cancel_show]? params[:cancel_show] : "/patients/show/#{params[:patient_id]}"
+        params[:cancel_destination] = params[:cancel_destination]? params[:cancel_destination] : "/patients/show/#{params[:patient_id]}"
+      end
+      #redirect_to :controller => :clinic, :action => :link_error, :link => dde_server
+      redirect_to "/clinic/link_error?cancel_show=#{params[:cancel_show]}&cancel_destination=#{params[:cancel_destination]}" and return
+    end
+    (result_set || []).each do |data|
 			results = PersonSearch.new(data["npid"]["value"])
       results.national_id = data["npid"]["value"]
       results.current_residence =data["person"]["data"]["addresses"]["city_village"]

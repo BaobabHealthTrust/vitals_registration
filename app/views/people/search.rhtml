@@ -186,8 +186,9 @@ end -%>
       }
     }
     }catch(ex){}
+    
     if(pos){
-      document.forms[0].action = "create?patient_id=<%= params[:patient_id] %>&cat=<%= params[:cat] %>";
+      document.forms[0].action = "create?patient_id=<%= params[:patient_id] %>&cat=<%= params[:cat]%>";
       __$('nextButton').onmousedown = function(){
         document.forms[0].submit();
       }
@@ -388,7 +389,13 @@ end -%>
       <% end -%>
       <select name="person[id]" id="person" dualView="true" dualViewOptions="people" tt_onLoad="makeRemoteButton()">
         <!--option onmousedown="search_remote()">Search from remote server for person with name <%=h params[:given_name] -%> <%=h params[:family_name] -%></option-->
-
+        <script>
+        <% if params[:patient_id] && (params[:cat].strip rescue "").downcase != "baby" %>
+            var tt_cancel_destination = "/patients/show/<%=h params[:patient_id] -%>"
+        <% else %>
+            var tt_cancel_destination = "/"
+        <% end %>
+            </script>
         <% if @relation.blank? %>
           <% if params[:identifier] %>
             <option value="0" onmousedown="changeNextButtonText('New Person')">
