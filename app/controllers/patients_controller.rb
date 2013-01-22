@@ -7,7 +7,7 @@ class PatientsController < ApplicationController
     @mother = @anc_patient.mother rescue nil
 
     if @anc_patient.serial_number.nil? && (params[:cat] == "baby" || @anc_patient.age < 5)              
-      redirect_to "/patients/serial_number/#{@patient.id}" 
+      redirect_to "/patients/serial_number/#{@patient.id}" and return
     end
     
     render :layout => 'dynamic-dashboard'
@@ -101,6 +101,10 @@ class PatientsController < ApplicationController
     @father = @anc_patient.father rescue nil
 
     @mother = @anc_patient.mother rescue nil
+    
+    @serial_number = PatientIdentifier.find(:first, :conditions => ["patient_id = ? AND identifier_type = ?",
+            @patient.id,
+            PatientIdentifierType.find_by_name("Serial Number").id]).identifier rescue nil
 
     @anc_mother = ANCService::ANC.new(@mother.relation.patient) rescue nil
 
@@ -124,16 +128,15 @@ class PatientsController < ApplicationController
       printers = wards.each{|ward|
         current_printer = ward.split(":")[1] if ward.split(":")[0].upcase == location
       } rescue []
-      ["ORIGINAL FOR:(PARENT)", "DUPLICATE FOR DISTRICT:REGISTRY OF BIRTH", "TRIPLICATE FOR DISTRICT:REGISTRY OF ORIGINAL HOME", "QUADRUPLICATE FOR:THE HOSPITAL", ""].each do |rec|
-        @recipient = rec
+       @recipient = ""
         t1 = Thread.new{
           Kernel.system "wkhtmltopdf -s A4 http://" +
             request.env["HTTP_HOST"] + "\"/patients/birth_report_printable/" +
             @patient.id.to_s + "?recipient=#{@recipient}"+ "\" /tmp/output-" + session[:user_id].to_s + ".pdf \n"
-        } if !rec.blank?
+        } #if !rec.blank?
 
         t2 = Thread.new{
-          sleep(5)
+          sleep(8)
           Kernel.system "lp #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-" +
             session[:user_id].to_s + ".pdf\n"
         }
@@ -144,8 +147,7 @@ class PatientsController < ApplicationController
         }
 
       end
-    end
-
+   
 
     redirect_to "/patients/show/#{@patient.id}" and return
   end

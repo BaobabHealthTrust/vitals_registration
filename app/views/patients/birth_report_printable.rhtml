@@ -5,18 +5,21 @@
       .cell {
         border-bottom: dotted 1px #000;
       }
+      table {
+        -moz-user-select: none;
+      }
     </style>
   </head>
   <body>
     <center>
       <table width="100%" cellpadding="0">
         <tr>
-          <td style="text-align: center;">             
+          <td style="text-align: center;">
             <div style="float:center;">
-               <span style="text-align:center;float:right;margin-left:70%;font-size: 0.8em;padding:0px;"> <%= (params[:recipient].split(":")[0]  +"<br>"+ params[:recipient].split(":")[1]) rescue " "%> </span>
-              <img style="margin-left:35%;margin-right:35%;float:center;padding:0px;" src="/images/emblem.gif" alt="emblem" />
+              <span style="float:center;font-weight:bold;"></span>  <span style="text-align:center;float:right;margin-left:70%;font-size: 0.8em;padding:0px;"> <%= (params[:recipient].split(":")[0]  +"<br>"+ params[:recipient].split(":")[1]) rescue " "%> </span>
+              <img style="margin-left:35%;margin-right:24%;float:center;padding:0px;" src="/images/emblem.gif" alt="emblem" /> <span style="float:right;font-weight:bold;text-align:center"></br>LL</br></br>Serial No. <%=@serial_number%></span>
             </div>
-            
+
           </td>
         </tr>
         <tr>
@@ -376,7 +379,7 @@
                 </td>
                 <td colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 9px;  padding-left: 20px;"
                     class="cell">
-                  <% @name = @anc_patient.get_full_attribute("Provider Name") rescue nil %>
+                      <% @name = @anc_patient.get_full_attribute("Provider Name") rescue nil %>
                   <%= @name.value if !@name.nil? %>&nbsp;
                 </td>
                 <td style="text-align: center; padding-bottom: 0px; padding-top: 9px;">
@@ -392,7 +395,7 @@
                 </td>
                 <td colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 9px;  padding-left: 20px;"
                     class="cell">
-                  <% @title = @anc_patient.get_full_attribute("Provider Title") rescue nil %>
+                      <% @title = @anc_patient.get_full_attribute("Provider Title") rescue nil %>
                   <%= @title.value if !@title.nil? %>&nbsp;
                 </td>
                 <td style="text-align: center; padding-bottom: 0px; padding-top: 9px;">
@@ -422,7 +425,7 @@
                 </td>
                 <td colspan="2" style="text-align: left; padding-bottom: 0px; padding-top: 9px;  padding-left: 20px;"
                     class="cell">
-                  <% @facility_date = @anc_patient.get_full_attribute("Hospital Date") rescue nil %>
+                      <% @facility_date = @anc_patient.get_full_attribute("Hospital Date") rescue nil %>
                   <%= @facility_date.value.to_date.strftime("%d/%b/%Y") if !@facility_date.nil? %>&nbsp;
                 </td>
                 <td style="text-align: center; padding-bottom: 0px; padding-top: 9px;">

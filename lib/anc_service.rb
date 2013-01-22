@@ -2012,7 +2012,7 @@ module ANCService
       found_person_data = self.search_by_identifier(child["patient"]["identifiers"]["national_id"], false)
 
       found_person = self.create_from_form(child) if found_person_data.blank?
-
+      
       child_id = nil
       if !found_person_data.blank?
         child_id = found_person_data.last.id
@@ -2020,6 +2020,11 @@ module ANCService
         child_id = found_person.id
       end
 
+      PatientIdentifier.create(:identifier => child["patient"]["identifiers"]["serial_number"],
+                                :identifier_type => PatientIdentifierType.find_by_name("Serial Number").id,
+                                :patient_id => child_id
+                                )
+                                
       found_mother_data = self.search_by_identifier(person["mother"]["patient"]["identifiers"]["national_id"], false) rescue nil?
       found_mother = self.create_from_form(person["mother"]) if found_mother_data.blank?
 
