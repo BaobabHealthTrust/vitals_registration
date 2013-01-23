@@ -115,11 +115,10 @@ class PatientsController < ApplicationController
 
 
   def print_note
-    # raise request.remote_ip.to_yaml
+   location = request.remote_ip rescue ""
 
-    location = request.remote_ip rescue ""
     @patient    = Patient.find(params[:patient_id] || params[:id] || session[:patient_id]) rescue nil
-
+    person_id = params[:id] || params[:person_id]
     if @patient
       current_printer = ""
 
@@ -128,26 +127,29 @@ class PatientsController < ApplicationController
       printers = wards.each{|ward|
         current_printer = ward.split(":")[1] if ward.split(":")[0].upcase == location
       } rescue []
-       @recipient = ""
-        t1 = Thread.new{
+      ["ORIGINAL FOR:(PARENT)", "DUPLICATE FOR DISTRICT:REGISTRY OF BIRTH", "TRIPLICATE FOR DISTRICT:REGISTRY OF ORIGINAL HOME", "QUADRUPLICATE FOR:THE HOSPITAL", ""].each do |rec|
+
+        @recipient = rec
+        name = rec.split(":").last.downcase.gsub("(", "").gsub(")", "") if !rec.blank?
+
+         t1 = Thread.new{
           Kernel.system "wkhtmltopdf -s A4 http://" +
             request.env["HTTP_HOST"] + "\"/patients/birth_report_printable/" +
-            @patient.id.to_s + "?recipient=#{@recipient}"+ "\" /tmp/output-" + session[:user_id].to_s + ".pdf \n"
-        } #if !rec.blank?
+            person_id.to_s + "?patient_id=#{@patient.id}&person_id=#{person_id}&recipient=#{@recipient}" + "\" /tmp/output-#{Regexp.escape(name)}" + ".pdf \n"
+        } if !rec.blank?
 
-        t2 = Thread.new{
+         t2 = Thread.new{
           sleep(8)
-          Kernel.system "lp #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-" +
-            session[:user_id].to_s + ".pdf\n"
-        }
+          Kernel.system "lp #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-#{Regexp.escape(name)}" + ".pdf\n"
+        } if !rec.blank?
 
-        t3 = Thread.new{
+         t3 = Thread.new{
           sleep(10)
-          Kernel.system "rm /tmp/output-" + session[:user_id].to_s + ".pdf\n"
-        }
-
+          Kernel.system "rm /tmp/output-#{Regexp.escape(name)}"+ ".pdf\n"
+        }if !rec.blank?
+       sleep(3)
       end
-   
+    end
 
     redirect_to "/patients/show/#{@patient.id}" and return
   end
