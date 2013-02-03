@@ -1,0 +1,19 @@
+<script type="text/javascript" language="javascript">
+  <!--
+  tt_cancel_show = "/clinic";
+  tt_cancel_destination = "/clinic";
+</script>
+<div style="padding: 200px; margin-bottom: 160px;">
+<% if params[:message]%>
+ <h1 style="color: red;"><%= params[:message]%></h1>
+<%else%>
+  <h1 style="color: red;">Serial Number <%= params[:serial_number]%> Already Assigned</h1>
+<%end%>
+</div>
+<div id="nav">
+        <button class="green" style="float: right;" onclick="window.location = tt_cancel_show">
+          <span>
+            Finish
+          </span>
+        </button>
+</div>
