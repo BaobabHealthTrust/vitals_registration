@@ -9,7 +9,8 @@ class PatientsController < ApplicationController
     if @anc_patient.serial_number.nil? && (params[:cat] == "baby" || @anc_patient.age < 5)              
       redirect_to "/patients/serial_number/#{@patient.id}" and return
     end
-    
+
+    redirect_to "/patients/no_serial_number?message=Cant Assign Serial Number Due To Age Restrictions" and return if @anc_patient.serial_number.nil?
     render :layout => 'dynamic-dashboard'
   end
 
@@ -218,7 +219,12 @@ class PatientsController < ApplicationController
   def create_serial_number
     @patient = Patient.find(params[:patient_id] || params[:id] || session[:patient_id]) rescue nil
 
-    @anc_patient.set_identifier("Serial Number", params["serial_number"]) if !params["serial_number"].blank?
+    serial_number_check = PatientIdentifier.find(:all, :conditions => ["identifier = ? AND identifier_type = ?",
+      params["serial_number"], PatientIdentifierType.find_by_name("Serial Number")]) rescue []
+
+    redirect_to "/patients/no_serial_number?patient_id=#{@patient.id}&serial_number=#{params[:serial_number]}" and return if serial_number_check.length > 0
+
+    @anc_patient.set_identifier("Serial Number", params["serial_number"]) if !params["serial_number"].blank? && !(serial_number_check.length > 0)
 
     redirect_to "/patients/show/#{@patient.id}" and return
   end
