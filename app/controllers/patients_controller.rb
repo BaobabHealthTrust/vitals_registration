@@ -146,7 +146,7 @@ class PatientsController < ApplicationController
 
         t3 = Thread.new{
           sleep(10)
-         # Kernel.system "rm /tmp/output-#{Regexp.escape(name)}"+ ".pdf\n"
+         Kernel.system "rm /tmp/output-#{Regexp.escape(name)}"+ ".pdf\n"
         }if !rec.blank?
         sleep(3)
       end
