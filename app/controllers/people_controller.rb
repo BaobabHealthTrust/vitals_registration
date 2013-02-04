@@ -3,9 +3,9 @@ class PeopleController < GenericPeopleController
   def create
     # raise params.to_yaml
     serial_number_check = PatientIdentifier.find(:all, :conditions => ["identifier = ? AND identifier_type = ?",
-      params["person"]["patient"]["identifiers"]["serial number"], PatientIdentifierType.find_by_name("Serial Number")]) if params["person"]["patient"]["identifiers"]["serial number"]
+      params["person"]["patient"]["identifiers"]["serial number"], PatientIdentifierType.find_by_name("Serial Number").id]) rescue [] if params[:cat].downcase == "baby" && params["person"]["patient"]["identifiers"]["serial number"]
 
-    redirect_to "/patients/no_serial_number?serial_number=#{params["person"]["patient"]["identifiers"]["serial number"]}" and return if serial_number_check.length > 0
+    redirect_to "/patients/no_serial_number?serial_number=#{params["person"]["patient"]["identifiers"]["serial number"]}" and return if serial_number_check && serial_number_check.length > 0
    
     hiv_session = false
     if current_program_location == "HIV program"
