@@ -16,6 +16,7 @@ production:
  create.from.dde.server: true
  demographics.home_village: true
  portal_url: 192.100.100.200:80
+ report.zoom.percentage: 100
  
 development:
  create_from_remote: no
@@ -36,6 +37,7 @@ development:
  create.from.dde.server: true
  demographics.home_village: true
  portal_url: 192.100.100.200:80
+ report.zoom.percentage: 100
  
 test: &TEST
  create_from_remote: no
