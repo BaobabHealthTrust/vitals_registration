@@ -104,8 +104,8 @@ class PatientsController < ApplicationController
     @mother = @anc_patient.mother rescue nil
     
     @serial_number = PatientIdentifier.find(:first, :conditions => ["patient_id = ? AND identifier_type = ?",
-            @patient.id,
-            PatientIdentifierType.find_by_name("Serial Number").id]).identifier rescue nil
+        @patient.id,
+        PatientIdentifierType.find_by_name("Serial Number").id]).identifier rescue nil
 
     @anc_mother = ANCService::ANC.new(@mother.relation.patient) rescue nil
 
@@ -116,8 +116,8 @@ class PatientsController < ApplicationController
 
 
   def print_note
-   location = request.remote_ip rescue ""
-
+    location = request.remote_ip rescue ""
+    zoom = CoreService.get_global_property_value("report.zoom.percentage")/100.0 rescue 1
     @patient    = Patient.find(params[:patient_id] || params[:id] || session[:patient_id]) rescue nil
     person_id = params[:id] || params[:person_id]
     if @patient
@@ -133,22 +133,22 @@ class PatientsController < ApplicationController
         @recipient = rec
         name = rec.split(":").last.downcase.gsub("(", "").gsub(")", "") if !rec.blank?
 
-         t1 = Thread.new{
-          Kernel.system "wkhtmltopdf -s A4 http://" +
+        t1 = Thread.new{
+          Kernel.system "wkhtmltopdf --zoom #{zoom} -s A4 http://" +
             request.env["HTTP_HOST"] + "\"/patients/birth_report_printable/" +
             person_id.to_s + "?patient_id=#{@patient.id}&person_id=#{person_id}&recipient=#{@recipient}" + "\" /tmp/output-#{Regexp.escape(name)}" + ".pdf \n"
         } if !rec.blank?
 
-         t2 = Thread.new{
+        t2 = Thread.new{
           sleep(8)
           Kernel.system "lp #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-#{Regexp.escape(name)}" + ".pdf\n"
         } if !rec.blank?
 
-         t3 = Thread.new{
+        t3 = Thread.new{
           sleep(10)
           Kernel.system "rm /tmp/output-#{Regexp.escape(name)}"+ ".pdf\n"
         }if !rec.blank?
-       sleep(3)
+        sleep(3)
       end
     end
 
@@ -220,7 +220,7 @@ class PatientsController < ApplicationController
     @patient = Patient.find(params[:patient_id] || params[:id] || session[:patient_id]) rescue nil
 
     serial_number_check = PatientIdentifier.find(:all, :conditions => ["identifier = ? AND identifier_type = ?",
-      params["serial_number"], PatientIdentifierType.find_by_name("Serial Number")]) rescue []
+        params["serial_number"], PatientIdentifierType.find_by_name("Serial Number")]) rescue []
 
     redirect_to "/patients/no_serial_number?patient_id=#{@patient.id}&serial_number=#{params[:serial_number]}" and return if serial_number_check.length > 0
 
