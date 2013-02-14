@@ -19,7 +19,7 @@ module DDEService
 
     attr_accessor :patient, :person
 
-    def initialize(patient)
+    def initialize(patient) 
       self.patient = patient
       self.person = self.patient.person
     end
@@ -99,20 +99,48 @@ module DDEService
       id
     end
 
-    def check_old_national_id(identifier)
+ def check_old_national_id(identifier)
       create_from_dde_server = CoreService.get_global_property_value('create.from.dde.server').to_s == "true" rescue false
       if create_from_dde_server
+        national_id = self.national_id(false) || ''
+        return true if national_id.length == 6
+        if (identifier.to_s.strip.length != 6 and identifier == self.national_id)
+           replaced_national_id = replace_old_national_id(identifier)
+           return replaced_national_id
+        elsif (identifier.to_s.strip.length >= 6 and identifier != self.national_id)
+           replaced_national_id = replace_old_national_id(self.national_id)
+           return replaced_national_id
+        else
+           return false
+        end
+      end
+   end
 
-        if identifier.to_s.strip.length != 6 and identifier == self.national_id
-
+ def replace_old_national_id(identifier)
           dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
           dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
           dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
           uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json"
           uri += "?value=#{identifier}"
-          p = JSON.parse(RestClient.get(uri)).first rescue nil
+          output = RestClient.get(uri)
+          p = JSON.parse(output)
+          return p.count if p.count > 1
+          if  p.count == 1
+            p = p.first
+            person_id = p["person"]["id"]
+            uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json"
+            uri += "?person_id=#{person_id}"
+            output = RestClient.get(uri)
+            person = JSON.parse(output)
+            national_id = person["npid"]["value"]
+            current_national_id = self.get_full_identifier("National id")
+            self.set_identifier("National id", national_id)
+            self.set_identifier("Old Identification Number", current_national_id.identifier)
+            current_national_id.void("National ID version change")
+            return true
+          end unless p.blank?
 
-          return true if !p.blank?
+          return false unless p.blank?
 
           # birthday_params["birth_year"], birthday_params["birth_month"], birthday_params["birth_day"]
           person = {"person" => {
@@ -128,8 +156,7 @@ module DDEService
               },
               "patient" => {
                 "identifiers" => {
-                  "diabetes_number" => "",
-                  "old_identification_number" => self.national_id
+                  "old_identification_number" => identifier
                 }
               },
               "attributes" => {
@@ -150,19 +177,14 @@ module DDEService
           }
 
           current_national_id = self.get_full_identifier("National id")
-
-          self.set_identifier("Old Identification Number", current_national_id.identifier)
-
-          current_national_id.void("National ID version change")
-
           national_id = DDEService.create_patient_from_dde(person, true)
-
           self.set_identifier("National id", national_id)
-
-        end
-      end
+          self.set_identifier("Old Identification Number", current_national_id.identifier)
+          current_national_id.void("National ID version change")
+          return true
     end
-  end
+
+  end 
 
   def self.create_remote(received_params)
     new_params = received_params["person"]
@@ -539,4 +561,30 @@ module DDEService
     end
   end
 
+  #.............. new code
+  def self.reassign_dde_identication(dde_person_id,local_person_id)
+    dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
+    dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
+    dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
+    uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/reassign_identication.json"
+    uri += "?person_id=#{dde_person_id}"
+    new_npid = RestClient.get(uri)
+
+    current_national_id = PatientIdentifier.find(:first,
+                        :conditions => ["patient_id = ? AND voided = 0 AND
+                        identifier_type = ?",local_person_id , 3])
+
+    patient_identifier = PatientIdentifier.new
+    patient_identifier.type = PatientIdentifierType.find_by_name("National id")
+    patient_identifier.identifier = new_npid
+    patient_identifier.patient_id = local_person_id
+    patient_identifier.save!
+
+    current_national_id.voided = true
+    current_national_id.voided_by = 1
+    current_national_id.void_reason = "Given new national ID: #{new_npid}"
+    current_national_id.date_voided =  Time.now()
+    current_national_id.save!
+    return current_national_id.patient.person
+  end
 end

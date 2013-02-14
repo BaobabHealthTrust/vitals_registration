@@ -2,7 +2,17 @@ class PatientsController < ApplicationController
   before_filter :find_patient, :except => [:void]
   
   def show 
-    @patient = Patient.find(params[:id] || params[:patient_id]) rescue nil    
+    @patient = Patient.find(params[:id] || params[:patient_id]) rescue nil  
+	identifier = PatientIdentifier.find(:last, :conditions => ["patient_id = ? AND identifier_type = ? AND voided = 0", @patient.id, PatientIdentifierType.find_by_name("National id").id]).identifier rescue ""
+
+	if((CoreService.get_global_property_value("create.from.dde.server") == true) && !@patient.nil? && identifier.strip.length != 6)
+      dde_patient = DDEService::Patient.new(@patient)
+      identifier = dde_patient.get_full_identifier("National id").identifier rescue nil
+      national_id_replaced = dde_patient.check_old_national_id(identifier)
+      if national_id_replaced.to_s == "true"
+        print_and_redirect("/patients/national_id_label?patient_id=#{@patient.id}", "/patients/show?patient_id=#{@patient.id}") and return
+      end
+    end  
     @father = @anc_patient.father rescue nil
     @mother = @anc_patient.mother rescue nil
 

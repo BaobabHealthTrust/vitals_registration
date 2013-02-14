@@ -194,7 +194,7 @@ end -%>
       }
       
     } else {
-        document.forms[0].action = "select?patient_id=<%= params[:patient_id] %>&cat=<%= params[:cat] %>";
+        document.forms[0].action = "select?patient_id=<%= params[:patient_id] %>&cat=<%= params[:cat]? params[:cat] : 'baby' %>";
       __$('nextButton').onmousedown = function(){
         gotoNextPage();
       }
