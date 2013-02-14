@@ -36,6 +36,12 @@ class PeopleController < GenericPeopleController
 		 	redirect_to "/clinic" and return
 		end
 				
+		if params[:encounter]
+			encounter = Encounter.new(params[:encounter])
+	   		encounter.patient_id = person.id
+			encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
+			encounter.save
+		end
 	redirect_to "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}" and return if !person.nil? 
 	end
     person = ANCService.create_patient_from_dde(params) if create_from_dde_server
