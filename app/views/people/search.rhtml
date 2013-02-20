@@ -349,18 +349,18 @@ end -%>
     <% form_tag "search", :method => :get do %>
       <%= text_field_tag :given_name, params[:given_name],
         {:field_type => 'alpha',
-        :helpText => "#{params[:cat].titleize} First name",
+        :helpText => "#{params[:cat].titleize rescue nil} First name",
         :ajaxURL => '/person_names/given_names?search_string=',
         :allowFreeText => true }%>
 
       <%= text_field_tag :family_name, params[:family_name],
         {:field_type => 'alpha',
-        :helpText => "#{params[:cat].titleize} Last name",
+        :helpText => "#{params[:cat].titleize rescue nil} Last name",
         :ajaxURL => '/person_names/family_names?search_string=',
         :allowFreeText => true }%>
 
       Gender: <%= select_tag :gender, options_for_select({"" => "", "Male" => "M", "Female" => "F"}),
-        {:helpText => "#{params[:cat].titleize} Gender"} %>
+        {:helpText => "#{params[:cat].titleize rescue nil} Gender"} %>
       <%= hidden_field_tag :create_patient, params[:create_patient] %>
       <%= hidden_field_tag :relation, params[:relation] %>
       <input type="hidden" id="cat" name="cat" value="<%=h params[:cat] -%>" />

@@ -14,7 +14,7 @@ module PatientService
     return JSON.parse(RestClient.post(uri,params))                              
   end
 
-  def self.search_from_dde_by_identifier(identifier)
+ def self.search_from_dde_by_identifier(identifier)
       dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
       dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
       dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
@@ -25,8 +25,8 @@ module PatientService
 
       local_people = []
       people.each do |person|
-        national_id = person['person']["value"] rescue person["person"]["data"]["patient"]["identifiers"]["old_identification_number"]
-        old_national_id = person["person"]["data"]["patient"]["identifiers"]["old_identification_number"] rescue nil
+        national_id = person['person']["value"] rescue nil
+        old_national_id = person["person"]["old_identification_number"] rescue nil
 
         birthdate_year = person["person"]["data"]["birthdate"].to_date.year rescue "Unknown"
         birthdate_month = person["person"]["data"]["birthdate"].to_date.month rescue nil
@@ -60,7 +60,7 @@ module PatientService
         local_people << passed_person
       end
     return local_people
-  end 
+  end
 
   def self.create_from_dde_server_only(params)
     address_params = params["person"]["addresses"]
@@ -122,7 +122,7 @@ module PatientService
             "cell_phone_number" => params["person"]["cell_phone_number"] },
           "patient"=>
             {"identifiers"=>
-              {"diabetes_number"=>""}},
+              {"old_identification_number"=> params["person"]["patient"]["identifiers"]["old_identification_number"]}},
           "gender"=> person_params["gender"],
           "birthdate"=> birthdate,
           "birthdate_estimated"=> birthdate_estimated ,
@@ -139,6 +139,7 @@ module PatientService
 
       return JSON.parse(received_params)["npid"]["value"]
   end
+  
 
   def self.get_dde_person(person, current_date = Date.today)
     patient = PatientBean.new('')
@@ -199,7 +200,8 @@ module PatientService
   
   
    
-  def self.create_patient_from_dde(params)
+   def self.create_patient_from_dde(params)
+    old_identifier = params["identifier"] rescue nil
 	  address_params = params["person"]["addresses"]
 		names_params = params["person"]["names"]
 		patient_params = params["person"]["patient"]
@@ -257,8 +259,7 @@ module PatientService
             {"occupation"=> params["person"]["occupation"], 
             "cell_phone_number" => params["person"]["cell_phone_number"] },
           "patient"=> 
-            {"identifiers"=> 
-              {"diabetes_number"=>""}}, 
+            {"identifiers"=> {"old_identification_number"=> old_identifier}},
           "gender"=> person_params["gender"], 
           "birthdate"=> birthdate, 
           "birthdate_estimated"=> birthdate_estimated , 
@@ -282,7 +283,8 @@ module PatientService
       national_id = params["person"]["patient"]["identifiers"]["National_id"]
     end
       
-	  person = self.create_from_form(params[:person])
+	  person = person = self.create_from_form(params[:person] || params["person"])
+    
     identifier_type = PatientIdentifierType.find_by_name("National id") || PatientIdentifierType.find_by_name("Unknown id")
     person.patient.patient_identifiers.create("identifier" => national_id, 
       "identifier_type" => identifier_type.patient_identifier_type_id) unless national_id.blank?
@@ -1248,6 +1250,7 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
   end
   
   def self.search_by_identifier(identifier)
+    identifier = identifier.gsub("-","").strip
     people = PatientIdentifier.find_all_by_identifier(identifier).map{|id| 
       id.patient.person
     } unless identifier.blank? rescue nil
@@ -1259,10 +1262,16 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
       dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
       uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json"
       uri += "?value=#{identifier}"                          
-      p = JSON.parse(RestClient.get(uri)).first rescue nil
-   
+      p = JSON.parse(RestClient.get(uri)) rescue nil
       return [] if p.blank?
- 
+      return "found duplicate identifiers" if p.count > 1
+      p = p.first
+      passed_national_id = (p["person"]["patient"]["identifiers"]["National id"]) rescue nil
+      passed_national_id = (p["person"]["value"]) if passed_national_id.blank? rescue nil
+      if passed_national_id.blank?
+       return [DDEService.get_remote_person(p["person"]["id"])]
+      end
+
       birthdate_year = p["person"]["birthdate"].to_date.year rescue "Unknown"
       birthdate_month = p["person"]["birthdate"].to_date.month rescue nil
       birthdate_day = p["person"]["birthdate"].to_date.day rescue nil
@@ -1271,7 +1280,7 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
 
       passed = {
        "person"=>{"occupation"=>p["person"]["data"]["attributes"]["occupation"],
-       "age_estimate"=>"",
+       "age_estimate"=> birthdate_estimated,
        "cell_phone_number"=>p["person"]["data"]["attributes"]["cell_phone_number"],
        "birth_month"=> birthdate_month ,
        "addresses"=>{"address1"=>p["person"]["data"]["addresses"]["county_district"],
@@ -1282,25 +1291,23 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
        "patient"=>{"identifiers"=>{"National id" => p["person"]["value"]}},
        "birth_day"=>birthdate_day,
        "home_phone_number"=>p["person"]["data"]["attributes"]["home_phone_number"],
-       "names"=>{"family_name"=>"Mwale",
+       "names"=>{"family_name"=>p["person"]["family_name"],
        "given_name"=>p["person"]["given_name"],
        "middle_name"=>""},
        "birth_year"=>birthdate_year},
-       "filter_district"=>"Chitipa",
-       "filter"=>{"region"=>"Northern Region",
+       "filter_district"=>"",
+       "filter"=>{"region"=>"",
        "t_a"=>""},
        "relation"=>""
       }
 
-
-      passed_national_id = (passed["person"]["patient"]["identifiers"]["National id"])
-                                                                                
       unless passed_national_id.blank?                                          
         patient = PatientIdentifier.find(:first,                                
           :conditions =>["voided = 0 AND identifier = ?",passed_national_id]).patient rescue nil
         return [patient.person] unless patient.blank?                           
       end
-
+      
+      passed["person"].merge!("identifiers" => {"National id" => passed_national_id})
       return [self.create_from_form(passed["person"])]
     end
     return people
@@ -1331,7 +1338,7 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
     end
   end
   
-  def self.birthdate_formatted(person)
+ def self.birthdate_formatted(person)
     if person.birthdate_estimated==1
       if person.birthdate.day == 1 and person.birthdate.month == 7
         person.birthdate.strftime("??/???/%Y")
@@ -1344,7 +1351,7 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
       person.birthdate.strftime("%d/%b/%Y")
     end
   end
-  
+
   def self.age_in_months(person, today = Date.today)
     years = (today.year - person.birthdate.year)
     months = (today.month - person.birthdate.month)

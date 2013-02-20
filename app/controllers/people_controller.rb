@@ -126,7 +126,7 @@ class PeopleController < GenericPeopleController
         snum.creator = params[:user_id]
         snum.save if (SerialNumber.find(number).nil? rescue true)
       end
-      @final_numbers = initial_numbers = SerialNumber.all.size
+      @created_numbers = SerialNumber.all.size - @initial_numbers
     else
     end
     redirect_to "/clinic/?user_id=#{params[:user_id]}"
@@ -353,9 +353,20 @@ class PeopleController < GenericPeopleController
 
   def duplicates
     @duplicates = []
-    PatientService.search_by_identifier(params[:search_params][:identifier]).each do |person|
+    people = PatientService.person_search(params[:search_params])
+	people = []
+    people.each do |person|
       @duplicates << PatientService.get_patient(person)
+    end unless people == "found duplicate identifiers"
+
+    if create_from_dde_server
+      @remote_duplicates = []
+      PatientService.search_from_dde_by_identifier(params[:search_params][:identifier]).each do |person|
+
+        @remote_duplicates << PatientService.get_dde_person(person)
+      end
     end
+
     @selected_identifier = params[:search_params][:identifier]
     render :layout => 'menu'
   end
@@ -366,12 +377,21 @@ class PeopleController < GenericPeopleController
   end
 
   def remote_duplicates
-    @primary_patient = PatientService.get_patient(Person.find(params[:patient_id]))
+    if params[:patient_id]
+      @primary_patient = PatientService.get_patient(Person.find(params[:patient_id]))
+    else
+      @primary_patient = nil
+    end
+    
     @dde_duplicates = []
     if create_from_dde_server
       PatientService.search_from_dde_by_identifier(params[:identifier]).each do |person|
         @dde_duplicates << PatientService.get_dde_person(person)
       end
+    end
+
+    if @primary_patient.blank? and @dde_duplicates.blank?
+      redirect_to :action => 'search',:identifier => params[:identifier] and return
     end
     render :layout => 'menu'
   end
