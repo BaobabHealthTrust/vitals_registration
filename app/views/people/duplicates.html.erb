@@ -3,11 +3,35 @@
   tt_cancel_destination = "/clinic";
 
   function newID(patient_id,national_id) {
-    document.location = "/people/remote_duplicates?patient_id=" + patient_id + "&identifier=" + national_id;
+	<%if params[:search_params][:cat] && params[:search_params][:patient_id]%>
+		document.location = "/people/remote_duplicates?patient_id=" + patient_id + "&identifier=" + national_id + "&cat=<%=params[:search_params][:cat]%>&session_patient_id=<%=params[:search_params][:patient_id]%>";
+	<%else%>
+    	document.location = "/people/remote_duplicates?patient_id=" + patient_id + "&identifier=" + national_id 
+	<%end%>	
   }
 
   function remoteNewID(patient_id,national_id) {
-    document.location = "/people/remote_duplicates?remote_person_id=" + patient_id + "&identifier=" + national_id;
+	<%if params[:search_params][:cat] && params[:search_params][:patient_id]%>
+	 	document.location = "/people/remote_duplicates?remote_person_id=" + patient_id + "&identifier=" + national_id + "&cat=<%=params[:search_params][:cat]%>&session_patient_id=<%=params[:search_params][:patient_id]%>";
+	<%else%>
+    	document.location = "/people/remote_duplicates?remote_person_id=" + patient_id + "&identifier=" + national_id 
+	<%end%>	 
+ }
+
+ function postToSelect(person_id, national_id) {
+	<%if params[:search_params][:cat] && params[:search_params][:patient_id]%>
+		document.location = "/relationships/new?patient_id=<%=params[:search_params][:patient_id]%>&relation=" + person_id + "&cat=<%=params[:search_params][:cat]%>"
+	<%else%>
+	    document.location = "/people/search?identifier=" + national_id;
+	<%end%>	
+  }
+
+function postRemoteToSelect(person_id, national_id) {
+	<%if params[:search_params][:cat] && params[:search_params][:patient_id]%>
+		document.location = "/people/search?patient_id=<%=params[:search_params][:patient_id]%>&relation=" + person_id + "&cat=<%=params[:search_params][:cat]%>&identifier=" + national_id
+	<%else%>
+	    document.location = "/people/search?identifier=" + national_id;
+	<%end%>	
   }
 
 </script>
@@ -84,7 +108,11 @@ div { -moz-user-select: none; }
     <td class="color_<%=color%> row_number_<%=row_number%>" style="text-align:center;"><%= patient.sex || '&nbsp;' %></td>
     <td class="color_<%=color%> row_number_<%=row_number%>" style="text-align:center;"><%= patient.age || '&nbsp;' %> </td>
     <td class="color_<%=color%> row_number_<%=row_number%>">
+	<% if @selected_identifier != patient.national_id %>
+      <a href="#" id = '<%=patient.patient_id%>' class ='merge button_row_<%=row_number%>' onmousedown="postToSelect('<%=patient.person_id%>', '<%=patient.national_id%>');">Select</a>
+	<%else%>
       <a href="#" id = '<%=patient.patient_id%>' class ='merge button_row_<%=row_number%>' onmousedown="newID('<%=patient.person_id%>','<%=patient.national_id%>');">Select</a>
+	<%end%>
     </td>
   </tr>
  <%end%>
@@ -105,7 +133,13 @@ div { -moz-user-select: none; }
     <td class="color_<%=color%> row_number_<%=row_number%>" style="text-align:center;"><%= patient.sex || '&nbsp;' %></td>
     <td class="color_<%=color%> row_number_<%=row_number%>" style="text-align:center;"><%= patient.age || '&nbsp;' %> </td>
     <td class="color_<%=color%> row_number_<%=row_number%>">
+
+	<% if @selected_identifier != patient.national_id %>
+      <a href="#" id = '<%=patient.patient_id%>' class ='merge button_row_<%=row_number%>' onmousedown="postRemoteToSelect('<%=patient.person_id%>', '<%=patient.national_id%>');">Select</a>
+	<%else%>
       <a href="#" id = '<%=patient.patient_id%>' class ='merge button_row_<%=row_number%>' onmousedown="remoteNewID('<%=patient.person_id%>','<%=patient.national_id%>');">Select</a>
+	<%end%>
+      
     </td>
   </tr>
  <%end%>

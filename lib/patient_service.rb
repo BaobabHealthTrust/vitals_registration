@@ -2,7 +2,8 @@ module PatientService
 	include CoreService
 	require 'bean'
 	require 'json'
-	require 'rest_client'                                                           
+	require 'rest_client'  
+  require 'dde_service'                                                         
   
   def self.search_from_remote(params)                                           
     return [] if params[:given_name].blank?                                     
@@ -141,7 +142,7 @@ module PatientService
   end
   
 
-  def self.get_dde_person(person, current_date = Date.today)
+ def self.get_dde_person(person, current_date = Date.today)
     patient = PatientBean.new('')
     patient.person_id = person["person"]["id"]
     patient.patient_id = 0
@@ -151,8 +152,7 @@ module PatientService
     patient.first_name = person["person"]["names"]["given_name"] rescue nil
     patient.last_name = person["person"]["names"]["family_name"] rescue nil
     patient.sex = person["person"]["gender"]
-	raise "hit" if person["person"].blank?
-    patient.birthdate = person["person"]["birthdate"].to_date rescue nil
+    patient.birthdate = person["person"]["birthdate"].to_date
     patient.birthdate_estimated =  person["person"]["age_estimate"].to_i rescue 0
     date_created =  person["person"]["date_created"].to_date rescue Date.today
     patient.age = self.cul_age(patient.birthdate , patient.birthdate_estimated , date_created, Date.today)
@@ -165,7 +165,7 @@ module PatientService
     patient.cell_phone_number = person["person"]["cell_phone_number"]
     patient.home_phone_number = person["person"]["home_phone_number"]
     patient.old_identification_number = person["person"]["patient"]["identifiers"]["Old national id"]
-
+    patient.national_id  = patient.old_identification_number if patient.national_id.blank?
     patient
   end
 
@@ -950,7 +950,7 @@ EOF
     patient.arv_number = get_patient_identifier(person.patient, 'ARV Number')
     patient.address = person.addresses.first.city_village rescue nil
     patient.national_id = get_patient_identifier(person.patient, 'National id')    
-	  patient.national_id_with_dashes = get_national_id_with_dashes(person.patient) 
+	  patient.national_id_with_dashes = get_national_id_with_dashes(person.patient)  
     patient.name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
 		patient.first_name = person.names.first.given_name rescue nil 
 		patient.last_name = person.names.first.family_name rescue nil 
@@ -1196,14 +1196,21 @@ EOF
   def self.person_search(params)
     people = []
     people = search_by_identifier(params[:identifier]) if params[:identifier]
-    return people.first.id unless people.blank? || people.size > 1
+
+    #return people.first.id unless people.blank? || people.size > 1
+    return people unless people.blank? || people.size > 1
+
+    gender = params[:gender]
+    given_name = params[:given_name].squish unless params[:given_name].blank?
+    family_name = params[:family_name].squish unless params[:family_name].blank?
+
     people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patient], :conditions => [
         "gender = ? AND \
      person_name.given_name = ? AND \
      person_name.family_name = ?",
-        params[:gender],
-        params[:given_name],
-        params[:family_name]
+        gender,
+        given_name,
+        family_name
       ]) if people.blank?
 
     if people.length < 15
@@ -1215,9 +1222,9 @@ EOF
         "gender = ? AND \
      person_name_code.given_name_code LIKE ? AND \
      person_name_code.family_name_code LIKE ? AND person.person_id NOT IN (?)",
-        params[:gender],
-        (params[:given_name] || '').soundex,
-        (params[:family_name] || '').soundex,
+        gender,
+        (given_name || '').soundex,
+        (family_name || '').soundex,
         matching_people
       ], :order => "person_name.given_name ASC, person_name_code.family_name_code ASC")
       people = people + people_like
@@ -1241,6 +1248,8 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
     return people
   end
 
+
+
   def self.person_search_from_dde(params)
     search_string = "given_name=#{params[:given_name]}"
     search_string += "&family_name=#{params[:family_name]}"
@@ -1257,12 +1266,14 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
     return people unless people.blank?
     create_from_dde_server = CoreService.get_global_property_value('create.from.dde.server').to_s == "true" rescue false
     if create_from_dde_server 
+
       dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
       dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
       dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
       uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json"
       uri += "?value=#{identifier}"                          
       p = JSON.parse(RestClient.get(uri)) rescue nil
+	
       return [] if p.blank?
       return "found duplicate identifiers" if p.count > 1
       p = p.first
