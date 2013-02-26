@@ -18,16 +18,16 @@ class PeopleController < GenericPeopleController
 			person = PatientService.create_from_form(params[:person])
 			if !person.nil?	
 				patient_identifier = PatientIdentifier.new
-				patient_identifier.type = PatientIdentifierType.find_by_name("National id").id
+				patient_identifier.type = PatientIdentifierType.find_by_name("National id")
 				patient_identifier.identifier = params[:identifier]
 				patient_identifier.patient = person.patient
 				patient_identifier.save!
 			end
-		elsif params[:identifier].length == 13 && create_from_dde_server
+		elsif params[:identifier] && create_from_dde_server
 			person = ANCService.create_patient_from_dde(params) rescue nil
 			if !person.nil?
 				old_identifier = PatientIdentifier.new
-				old_identifier.type = PatientIdentifierType.find_by_name("Old Identification Number").id
+				old_identifier.type = PatientIdentifierType.find_by_name("Old Identification Number")
 				old_identifier.identifier = params[:identifier]
 				old_identifier.patient = person.patient
 				old_identifier.save!
