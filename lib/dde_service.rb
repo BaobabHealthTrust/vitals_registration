@@ -127,9 +127,10 @@ module DDEService
     passed_national_id = (p["person"]["patient"]["identifiers"]["National id"])rescue nil
     passed_national_id = (p["person"]["value"]) if passed_national_id.blank? rescue nil
 
-    if passed_national_id.blank?
-      return [DDEService.get_remote_person(p["person"]["id"])]
-    end
+		 if passed_national_id.blank? and not p.blank?
+      DDEService.reassign_dde_identification(p["person"]["id"], self.patient.patient_id)
+      return true
+ 		 end
 
     person = {"person" => {
           "birthdate_estimated" => (self.person.birthdate_estimated rescue nil),
@@ -550,7 +551,7 @@ module DDEService
 
 
   #.............. new code
-  def self.reassign_dde_identication(dde_person_id,local_person_id)
+  def self.reassign_dde_identification(dde_person_id,local_person_id)
     dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
     dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
     dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""

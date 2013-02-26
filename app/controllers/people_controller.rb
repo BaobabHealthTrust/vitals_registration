@@ -217,7 +217,9 @@ class PeopleController < GenericPeopleController
     (result_set || []).each do |data|
 	  	national_id = data["person"]["data"]["patient"]["identifiers"]["National id"] rescue nil
       national_id = data["person"]["value"] if national_id.blank? rescue nil
+      national_id = data["npid"]["value"] if national_id.blank? rescue nil
       national_id = data["person"]["data"]["patient"]["identifiers"]["old_identification_number"] if national_id.blank? rescue nil
+
       next if national_id.blank?
       results = PersonSearch.new(national_id)
       results.national_id = national_id
@@ -376,7 +378,7 @@ class PeopleController < GenericPeopleController
   end
  
   def reassign_dde_national_id
-    person = DDEService.reassign_dde_identication(params[:dde_person_id],params[:local_person_id])
+    person = DDEService.reassign_dde_identification(params[:dde_person_id],params[:local_person_id])
     print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", next_task(person.patient))
   end
 

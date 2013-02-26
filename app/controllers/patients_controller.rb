@@ -20,7 +20,7 @@ class PatientsController < ApplicationController
       redirect_to "/patients/serial_number/#{@patient.id}" and return
     end
 
-    redirect_to "/patients/no_serial_number?message=Cant Assign Serial Number Due To Age Restrictions" and return if @anc_patient.serial_number.nil? 
+    redirect_to "/patients/no_serial_number?message=Cant Assign Serial Number Due To Age Restrictions" and return if @anc_patient.serial_number.nil? && @anc_patient.age >= 5
     render :layout => 'dynamic-dashboard'
   end
 
