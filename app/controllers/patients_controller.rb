@@ -223,7 +223,12 @@ class PatientsController < ApplicationController
   end
 
   def serial_number
+		if  @anc_patient.age >= 5           
+     redirect_to "/patients/no_serial_number?message=Cant Assign Serial Number Due To Age Restrictions" and return
+    end rescue nil
+
     @patient = Patient.find(params[:patient_id] || params[:id] || session[:patient_id]) rescue nil
+		
   end
 
   def create_serial_number
