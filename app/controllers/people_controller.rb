@@ -225,12 +225,12 @@ class PeopleController < GenericPeopleController
       results.national_id = national_id
       results.current_residence =data["person"]["data"]["addresses"]["city_village"]
       results.person_id = 0
-      results.home_district = data["person"]["data"]["addresses"]["state_province"]
+      results.home_district = data["person"]["data"]["addresses"]["address2"]
       results.traditional_authority =  data["person"]["data"]["addresses"]["county_district"]
       results.name = data["person"]["data"]["names"]["given_name"] + " " + data["person"]["data"]["names"]["family_name"]
       gender = data["person"]["data"]["gender"]
       results.occupation = data["person"]["data"]["occupation"]
-      results.sex = (gender == 'M' ? 'Male' : 'Female') 
+      results.sex = (gender == 'M' ? 'Male' : 'Female')
       results.birthdate_estimated = (data["person"]["data"]["birthdate_estimated"]).to_i
       results.birth_date = birthdate_formatted((data["person"]["data"]["birthdate"]).to_date , results.birthdate_estimated)
       results.birthdate = (data["person"]["data"]["birthdate"]).to_date
@@ -242,13 +242,14 @@ class PeopleController < GenericPeopleController
 		(@people || []).each do | person |
 			patient = PatientService.get_patient(person) rescue nil
       next if patient.blank?
-			results = PersonSearch.new(patient.national_id || patient.patient_id)
+      results = PersonSearch.new(patient.national_id || patient.patient_id)
       results.national_id = patient.national_id
       results.birth_date = patient.birth_date
       results.current_residence = patient.current_residence
       results.guardian = patient.guardian
       results.person_id = patient.person_id
       results.home_district = patient.home_district
+      results.current_district = patient.current_district
       results.traditional_authority = patient.traditional_authority
       results.mothers_surname = patient.mothers_surname
       results.dead = patient.dead
@@ -258,7 +259,7 @@ class PeopleController < GenericPeopleController
       results.name = patient.name
       results.sex = patient.sex
       results.age = patient.age
-      @search_results.delete_if{|x,y| x == results.national_id}
+      @search_results.delete_if{|x,y| x == results.national_id }
       @patients << results
 		end
     

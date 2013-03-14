@@ -1247,7 +1247,7 @@ module ANCService
     end
 
     def current_district
-      "#{self.person.addresses.last.address2}" rescue nil
+      "#{self.person.addresses.last.state_province}" rescue nil
     end
 
     def current_address
@@ -1255,7 +1255,7 @@ module ANCService
     end
 
     def home_district
-      "#{self.person.addresses.last.subregion}" rescue nil
+      "#{self.person.addresses.last.address2}" rescue nil
     end
 
     def home_ta
@@ -1395,13 +1395,13 @@ module ANCService
     def get_attribute(attribute)
       PersonAttribute.find(:last,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND person_id = ?",
           PersonAttributeType.find_by_name(attribute).id,self.person.id],
-			:order => ["date_created ASC"]).value rescue nil
+        :order => ["date_created ASC"]).value rescue nil
     end
 
     def get_full_attribute(attribute)
       PersonAttribute.find(:last,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND person_id = ?",
           PersonAttributeType.find_by_name(attribute).id,self.person.id],
-			:order => ["date_created ASC"]) rescue nil
+        :order => ["date_created ASC"]) rescue nil
     end
 
     def set_attribute(attribute, value)
@@ -2021,9 +2021,9 @@ module ANCService
       end
 
       PatientIdentifier.create(:identifier => child["patient"]["identifiers"]["serial_number"],
-                                :identifier_type => PatientIdentifierType.find_by_name("Serial Number").id,
-                                :patient_id => child_id
-                                )
+        :identifier_type => PatientIdentifierType.find_by_name("Serial Number").id,
+        :patient_id => child_id
+      )
                                 
       found_mother_data = self.search_by_identifier(person["mother"]["patient"]["identifiers"]["national_id"], false) rescue nil?
       found_mother = self.create_from_form(person["mother"]) if found_mother_data.blank?
@@ -2144,10 +2144,12 @@ module ANCService
     passed_params = {"person"=>
         {"data" =>
           {"addresses"=>
-            {"state_province"=> (address_params["address2"] rescue ""),
-            "address2"=> (address_params["address1"] rescue ""),
-            "city_village"=> (address_params["city_village"] rescue ""),
-            "county_district"=> (address_params["county_district"] rescue "")
+            {"state_province"=> address_params["state_province"],
+            "address2"=> address_params["address2"],
+            "address1"=> address_params["address1"],
+            "neighborhood_cell"=> address_params["neighborhood_cell"],
+            "city_village"=> address_params["city_village"],
+            "county_district"=> address_params["county_district"]
           },
           "attributes"=>
             {"occupation"=> (params["person"]["occupation"] rescue ""),
@@ -2168,7 +2170,7 @@ module ANCService
           "names"=>{"family_name"=> names_params["family_name"],
             "given_name"=> names_params["given_name"]
           }}}}
-        params[:person][:patient] = Hash.new if params[:person][:patient].blank? and params[:cat] == "baby"
+    params[:person][:patient] = Hash.new if params[:person][:patient].blank? and params[:cat] == "baby"
         
     if !params["remote"]
 

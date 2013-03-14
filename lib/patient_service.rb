@@ -40,10 +40,12 @@ module PatientService
          "birthdate" => person["person"]["data"]["birthdate"],
          "cell_phone_number"=>person["person"]["data"]["attributes"]["cell_phone_number"],
          "birth_month"=> birthdate_month ,
-         "addresses"=>{"address1"=>person["person"]["data"]["addresses"]["county_district"],
-         "address2"=>person["person"]["data"]["addresses"]["address2"],
-         "city_village"=>person["person"]["data"]["addresses"]["city_village"],
-         "county_district"=>""},
+         "addresses"=>{"address1"=> person["person"]["data"]["addresses"]["county_district"],
+                       "address2"=> person["person"]["data"]["addresses"]["address2"],
+                       "city_village"=> person["person"]["data"]["addresses"]["city_village"],
+                       "county_district"=> person["person"]["data"]["addresses"]["county_district"],
+                       "state_province" => person["person"]["data"]["addresses"]["state_province"],
+                       "neighborhood_cell" => person["person"]["data"]["addresses"]["neighborhood_cell"]},
          "gender"=> gender ,
          "patient"=>{"identifiers"=>{"National id" => national_id ,"Old national id" => old_national_id}},
          "birth_day"=>birthdate_day,
@@ -109,15 +111,16 @@ module PatientService
       birthdate_estimated = 0
     end
 
-
     passed_params = {"person"=>
         {"data" =>
           {"addresses"=>
-            {"state_province"=> address_params["address2"],
-            "address2"=> address_params["address1"],
+            {"state_province"=> address_params["state_province"],
+            "address2"=> address_params["address2"],
+            "address1"=> address_params["address1"],
+            "neighborhood_cell"=> address_params["neighborhood_cell"],
             "city_village"=> address_params["city_village"],
             "county_district"=> address_params["county_district"]
-          },
+          }, 
           "attributes"=>
             {"occupation"=> params["person"]["occupation"],
             "cell_phone_number" => params["person"]["cell_phone_number"] },
@@ -157,10 +160,12 @@ module PatientService
     date_created =  person["person"]["date_created"].to_date rescue Date.today
     patient.age = self.cul_age(patient.birthdate , patient.birthdate_estimated , date_created, Date.today)
     patient.birth_date = self.get_birthdate_formatted(patient.birthdate,patient.birthdate_estimated)
-    patient.home_district = person["filter_district"]
-    patient.traditional_authority = person["filter"]["t_a"]
+    patient.home_district = person["person"]["addresses"]["address2"]
+    patient.current_district = person["person"]["addresses"]["state_province"]
+    patient.traditional_authority = person["person"]["addresses"]["county_district"]
     patient.current_residence = person["person"]["addresses"]["city_village"]
-    patient.landmark = person["person"]["addresses"]["address_1"]
+    patient.landmark = person["person"]["addresses"]["address1"]
+    patient.home_village = person["person"]["addresses"]["neighborhood_cell"]
     patient.occupation = person["person"]["occupation"]
     patient.cell_phone_number = person["person"]["cell_phone_number"]
     patient.home_phone_number = person["person"]["home_phone_number"]
@@ -250,8 +255,10 @@ module PatientService
     passed_params = {"person"=> 
         {"data" => 
           {"addresses"=> 
-            {"state_province"=> address_params["address2"], 
-            "address2"=> address_params["address1"], 
+            {"state_province"=> address_params["state_province"],
+            "address2"=> address_params["address2"],
+            "address1"=> address_params["address1"],
+            "neighborhood_cell"=> address_params["neighborhood_cell"],
             "city_village"=> address_params["city_village"],
             "county_district"=> address_params["county_district"]
           }, 
@@ -590,7 +597,16 @@ module PatientService
 	  patient_bean = get_patient(patient.person)
     return unless patient_bean.national_id
     sex =  patient_bean.sex.match(/F/i) ? "(F)" : "(M)"
-    address = patient.person.address.strip[0..24].humanize rescue ""
+    address = ""
+    if !patient_bean.state_province.blank? and !patient_bean.current_residence.blank?
+      address = patient_bean.state_province + ", " + patient_bean.current_residence
+    elsif !patient_bean.state_province.blank? and patient_bean.current_residence.blank?
+      address = patient_bean.state_province
+    elsif patient_bean.state_province.blank? and !patient_bean.current_residence.blank?
+      address = patient_bean.current_residence
+    end
+
+    address = patient_bean.state_province + "," rescue ""
     label = ZebraPrinter::StandardLabel.new
     label.font_size = 2
     label.font_horizontal_multiplier = 2
@@ -599,7 +615,7 @@ module PatientService
     label.draw_barcode(50,180,0,1,5,15,120,false,"#{patient_bean.national_id}")
     label.draw_multi_text("#{patient_bean.name.titleize}")
     label.draw_multi_text("#{patient_bean.national_id_with_dashes} #{patient_bean.birth_date}#{sex}")
-    label.draw_multi_text("#{patient_bean.address}")
+    label.draw_multi_text("#{address}") unless address.blank?
     label.print(1)
   end
 
@@ -948,32 +964,34 @@ EOF
     patient.person_id = person.id
     patient.patient_id = person.patient.id
     patient.arv_number = get_patient_identifier(person.patient, 'ARV Number')
-    patient.address = person.addresses.first.city_village rescue nil
-    patient.national_id = get_patient_identifier(person.patient, 'National id')    
-	  patient.national_id_with_dashes = get_national_id_with_dashes(person.patient)  
+    patient.address = person.addresses.first.city_village
+    patient.national_id = get_patient_identifier(person.patient, 'National id')
+	  patient.national_id_with_dashes = get_national_id_with_dashes(person.patient)
     patient.name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
-		patient.first_name = person.names.first.given_name rescue nil 
-		patient.last_name = person.names.first.family_name rescue nil 
+		patient.first_name = person.names.first.given_name rescue nil
+		patient.last_name = person.names.first.family_name rescue nil
     patient.sex = sex(person)
     patient.age = age(person, current_date)
     patient.age_in_months = age_in_months(person, current_date)
     patient.dead = person.dead
     patient.birth_date = birthdate_formatted(person)
     patient.birthdate_estimated = person.birthdate_estimated
-    patient.home_district = person.addresses.first.address2 rescue nil
-    patient.traditional_authority = person.addresses.first.county_district rescue nil
-    patient.current_residence = person.addresses.first.city_village rescue nil
-    patient.landmark = person.addresses.first.address1 rescue nil
-    patient.mothers_surname = person.names.first.family_name2 rescue nil
+    patient.current_district = person.addresses.first.state_province
+    patient.home_district = person.addresses.first.address2
+    patient.traditional_authority = person.addresses.first.county_district
+    patient.current_residence = person.addresses.first.city_village
+    patient.landmark = person.addresses.first.address1
+    patient.home_village = person.addresses.first.neighborhood_cell
+    patient.mothers_surname = person.names.first.family_name2
     patient.eid_number = get_patient_identifier(person.patient, 'EID Number') rescue nil
     patient.pre_art_number = get_patient_identifier(person.patient, 'Pre ART Number (Old format)') rescue nil
     patient.archived_filing_number = get_patient_identifier(person.patient, 'Archived filing number')rescue nil
-    patient.filing_number = get_patient_identifier(person.patient, 'Filing Number') rescue nil
-    patient.occupation = get_attribute(person, 'Occupation') rescue nil
-    patient.cell_phone_number = get_attribute(person, 'Cell phone number') rescue nil
-    patient.office_phone_number = get_attribute(person, 'Office phone number') rescue nil
-    patient.home_phone_number = get_attribute(person, 'Home phone number') rescue nil
-    patient.guardian = art_guardian(person.patient) rescue nil 
+    patient.filing_number = get_patient_identifier(person.patient, 'Filing Number')
+    patient.occupation = get_attribute(person, 'Occupation')
+    patient.cell_phone_number = get_attribute(person, 'Cell phone number')
+    patient.office_phone_number = get_attribute(person, 'Office phone number')
+    patient.home_phone_number = get_attribute(person, 'Home phone number')
+    patient.guardian = art_guardian(person.patient) rescue nil
     patient
   end
   
@@ -1294,10 +1312,12 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
        "age_estimate"=> birthdate_estimated,
        "cell_phone_number"=>p["person"]["data"]["attributes"]["cell_phone_number"],
        "birth_month"=> birthdate_month ,
-       "addresses"=>{"address1"=>p["person"]["data"]["addresses"]["county_district"],
-       "address2"=>p["person"]["data"]["addresses"]["address2"],
-       "city_village"=>p["person"]["data"]["addresses"]["city_village"],
-       "county_district"=>""},
+       "addresses"=>{"address1"=>p["person"]["data"]["addresses"]["address1"],
+            "address2"=>p["person"]["data"]["addresses"]["address2"],
+            "city_village"=>p["person"]["data"]["addresses"]["city_village"],
+            "state_province"=>p["person"]["data"]["addresses"]["state_province"],
+            "neighborhood_cell"=>p["person"]["data"]["addresses"]["neighborhood_cell"],
+            "county_district"=>p["person"]["data"]["addresses"]["county_district"]},
        "gender"=> gender ,
        "patient"=>{"identifiers"=>{"National id" => p["person"]["value"]}},
        "birth_day"=>birthdate_day,

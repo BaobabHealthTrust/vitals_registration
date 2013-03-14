@@ -50,7 +50,7 @@ pos = 1
       people[<%= pos %>]["Ancestral Traditional Authority(T/A)"] = null;
     }
     try {
-      people[<%= pos %>]["Current Residence"] = "" //"<%#=h person.current_residence -%>";
+      people[<%= pos %>]["Current Residence"] = "<%=h person.current_residence -%>";
     }catch(e){
       people[<%= pos %>]["Current Residence"] = null;
     }
