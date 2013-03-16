@@ -36,7 +36,7 @@ class PeopleController < GenericPeopleController
 		 	redirect_to "/clinic" and return
 		end
 				
-		if params[:encounter]
+		if params[:encounter] && !person.blank?
 			encounter = Encounter.new(params[:encounter])
 	   		encounter.patient_id = person.id
 			encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?

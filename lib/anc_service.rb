@@ -2144,12 +2144,12 @@ module ANCService
     passed_params = {"person"=>
         {"data" =>
           {"addresses"=>
-            {"state_province"=> address_params["state_province"],
-            "address2"=> address_params["address2"],
-            "address1"=> address_params["address1"],
-            "neighborhood_cell"=> address_params["neighborhood_cell"],
-            "city_village"=> address_params["city_village"],
-            "county_district"=> address_params["county_district"]
+            {"state_province"=> (address_params["state_province"] rescue nil),
+            "address2"=> (address_params["address2"] rescue nil),
+            "address1"=> (address_params["address1"] rescue nil),
+            "neighborhood_cell"=> (address_params["neighborhood_cell"] rescue nil),
+            "city_village"=> (address_params["city_village"] rescue nil),
+            "county_district"=> (address_params["county_district"] rescue nil)
           },
           "attributes"=>
             {"occupation"=> (params["person"]["occupation"] rescue ""),
