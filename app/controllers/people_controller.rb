@@ -13,40 +13,40 @@ class PeopleController < GenericPeopleController
       hiv_session = true
     end   
 	
-      if !params[:identifier].empty? && params[:cat] == "baby"
-		if params[:identifier].length == 6 
-			person = PatientService.create_from_form(params[:person])
-			if !person.nil?	
-				patient_identifier = PatientIdentifier.new
-				patient_identifier.type = PatientIdentifierType.find_by_name("National id")
-				patient_identifier.identifier = params[:identifier]
-				patient_identifier.patient = person.patient
-				patient_identifier.save!
-			end
-		elsif params[:identifier] && create_from_dde_server
-			person = ANCService.create_patient_from_dde(params) rescue nil
-			if !person.nil?
-				old_identifier = PatientIdentifier.new
-				old_identifier.type = PatientIdentifierType.find_by_name("Old Identification Number")
-				old_identifier.identifier = params[:identifier]
-				old_identifier.patient = person.patient
-				old_identifier.save!
-			end
-		else
-		 	redirect_to "/clinic" and return
-		end
+    if !params[:identifier].empty? && params[:cat] == "baby"
+      if params[:identifier].length == 6
+        person = PatientService.create_from_form(params[:person])
+        if !person.nil?
+          patient_identifier = PatientIdentifier.new
+          patient_identifier.type = PatientIdentifierType.find_by_name("National id")
+          patient_identifier.identifier = params[:identifier]
+          patient_identifier.patient = person.patient
+          patient_identifier.save!
+        end
+      elsif params[:identifier] && create_from_dde_server
+        person = ANCService.create_patient_from_dde(params) rescue nil
+        if !person.nil?
+          old_identifier = PatientIdentifier.new
+          old_identifier.type = PatientIdentifierType.find_by_name("Old Identification Number")
+          old_identifier.identifier = params[:identifier]
+          old_identifier.patient = person.patient
+          old_identifier.save!
+        end
+      else
+        redirect_to "/clinic" and return
+      end
 				
-		if params[:encounter] && !person.blank?
-			encounter = Encounter.new(params[:encounter])
+      if params[:encounter] && !person.blank?
+        encounter = Encounter.new(params[:encounter])
 	   		encounter.patient_id = person.id
-			encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
-			encounter.save
-		end
+        encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
+        encounter.save
+      end
 
-	 print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}") and return if !person.nil?
+      print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}") and return if !person.nil?
 
-	redirect_to "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}" and return if !person.nil? 
-	end
+      redirect_to "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}" and return if !person.nil?
+    end
     person = ANCService.create_patient_from_dde(params) if create_from_dde_server
     if params[:cat] == "baby"
       print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}") and return if !person.nil?
@@ -132,7 +132,7 @@ class PeopleController < GenericPeopleController
     redirect_to "/clinic/?user_id=#{params[:user_id]}"
   end
 
-   def search
+  def search
     found_person = nil
     if params[:identifier]
       pdata = PatientService.search_by_identifier(params[:identifier])
@@ -149,25 +149,25 @@ class PeopleController < GenericPeopleController
         #redirect_to :controller => :clinic, :action => :link_error, :link => dde_server
         redirect_to "/clinic/link_error?cancel_show=#{params[:cancel_show]}&cancel_destination=#{params[:cancel_destination]}" and return
       end
-		if local_results.length > 1				
-        	redirect_to :action => 'duplicates' ,:search_params => params
+      if local_results.length > 1
+        redirect_to :action => 'duplicates' ,:search_params => params
         return			
 				#@people = PatientService.person_search(params)
-		elsif local_results.length == 1
-	 	if create_from_dde_server
-           dde_server = CoreService.get_global_property_value("dde_server_ip") rescue ""
-           dde_server_username = CoreService.get_global_property_value("dde_server_username") rescue ""
-           dde_server_password = CoreService.get_global_property_value("dde_server_password") rescue ""
-           uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json"
-           uri += "?value=#{params[:identifier]}"                                         
-           output = RestClient.get(uri)                                          
-           p = JSON.parse(output)                                                
-           if p.count > 1 
+      elsif local_results.length == 1
+        if create_from_dde_server
+          dde_server = CoreService.get_global_property_value("dde_server_ip") rescue ""
+          dde_server_username = CoreService.get_global_property_value("dde_server_username") rescue ""
+          dde_server_password = CoreService.get_global_property_value("dde_server_password") rescue ""
+          uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json"
+          uri += "?value=#{params[:identifier]}"
+          output = RestClient.get(uri)
+          p = JSON.parse(output)
+          if p.count > 1
             redirect_to :action => 'duplicates' ,:search_params => params
             return
           end
         end
-           found_person = local_results.first        
+        found_person = local_results.first
 			else
 				# TODO - figure out how to write a test for this
 				# This is sloppy - creating something as the result of a GET
@@ -269,7 +269,7 @@ class PeopleController < GenericPeopleController
 	end
 
 	# This method is just to allow the select box to submit, we could probably do this better
- def select
+  def select
   
     if params[:person][:id] != '0' && (Person.find(params[:person][:id]).dead == 1 rescue false)
 
@@ -323,7 +323,7 @@ class PeopleController < GenericPeopleController
     render :text => result
   end
 
- # private
+  # private
   def search_complete_url(found_person_id, primary_person_id, category)
 		unless (primary_person_id.blank?)
 			# Notice this swaps them!
@@ -361,7 +361,7 @@ class PeopleController < GenericPeopleController
   def duplicates
     @duplicates = []
     people = PatientService.person_search(params[:search_params])
-	people = []
+    people = []
     people.each do |person|
       @duplicates << PatientService.get_patient(person)
     end unless people == "found duplicate identifiers"
@@ -427,7 +427,7 @@ class PeopleController < GenericPeopleController
       PatientIdentifierType.find_by_name('National ID').next_identifier({:patient => patient})
     end
     npid = PatientIdentifier.find(:first,
-           :conditions => ["patient_id = ? AND identifier = ? 
+      :conditions => ["patient_id = ? AND identifier = ?
            AND voided = 0", patient.id,params[:identifier]])
     npid.voided = 1
     npid.void_reason = "Given another national ID"

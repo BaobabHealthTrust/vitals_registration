@@ -1568,8 +1568,8 @@ module ANCService
         "addresses" => {
           "address1" => (self.current_address1 rescue nil),
           "city_village" => (self.current_address2 rescue nil),
-          "address2" => (self.current_district rescue nil),
-          "subregion" => (self.home_district rescue nil),
+          "state_province" => (self.current_district rescue nil),
+          "address2" => (self.home_district rescue nil),
           "county_district" => (self.home_ta rescue nil),
           "neighborhood_cell" => (self.home_village rescue nil)
         },
