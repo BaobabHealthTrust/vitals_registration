@@ -1806,6 +1806,7 @@ module ANCService
 		end
 		person.save
 
+    names_params.delete(:family_name2) if (names_params[:family_name2] and names_params[:family_name2].downcase == "unknown" rescue false)
 		person.names.create(names_params)
 		person.addresses.create(address_params) unless address_params.empty? rescue nil
 
@@ -1905,8 +1906,10 @@ module ANCService
       person.birthdate_estimated = 1 if params["birthdate_estimated"] == 'true'
       person.save
     end
+  
 
     person.update_attributes(person_params) if !person_params.empty?
+    names_params.delete(:family_name2) if (names_params and names_params[:family_name2].downcase == "unknown" rescue false)
     person.names.first.update_attributes(names_params) if names_params
     person.addresses.first.update_attributes(address_params) if address_params
 
