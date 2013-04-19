@@ -1780,6 +1780,57 @@ module ANCService
     return people
   end
 
+  def self.update_export_demographics(params, person)
+
+    address_params = params["addresses"]
+		names_params = params["names"]
+    person_attribute_params = params["attributes"]
+		
+		params_to_process = params.reject{|key,value| key.match(/addresses|patient|names|relation|cell_phone_number|home_phone_number|office_phone_number|agrees_to_be_visited_for_TB_therapy|agrees_phone_text_for_TB_therapy/) }
+		birthday_params = params_to_process.reject{|key,value| key.match(/gender|attributes/) }
+		person_params = params_to_process.reject{|key,value| key.match(/birth_|age_estimate|occupation|identifiers|citizenship|race|attributes/) }
+
+		if person_params["gender"].to_s == "Female"
+      person_params["gender"] = 'F'
+		elsif person_params["gender"].to_s == "Male"
+      person_params["gender"] = 'M'
+		end
+
+    if !birthday_params.empty?
+
+      if birthday_params["birth_year"] == "Unknown"
+        set_birthdate_by_age(person, birthday_params["age_estimate"])
+      else
+        set_birthdate(person, birthday_params["birth_year"], birthday_params["birth_month"], birthday_params["birth_day"])
+      end
+
+      person.birthdate_estimated = 1 if params["birthdate_estimated"] == 'true'
+      person.save
+    end rescue nil
+
+
+    person.update_attributes(person_params) if !person_params.empty?
+    names_params.delete(:family_name2) if (names_params and names_params[:family_name2].downcase == "unknown" rescue false)
+    person.names.first.update_attributes(names_params) if names_params
+    person.addresses.first.update_attributes(address_params) if address_params
+
+    #update or add new person attribute
+ 
+    person_attribute_params.each{|attribute_type_name, attribute|
+      attribute_type = PersonAttributeType.find_by_name(attribute_type_name.humanize.titleize) || PersonAttributeType.find_by_name("Unknown id")
+      #find if attribute already exists
+      exists_person_attribute = PersonAttribute.find(:first, :conditions => ["person_id = ? AND person_attribute_type_id = ?", person.id, attribute_type.person_attribute_type_id]) rescue nil
+      if exists_person_attribute
+        exists_person_attribute.update_attributes({'value' => attribute})
+      else
+        person.person_attributes.create("value" => attribute, "person_attribute_type_id" => attribute_type.person_attribute_type_id)
+      end
+    } if person_attribute_params
+
+
+    
+  end
+ 
 	def self.create_from_form(params)
 
 		address_params = params["addresses"]
@@ -1878,8 +1929,8 @@ module ANCService
     end
   end
 
-  def self.update_demographics(params)
-    person = Person.find(params['person_id'])
+  def self.update_demographics(params, person=nil)
+    person = Person.find(params['person_id']) if person.blank?
 
     if params.has_key?('person')
       params = params['person']
@@ -2007,13 +2058,20 @@ module ANCService
     end
     return "Baby Not Added"
   end
-
+ 
   def self.import_person_no_questions(person)
     if !person["patient"]["identifiers"]["national_id"].nil? and !person["patient"]["identifiers"]["national_id"].blank?
       child = person.reject{|key,value| key.match(/father|mother|facility/) }
 
       found_person_data = self.search_by_identifier(child["patient"]["identifiers"]["national_id"], false)
 
+      mother = Relationship.find(:first, :order => ["date_created DESC"], :conditions => ["person_a =? AND voided = 0 AND relationship = ?",
+          found_person_data.last.person_id, RelationshipType.find_by_b_is_to_a("Mother").relationship_type_id]) if !found_person_data.blank?
+   
+      if mother.present? && (Patient.find(mother.person_b).national_id == person["mother"]["patient"]["identifiers"]["national_id"])
+        self.update_export_demographics(person["mother"], Person.find(mother.person_b))
+      end
+ 
       found_person = self.create_from_form(child) if found_person_data.blank?
       
       child_id = nil
@@ -2023,12 +2081,17 @@ module ANCService
         child_id = found_person.id
       end
 
+      serial_num = PatientIdentifier.find(:first, :order => ["date_created DESC"], :conditions => ["identifier_type = ? AND voided = 0 AND patient_id = ?",
+          PatientIdentifierType.find_by_name("Serial Number").id,
+          child_id]) rescue nil if child_id.present?
+
       PatientIdentifier.create(:identifier => child["patient"]["identifiers"]["serial_number"],
         :identifier_type => PatientIdentifierType.find_by_name("Serial Number").id,
         :patient_id => child_id
-      )
+      ) if serial_num.blank? || (serial_num.present? && serial_num.identifier != child["patient"]["identifiers"]["serial_number"])
                                 
-      found_mother_data = self.search_by_identifier(person["mother"]["patient"]["identifiers"]["national_id"], false) rescue nil?
+      found_mother_data = self.search_by_identifier(person["mother"]["patient"]["identifiers"]["national_id"], false) rescue nil
+
       found_mother = self.create_from_form(person["mother"]) if found_mother_data.blank?
 
       mother_id = nil
@@ -2037,24 +2100,35 @@ module ANCService
       else
         mother_id = found_mother.id # rescue nil
       end
-
+      
       if !mother_id.blank?
         mother_type = RelationshipType.find_by_b_is_to_a("Mother").relationship_type_id
-
-        Relationship.find(:all, :conditions => ["person_a = ? AND relationship = ?",
-            child_id, mother_type]).each{|r|
-          r.void
-        }
-
-        Relationship.create(
-          # :creator => User.first.id,
-          :person_a => child_id,
-          :person_b => mother_id,
-          :relationship => mother_type)
+   
+        ActiveRecord::Base.transaction do        
+         
+          if mother.blank? || (mother.present? && Patient.find(mother.person_b).national_id != person["mother"]["patient"]["identifiers"]["national_id"])
+           
+            Relationship.create(
+              {:person_a => child_id,
+                :person_b => mother_id,
+                :relationship => mother_type})
+         
+          end
+         
+        end
+        
       end
-
+      
       if !person["father"]["birthdate_estimated"].blank?
-        found_father_data = self.search_by_identifier(person["father"]["patient"]["identifiers"]["national_id"], false) rescue nil?
+
+        father = Relationship.find(:first, :order => ["date_created DESC"], :conditions => ["person_a =? AND voided = 0 AND relationship = ?",
+            child_id, RelationshipType.find_by_b_is_to_a("Father").relationship_type_id]) if child_id.present?
+
+        if father.present? && (Patient.find(father.person_b).national_id == person["father"]["patient"]["identifiers"]["national_id"])
+          self.update_export_demographics(person["father"], Person.find(father.person_b))
+        end
+      
+        found_father_data = self.search_by_identifier(person["father"]["patient"]["identifiers"]["national_id"], false) rescue nil
         found_father = self.create_from_form(person["father"]) if found_father_data.blank? &&
           !person["father"]["birthdate_estimated"].blank? rescue nil
 
@@ -2068,17 +2142,22 @@ module ANCService
         if !father_id.blank?
           father_type = RelationshipType.find_by_b_is_to_a("Father").relationship_type_id
 
-          Relationship.find(:all, :conditions => ["person_a = ? AND relationship = ?",
-              child_id, father_type]).each{|r|
-            r.void
-          }
+          ActiveRecord::Base.transaction do
 
-          Relationship.create(
-            # :creator => User.first.id,
-            :person_a => child_id,
-            :person_b => father_id,
-            :relationship => father_type)
+            if father.blank? || (father.present? && Patient.find(father.person_b).national_id != person["father"]["patient"]["identifiers"]["national_id"])
+              Relationship.find(:all, :conditions => ["person_a = ? AND relationship = ?",
+                  child_id, father_type]).each{|r|
+                r.void
+              }
 
+              Relationship.create(
+                # :creator => User.first.id,
+                :person_a => child_id,
+                :person_b => father_id,
+                :relationship => father_type)
+            end
+          end
+          
         end
       end
       
@@ -2099,29 +2178,29 @@ module ANCService
   end
 
   def self.create_patient_from_dde(params)
-	  address_params = params["person"]["addresses"]
-		names_params = params["person"]["names"]
-		patient_params = params["person"]["patient"]
+    address_params = params["person"]["addresses"]
+    names_params = params["person"]["names"]
+    patient_params = params["person"]["patient"]
     birthday_params = params["person"]
-		params_to_process = params.reject{|key,value|
+    params_to_process = params.reject{|key,value|
       key.match(/identifiers|addresses|patient|names|relation|cell_phone_number|home_phone_number|office_phone_number|agrees_to_be_visited_for_TB_therapy|agrees_phone_text_for_TB_therapy/)
     }
-		birthday_params = params_to_process["person"].reject{|key,value| key.match(/gender/) }
-		person_params = params_to_process["person"].reject{|key,value| key.match(/birth_|age_estimate|occupation/) }
+    birthday_params = params_to_process["person"].reject{|key,value| key.match(/gender/) }
+    person_params = params_to_process["person"].reject{|key,value| key.match(/birth_|age_estimate|occupation/) }
 
 
-		if person_params["gender"].to_s == "Female"
+    if person_params["gender"].to_s == "Female"
       person_params["gender"] = 'F'
-		elsif person_params["gender"].to_s == "Male"
+    elsif person_params["gender"].to_s == "Male"
       person_params["gender"] = 'M'
-		end
+    end
 
-		unless birthday_params.empty?
-		  if birthday_params["birth_year"] == "Unknown"
-			  birthdate = Date.new(Date.today.year - birthday_params["age_estimate"].to_i, 7, 1)
+    unless birthday_params.empty?
+      if birthday_params["birth_year"] == "Unknown"
+        birthdate = Date.new(Date.today.year - birthday_params["age_estimate"].to_i, 7, 1)
         birthdate_estimated = 1
-		  else
-			  year = birthday_params["birth_year"]
+      else
+        year = birthday_params["birth_year"]
         month = birthday_params["birth_month"]
         day = birthday_params["birth_day"]
 
@@ -2139,10 +2218,10 @@ module ANCService
           birthdate = Date.new(year.to_i,month_i,day.to_i)
           birthdate_estimated = 0
         end
-		  end
+      end
     else
       birthdate_estimated = 0
-		end
+    end
 
     passed_params = {"person"=>
         {"data" =>
@@ -2191,7 +2270,7 @@ module ANCService
       national_id = params["person"]["patient"]["identifiers"]["National_id"]
     end
 
-	  person = self.create_from_form(params[:person])
+    person = self.create_from_form(params[:person])
     identifier_type = PatientIdentifierType.find_by_name("National id") || PatientIdentifierType.find_by_name("Unknown id")
     person.patient.patient_identifiers.create("identifier" => national_id,
       "identifier_type" => identifier_type.patient_identifier_type_id) unless national_id.blank?
