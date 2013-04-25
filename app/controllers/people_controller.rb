@@ -43,17 +43,16 @@ class PeopleController < GenericPeopleController
         encounter.save
       end
 
-      print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}") and return if !person.nil?
+      #print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}") and return if !person.nil?
 
       redirect_to "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}" and return if !person.nil?
     end
     person = ANCService.create_patient_from_dde(params) if create_from_dde_server
     if params[:cat] == "baby"
-      print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}") and return if !person.nil?
+      redirect_to "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}" and return if !person.nil?
     else
       if !params[:cat].nil? && !params[:patient_id].nil?
-        print_and_redirect("/patients/national_id_label?patient_id=#{person.id}",
-          "/relationships/new?patient_id=#{params[:patient_id]}&relation=#{person.id}&cat=#{params[:cat]}") and return if !person.nil?
+        redirect_to "/relationships/new?patient_id=#{params[:patient_id]}&relation=#{person.id}&cat=#{params[:cat]}" and return if !person.nil?
       else
         redirect_to next_task(person.patient) and return if !person.nil?
       end
@@ -380,7 +379,7 @@ class PeopleController < GenericPeopleController
  
   def reassign_dde_national_id
     person = DDEService.reassign_dde_identification(params[:dde_person_id],params[:local_person_id])
-    print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", next_task(person.patient))
+    redirect_to next_task(person.patient)
   end
 
   def remote_duplicates
@@ -408,9 +407,9 @@ class PeopleController < GenericPeopleController
 		#raise person.to_yaml
 		if params[:cat] && params[:session_patient_id]
 			url = "/relationships/new?patient_id=#{params[:session_patient_id]}&relation=#{person.id}&cat=#{params[:cat]}"
-			print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", url) and return
+			redirect_to url and return
 		end                    
-    print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", next_task(person.patient))
+    redirect_to next_task(person.patient)
   end
 
   def reassign_national_identifier
@@ -437,9 +436,9 @@ class PeopleController < GenericPeopleController
     
 		if params[:cat] && params[:session_patient_id]
 			url = "/relationships/new?patient_id=#{params[:session_patient_id]}&relation=#{patient.id}&cat=#{params[:cat]}"
-			print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", url) and return
+			redirect_to url and return
 		end     
-    print_and_redirect("/patients/national_id_label?patient_id=#{patient.id}", next_task(patient))
+      redirect_to next_task(patient)
   end
 
 =begin
