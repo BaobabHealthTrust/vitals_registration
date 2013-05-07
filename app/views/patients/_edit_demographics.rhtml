@@ -28,6 +28,52 @@
     listSuggestions(tstCurrentPage);
   }
 
+  function checkMonthLimits(yearValue, currentYear, currentMonth){
+    yearValue = parseInt(yearValue);
+    currentYear = parseInt(currentYear);
+    currentMonth = parseInt(currentMonth);
+    $("12").style.display = "none"
+
+    if (yearValue == currentYear){
+      for(i = 11; i > currentMonth - 1; i--){
+        $("" + i).style.display = "none";
+      }
+      $("clearButton").onmousedown = function(){
+        clearInput(); checkMonthLimits(yearValue, currentYear, currentMonth);
+      }
+    }else{
+      $("clearButton").onmousedown = function(){
+        clearInput();
+      }
+    }
+  }
+
+  function checkDayLimits(yearValue, currentYear, currentMonth, monthValue, currentDay){
+    yearValue = parseInt(yearValue);
+    currentYear = parseInt(currentYear);
+    currentMonth = parseInt(currentMonth);
+    monthValue = parseInt(monthValue);
+    currentDay = parseInt(currentDay);
+
+    if (yearValue == currentYear){
+      if(currentMonth == monthValue){
+        for(i = 31; i > currentDay; i--){
+          try{
+            $("" + i).style.display = "none";
+          }catch(exx){}
+        }
+        $("clearButton").onmousedown = function(){
+          clearInput(); checkDayLimits(yearValue, currentYear, currentMonth, monthValue, currentDay);
+        }
+      }
+    }else{
+      $("clearButton").onmousedown = function(){
+        clearInput();
+      }
+    }
+
+  }
+  
 </script>
 
 <% form_for :person, @person, :url => { :action => "update_demographics" } do |f| %>
@@ -71,6 +117,11 @@
       :tt_onLoad => 'seen(tstCurrentPage);' } %>
 
   <%when 'birthdate'%>
+    <%
+    current_year = Date.today.year
+    current_month = Date.today.month
+    current_day = Date.today.day
+  %>
     <%= text_field_tag "person[birth_year]", nil,
       {:helpText => 'Year of Birth',
       :field_type => 'number',
@@ -82,7 +133,9 @@
 
     <%= select_tag "person[birth_month]", month_name_options,
       {:helpText => 'Month of Birth',
-      :condition => '$("person_birth_year").value.toLowerCase() != "unknown"'}%>
+      :condition => '$("person_birth_year").value.toLowerCase() != "unknown"',
+      :tt_onLoad => "checkMonthLimits($('person_birth_year').value, #{current_year}, #{current_month})",
+      :tt_pageStyleClass => "NoKeyboard"}%>
 
     <%= text_field_tag "person[age_estimate]", nil,
       {:helpText => 'Age Estimate',
@@ -92,7 +145,14 @@
       :condition => '$("person_birth_year").value == "Unknown"',
       :tt_pageStyleClass => "Numeric NumbersOnly"} %>
 
-    <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number', :helpText => 'Birth Day', :absoluteMin => 1, :absoluteMax => 31, :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")', :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value,$('person_birth_month').value)"%>
+    <%= text_field_tag "person[birth_day]",  nil, 
+      :field_type => 'number',
+      :helpText => 'Birth Day',
+      :absoluteMin => 1,
+      :absoluteMax => 31,
+      :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")',
+      :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value,$('person_birth_month').value);
+                     checkDayLimits($('person_birth_year').value, #{current_year}, #{current_month}, $('person_birth_month').value, #{current_day})"%>
 
   <%when 'landmark'%>
 
@@ -211,9 +271,9 @@
       :helpText =>"Nationality",
       :field_type => 'text') %>
 
-     <%= text_field_tag "person[attributes][race]",  nil, :field_type => 'text',
-    :helpText => "Other Nationality",
-    :condition => '($("person_attributes_citizenship").value != "Malawian")'%>
+    <%= text_field_tag "person[attributes][race]",  nil, :field_type => 'text',
+      :helpText => "Other Nationality",
+      :condition => '($("person_attributes_citizenship").value != "Malawian")'%>
 
   <%when 'occupation'%>
     <%= select_tag "person[attributes][occupation]", options_for_select([" ", "Housewife", "Farmer", "Police", "Soldier", "Business", "Teacher", "Student", "Healthcare Worker"].sort.concat(["Other"]), params[:occupation]), {:helpText => 'Occupation'}%>
