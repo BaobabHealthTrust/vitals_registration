@@ -8,7 +8,7 @@ class ReportsController < ActionController::Base
       @nationalities << b.nationality_father
     }
 
-    @nationalities.uniq
+    @nationalities.uniq!
   end
 
   def report
@@ -69,7 +69,7 @@ class ReportsController < ActionController::Base
   def report_printable
     @babies = []
    
-	@facility = params["facility"] rescue ""
+    @facility = params["facility"] rescue ""
     if !params["start_date"].blank? && !params["end_date"].blank?
       @babies = BirthReport.find(:all, :conditions => ["DATE(date_of_birth) >= ? AND DATE(date_of_birth) <= ?",
           params["start_date"], params["end_date"]])
@@ -85,8 +85,8 @@ class ReportsController < ActionController::Base
     elsif !params["birth_district"].blank?
       @babies = BirthReport.find(:all, :conditions => ["district_of_birth = ?",
           params["birth_district"]])
-	elsif !params["facility"].blank?
-    @babies = BirthReport.find_by_sql("SELECT * FROM birth_report WHERE patient_id IN (SELECT person_id
+    elsif !params["facility"].blank?
+      @babies = BirthReport.find_by_sql("SELECT * FROM birth_report WHERE patient_id IN (SELECT person_id
         FROM person_attribute WHERE person_attribute_type_id = (SELECT person_attribute_type_id
         FROM person_attribute_type where name = 'Health Center') AND value = '#{@facility}')")  
     end

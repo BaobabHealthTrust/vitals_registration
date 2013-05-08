@@ -30,7 +30,7 @@
 
         <select id="nationality" name="nationality" helpText="Nationality" condition="__$('select_by').value=='Nationality'">
           <option></option>
-          <% @nationalities.each do |nationality| %>
+          <% (@nationalities || []).each do |nationality| %>
             <option><%= nationality %></option>
           <% end %>
         </select>
