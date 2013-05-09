@@ -77,7 +77,8 @@ class ReportsController < ActionController::Base
       @babies_map = {}
 
       @babies = BirthReport.find(:all)
-
+      
+      @babies_map["Unknown Nationality"] = []
       @babies.each do |baby|
         
         mother_nationality = baby.nationality_mother.blank?? "Unknown Nationality" : baby.nationality_mother
@@ -86,13 +87,19 @@ class ReportsController < ActionController::Base
         @nationalities << mother_nationality
         @nationalities << father_nationality
         
-        @babies_map["#{mother_nationality}"] = [] if  @babies_map["#{mother_nationality}"].class.to_s.downcase != "array"
-        @babies_map["#{mother_nationality}"] << baby.patient_id
+        if baby.nationality_mother.to_s.downcase == baby.nationality_father.to_s.downcase
+          @babies_map["#{mother_nationality}"] = [] if  @babies_map["#{mother_nationality}"].class.to_s.downcase != "array"
+          @babies_map["#{mother_nationality}"] << baby.patient_id
+        end
 
-        if baby.nationality_mother.to_s.downcase != baby.nationality_father.to_s.downcase         
+        if baby.nationality_mother.to_s.downcase != baby.nationality_father.to_s.downcase
+          nationality = (mother_nationality != "Unknown Nationality")? mother_nationality : mother_nationality
           @babies_map["#{father_nationality}"] = [] if  @babies_map["#{father_nationality}"].class.to_s.downcase != "array"
           @babies_map["#{father_nationality}"] << baby.patient_id
         end
+        
+        #temp = @babies_map["#{father_nationality}"].concat(@babies_map["#{mother_nationality}"])
+        #@babies_map["Unknown Nationality"] = @babies_map["Unknown Nationality"] -  temp
         
       end
       
