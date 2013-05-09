@@ -23,11 +23,11 @@ BEGIN
                     SET @father = (SELECT person_b FROM relationship WHERE person_b = new.person_id AND relationship = @father_type ORDER BY date_created DESC LIMIT 1);
 
                     IF COALESCE(@mother, '') != '' THEN
-                        UPDATE birth_report SET nationality_mother = new.value  WHERE patient_id IN (SELECT person_a FROM relationship WHERE relationship = @mother_type);
+                        UPDATE birth_report SET nationality_mother = new.value  WHERE patient_id IN (SELECT person_a FROM relationship WHERE relationship = @mother_type AND person_b = @mother);
                     END IF;
 
                     IF COALESCE(@father, '') != '' THEN
-                        UPDATE birth_report SET nationality_father = new.value  WHERE patient_id IN (SELECT person_a FROM relationship WHERE relationship = @father_type);
+                        UPDATE birth_report SET nationality_father = new.value  WHERE patient_id IN (SELECT person_a FROM relationship WHERE relationship = @father_type AND person_b = @father);
                     END IF;
 
                 END IF;

@@ -78,36 +78,43 @@ class ReportsController < ActionController::Base
 
       @babies = BirthReport.find(:all)
       
-      @babies_map["Unknown Nationality"] = []
+      
       @babies.each do |baby|
         
-        mother_nationality = baby.nationality_mother.blank?? "Unknown Nationality" : baby.nationality_mother
-        father_nationality = baby.nationality_father.blank?? "Unknown Nationality" : baby.nationality_father
+        mother_nationality = (baby.nationality_mother.blank? || baby.nationality_mother.to_s.strip == "")? "Unknown Nationality" : baby.nationality_mother
+        father_nationality = (baby.nationality_father.blank? || baby.nationality_father.to_s.strip == "" )? "Unknown Nationality" : baby.nationality_father
         
-        @nationalities << mother_nationality
-        @nationalities << father_nationality
-        
-        if baby.nationality_mother.to_s.downcase == baby.nationality_father.to_s.downcase
+              
+        if mother_nationality.to_s.downcase.strip == father_nationality.to_s.downcase.strip
+          
           @babies_map["#{mother_nationality}"] = [] if  @babies_map["#{mother_nationality}"].class.to_s.downcase != "array"
           @babies_map["#{mother_nationality}"] << baby.patient_id
-        end
+          
+        else mother_nationality.to_s.downcase != father_nationality.to_s.downcase
+          
+          if  @babies_map["Dual Nationality"].class.to_s.downcase != "array"
+            @babies_map["Dual Nationality"] = []           
+          end          
+          @babies_map["Dual Nationality"]<< baby.patient_id
 
-        if baby.nationality_mother.to_s.downcase != baby.nationality_father.to_s.downcase
-          nationality = (mother_nationality != "Unknown Nationality")? mother_nationality : mother_nationality
-          @babies_map["#{father_nationality}"] = [] if  @babies_map["#{father_nationality}"].class.to_s.downcase != "array"
-          @babies_map["#{father_nationality}"] << baby.patient_id
+          nationality = (mother_nationality != "Unknown Nationality")? mother_nationality : father_nationality
+          @babies_map["#{nationality}"] = [] if  @babies_map["#{nationality}"].class.to_s.downcase != "array"
+          @babies_map["#{nationality}"] << baby.patient_id
+
         end
         
         #temp = @babies_map["#{father_nationality}"].concat(@babies_map["#{mother_nationality}"])
         #@babies_map["Unknown Nationality"] = @babies_map["Unknown Nationality"] -  temp
         
       end
+      #raise @babies_map.to_yaml
+      @nationalities = @babies_map.keys      
+      #raise @babies_map.to_yaml
+
+      @nationalities = @nationalities.insert(0, @nationalities.delete_at(@nationalities.index("Unknown Nationality"))) rescue @nationalities
+                    
+      @nationalities = @nationalities.insert(0, @nationalities.delete_at(@nationalities.index("Dual Nationality"))) rescue @nationalities
       
-      @nationalities.uniq!
-      
-      if @nationalities.include?("Uknown Nationality") && @nationalities.size > 1
-        @nationalities = @nationalities.insert(@nationalities.length - 1, @nationalities.delete_at(@nationalities.index("Unknown Nationality"))) rescue @results
-      end
       # raise @babies_map.to_yaml
     end
      
@@ -135,6 +142,11 @@ class ReportsController < ActionController::Base
     end  
     
     render :layout => false
+  end
+
+  def debugger
+    patients = params[:ids].split(",")
+    @babies = BirthReport.find(:all, :conditions => ["patient_id IN (?)", patients])
   end
 
   def print_note
