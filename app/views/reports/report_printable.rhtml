@@ -19,7 +19,8 @@
         padding: 6px;      
       }
       .title {
-        padding: 10px;       
+        padding: 11px;
+        text-align: left;
       }
       .group{
         background: rgb(240, 240, 240);
@@ -61,11 +62,11 @@
           <table width="100%" style="font-size: 0.9em;" cellpadding="3">
             <tbody id="tb" style ="">
               <tr>
-                <%if params[:select_by] && params[:select_by].downcase == "nationality" %>
+                <%if params[:select_by] && @groups.present? %>
                   <th class ="title">
-                    Nationality
+                    <%=  @header %>
                   </th>
-                  <th >
+                  <th>
                     No. Of Registered Children
                   </th>
 
@@ -93,18 +94,18 @@
             </tbody>
             <tbody id="container">
 
-              <%if params[:select_by] && params[:select_by].downcase == "nationality" %>
+              <%if params[:select_by] && @groups.present? %>
 
-                <%(@nationalities || []).each do |nat|%>
-                  <% nat = "Unknown Nationality" if nat.blank? %>
+                <%(@groups || []).each do |group|%>
+                  <% next if group.blank? %>
                   <tr>
 
                     <td style="vertical-align: top;" class ="group">
-                      <%=  nat  %>
+                      <%=  group  %>
                     </td>
 
-                    <td class ="value" style="vertical-align: top; cursor: pointer;" onclick ="window.parent.location = '/reports/debugger?ids=<%=  @babies_map["#{nat}"].uniq.join(",")%>'">
-                      <%=  @babies_map["#{nat}"].uniq.length%>
+                    <td class ="value" style="vertical-align: top; cursor: pointer;" onclick ="window.parent.location = '/reports/debugger?ids=<%=  @babies_map["#{group}"].uniq.join(",")%>'">
+                      <%=  @babies_map["#{group}"].uniq.length%>
                     </td>
                   </tr>
                 <%end%>

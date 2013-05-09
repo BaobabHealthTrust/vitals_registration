@@ -1,6 +1,7 @@
 class ReportsController < ActionController::Base
   
   def select
+=begin
     @nationalities = []
     @babies_map = {}
 
@@ -10,6 +11,8 @@ class ReportsController < ActionController::Base
     }
 
     @nationalities.uniq!
+=end
+    
   end
 
   def report
@@ -72,12 +75,10 @@ class ReportsController < ActionController::Base
 
     if params[:select_by] && params[:select_by].downcase == "nationality"
 
-      @nationalities = []     
-    
+      @groups = []
+      @header = "Nationality"
       @babies_map = {}
-
-      @babies = BirthReport.find(:all)
-      
+      @babies = BirthReport.find(:all)      
       
       @babies.each do |baby|
         
@@ -88,19 +89,21 @@ class ReportsController < ActionController::Base
         if mother_nationality.to_s.downcase.strip == father_nationality.to_s.downcase.strip
           
           @babies_map["#{mother_nationality}"] = [] if  @babies_map["#{mother_nationality}"].class.to_s.downcase != "array"
-          @babies_map["#{mother_nationality}"] << baby.patient_id
+          @babies_map["#{mother_nationality}"] << baby.patient_id if !@babies_map["#{mother_nationality}"].include?(baby.patient_id)
           
         else mother_nationality.to_s.downcase != father_nationality.to_s.downcase
           
           if  @babies_map["Dual Nationality"].class.to_s.downcase != "array"
             @babies_map["Dual Nationality"] = []           
           end          
-          @babies_map["Dual Nationality"]<< baby.patient_id
+          @babies_map["Dual Nationality"]<< baby.patient_id if ![mother_nationality, father_nationality].include?("Unknown Nationality")
+          next if [mother_nationality, father_nationality].include?("Unknown Nationality")
+          #nationality = (mother_nationality != "Unknown Nationality")? mother_nationality : father_nationality
+          @babies_map["#{mother_nationality}"] = [] if  @babies_map["#{mother_nationality}"].class.to_s.downcase != "array"
+          @babies_map["#{mother_nationality}"] << baby.patient_id if !@babies_map["#{mother_nationality}"].include?(baby.patient_id)
 
-          nationality = (mother_nationality != "Unknown Nationality")? mother_nationality : father_nationality
-          @babies_map["#{nationality}"] = [] if  @babies_map["#{nationality}"].class.to_s.downcase != "array"
-          @babies_map["#{nationality}"] << baby.patient_id
-
+          @babies_map["#{father_nationality}"] = [] if  @babies_map["#{father_nationality}"].class.to_s.downcase != "array"
+          @babies_map["#{father_nationality}"] << baby.patient_id if !@babies_map["#{father_nationality}"].include?(baby.patient_id)
         end
         
         #temp = @babies_map["#{father_nationality}"].concat(@babies_map["#{mother_nationality}"])
@@ -108,37 +111,57 @@ class ReportsController < ActionController::Base
         
       end
       #raise @babies_map.to_yaml
-      @nationalities = @babies_map.keys      
+      @groups = @babies_map.keys
       #raise @babies_map.to_yaml
 
-      @nationalities = @nationalities.insert(0, @nationalities.delete_at(@nationalities.index("Unknown Nationality"))) rescue @nationalities
+      @groups = @groups.insert(0, @groups.delete_at(@groups.index("Unknown Nationality"))) rescue @groups
                     
-      @nationalities = @nationalities.insert(0, @nationalities.delete_at(@nationalities.index("Dual Nationality"))) rescue @nationalities
+      @groups = @groups.insert(0, @groups.delete_at(@groups.index("Dual Nationality"))) rescue @groups
       
       # raise @babies_map.to_yaml
     end
-     
-    @facility = params["facility"] rescue ""
+
+    if params[:select_by] && params[:select_by].downcase == "district of birth"
+      @groups = []
+      @header = "District Of Birth"
+      @babies_map = {}
+      @babies = BirthReport.find(:all)
+
+      @babies.each do |baby|
+        district = baby.district_of_birth.blank?? "Unknown District Of Birth" : baby.district_of_birth
+        
+        @babies_map["#{district}"] = [] if @babies_map["#{district}"].class.to_s.downcase != "array"
+        @babies_map["#{district}"] << baby.patient_id if !@babies_map["#{district}"].include?(baby.patient_id)
+      end
+      @groups = @babies_map.keys
+    end
+
+    if params[:select_by] && params[:select_by].downcase == "health facility"
+      @groups = []
+      @header = "Health Facility"
+      @babies_map = {}
+      @babies = BirthReport.find(:all)
+      prov_facility_attr = PersonAttributeType.find_by_name("Health Center").id
+      
+      @babies.each do |baby|
+        facility = PersonAttribute.find(:first, :order => ["date_created DESC"],
+          :conditions => ["person_attribute_type_id = ? AND person_id = ?",
+            prov_facility_attr, baby.patient_id]).value 
+        
+        facility = facility.blank?? "Unknown Health Facility" : facility
+
+        @babies_map["#{facility}"] = [] if @babies_map["#{facility}"].class.to_s.downcase != "array"
+        @babies_map["#{facility}"] << baby.patient_id if !@babies_map["#{facility}"].include?(baby.patient_id)
+      end
+      @groups = @babies_map.keys
+    end
+    
+   
     if !params["start_date"].blank? && !params["end_date"].blank?
       @babies = BirthReport.find(:all, :conditions => ["DATE(date_of_birth) >= ? AND DATE(date_of_birth) <= ?",
-          params["start_date"], params["end_date"]])        
-    elsif !params["nationality"].blank?
-      @babies = BirthReport.find(:all, :conditions => ["nationality_mother = ? OR nationality_father = ?",
-          params["nationality"], params["nationality"]])
+          params["start_date"], params["end_date"]])
+
       
-    elsif !params["current_district"].blank?
-      @babies = BirthReport.find(:all, :conditions => ["current_district_mother = ? OR current_district_father = ?",
-          params["current_district"], params["current_district"]])
-    elsif !params["home_district"].blank?
-      @babies = BirthReport.find(:all, :conditions => ["home_district_mother = ? OR home_district_father = ?",
-          params["home_district"], params["home_district"]])
-    elsif !params["birth_district"].blank?
-      @babies = BirthReport.find(:all, :conditions => ["district_of_birth = ?",
-          params["birth_district"]])
-    elsif !params["facility"].blank?
-      @babies = BirthReport.find_by_sql("SELECT * FROM birth_report WHERE patient_id IN (SELECT person_id
-        FROM person_attribute WHERE person_attribute_type_id = (SELECT person_attribute_type_id
-        FROM person_attribute_type where name = 'Health Center') AND value = '#{@facility}')")  
     end  
     
     render :layout => false
