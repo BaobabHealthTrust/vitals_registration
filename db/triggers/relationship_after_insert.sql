@@ -4,14 +4,14 @@ CREATE TRIGGER `relationship_after_insert` AFTER INSERT
 ON `relationship`
 FOR EACH ROW
 BEGIN
-  SET @mother = (SELECT relationship_type_id FROM relationship_type WHERE a_is_to_b = "Child" AND b_is_to_a = "Mother");
-  SET @father = (SELECT relationship_type_id FROM relationship_type WHERE a_is_to_b = "Child" AND b_is_to_a = "Father");
+  SET @mother = (SELECT relationship_type_id FROM relationship_type WHERE a_is_to_b = "Child" AND b_is_to_a = "Mother" ORDER BY date_created LIMIT 1);
+  SET @father = (SELECT relationship_type_id FROM relationship_type WHERE a_is_to_b = "Child" AND b_is_to_a = "Father" ORDER By date_created LIMIT 1);
   SET @serial_number = (SELECT identifier FROM patient_identifier WHERE patient_id = new.person_a AND identifier_type = 
-          (SELECT patient_identifier_type_id FROM patient_identifier_type WHERE name = "Serial Number") ORDER BY date_created DESC LIMIT 1);
-  SET @name = (SELECT CONCAT(given_name, " ", COALESCE(middle_name, ""), " ", family_name) FROM person_name WHERE person_id = new.person_a);
-  SET @dob = (SELECT birthdate FROM person WHERE person_id = new.person_a);
+          (SELECT patient_identifier_type_id FROM patient_identifier_type WHERE name = "Serial Number" ORDER BY date_created DESC LIMIT 1) ORDER BY date_created DESC LIMIT 1);
+  SET @name = (SELECT CONCAT(given_name, " ", COALESCE(middle_name, ""), " ", family_name) FROM person_name WHERE person_id = new.person_a ORDER BY date_created DESC LIMIT 1);
+  SET @dob = (SELECT birthdate FROM person WHERE person_id = new.person_a ORDER BY date_created DESC LIMIT 1);
   SET @district_of_birth = (SELECT value FROM person_attribute WHERE person_id = new.person_a AND person_attribute_type_id = 
-          (SELECT person_attribute_type_id FROM person_attribute_type WHERE name = "Health District") );
+          (SELECT person_attribute_type_id FROM person_attribute_type WHERE name = "Health District" ORDER BY date_created DESC LIMIT 1) ORDER BY date_created DESC LIMIT 1);
   SET @baby_id_number = (SELECT identifier FROM patient_identifier WHERE patient_id = new.person_a AND identifier_type = 
           (SELECT patient_identifier_type_id FROM patient_identifier_type WHERE name = "National id")  AND voided = 0 ORDER BY date_created DESC LIMIT 1);
   

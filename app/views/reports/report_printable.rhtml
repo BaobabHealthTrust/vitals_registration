@@ -13,9 +13,15 @@
         background-color: #6281A7;
         color: #eee;
       }
+      td{
+        text-align: center;
+        font-size: 1.1em;
+        padding: 6px;
+      }
     </style>
   </head>
   <body>
+
     <table cellpadding="5" width="100%" style="font-family: verdana;">
       <tr>
         <td style="text-align: center;">
@@ -40,114 +46,137 @@
       <tr>
         <td>
           <table width="100%" style="font-size: 0.9em;" cellpadding="3">
-            <tbody id="tb">
-              <tr>                
-                <th>
-                  ID number
-                </th>
+            <tbody id="tb" style ="">
+              <tr>
+                <%if params[:select_by] && params[:select_by].downcase == "nationality" %>
+                  <th class ="group ">
+                    Nationality
+                  </th>
+                  <th class="value">
+                    No. Of Registered Children
+                  </th>
 
-                <th>
-                  District of birth
-                </th>
+                <%elsif params[:facility]%>
+                  <th class ="group">
+                    Facility
+                  </th>
+                  <th>
+                    No. of Registered Children
+                  </th>
+                <%elsif params[:home_district]%>
+                  <th>
+                    Nationality of parents
+                  </th>
+                <%elsif params[:birth_district]%>
+                  <th>
+                    Name and home address of mother
+                  </th>
+                <%elsif params[:current_district]%>
+                  <th>
+                    Name and home address of father
+                  </th>
+                <%end%>
 
-                <th>
-                  Physical residential address of parents
-                </th>
-
-                <th>
-                  Nationality of parents
-                </th>
-
-                <th>
-                  Name and home address of mother
-                </th>
-
-                <th>
-                  Name and home address of father
-                </th>
-
-                <th>
-                  Date of birth
-                </th>
-
-                <th>
-                  Name of child
-                </th>
-
-                <th>
-                  Serial number
-                </th>
-
-              </tr>
             </tbody>
             <tbody id="container">
-              <% @babies.each do |baby| %>
 
-                <tr>
+              <%if params[:select_by] && params[:select_by].downcase == "nationality" %>
 
-                   <td style="vertical-align: top;">
-                    <%= baby.baby_id_number %>
-                  </td>
+                <%(@nationalities || []).each do |nat|%>
+                  <% nat = "Unknown Nationality" if nat.blank? %>
+                  <tr>
 
-                  <td style="vertical-align: top;">
-                    <%= baby.district_of_birth %>
-                  </td>                 
+                    <td style="vertical-align: top;">
+                      <%=  nat  %>
+                    </td>
 
-                  <td style="vertical-align: top;">
-                    <%=
-                    if baby.current_address_father != baby.current_address_mother
-                      "#{baby.current_address_father}, #{baby.current_village_or_location_father
-    }<br/> OR <br />#{baby.current_address_mother}, #{baby.current_village_or_location_mother
-    }<br/>"
-                    elsif !baby.current_address_father.nil?
-                      "#{baby.current_address_father}, #{baby.current_village_or_location_father}"
-                    else
-                      "#{baby.current_address_mother}<br />#{baby.current_village_or_location_mother}"
-                    end
-                  %>
-                  </td>
+                    <td style="vertical-align: top;">
+                      <%=  @babies_map["#{nat}"].length %>
+                    </td>
+                  </tr>
+                <%end%>
 
-                   <td style="vertical-align: top;">
-                    <%=
-                    if baby.nationality_father != baby.nationality_mother
-                      "#{baby.nationality_father}/#{baby.nationality_mother}"
-                    elsif !baby.nationality_father.nil?
-                      "#{baby.nationality_father}"
-                    else
-                      "#{baby.nationality_mother}"
-                    end
-                  %>
-                  </td>
+              <%elsif params[:facility]%>
 
-                   <td style="vertical-align: top;">
-                    <%= baby.name_mother %><br/>
-                    <%= baby.home_village_mother %><br/>
-                    <%= baby.home_ta_mother %><br />
-                    <%= baby.home_district_mother %>
-                  </td>
+              <%elsif params[:home_district]%>
 
-                  <td style="vertical-align: top;">
-                    <%= baby.name_father %><br/>
-                    <%= baby.home_village_father %><br/>
-                    <%= baby.home_ta_father %><br />
-                    <%= baby.home_district_father %>
-                  </td>
+              <%elsif params[:birth_district]%>
 
-                   <td style="vertical-align: top;">
-                    <%= baby.date_of_birth.strftime("%d/%b/%Y") rescue "" %>
-                  </td>
+              <%elsif params[:current_district]%>
 
-                  <td style="vertical-align: top;">
-                    <%= baby.name_of_child %>
-                  </td>
+              <%end%>
 
-                   <td style="vertical-align: top;">
-                    <%= baby.serial_number %>
-                  </td>
-                  
-                </tr>
+              <%if false%>
+                <% @babies.each do |baby| %>
 
-              <% end %>
+                  <tr>
+
+
+
+                    <td style="vertical-align: top;">
+                      <%= baby.baby_id_number %>
+                    </td>
+
+                    <td style="vertical-align: top;">
+                      <%= baby.district_of_birth %>
+                    </td>
+
+                    <td style="vertical-align: top;">
+                      <%=
+                      if baby.current_address_father != baby.current_address_mother
+                        "#{baby.current_address_father}, #{baby.current_village_or_location_father
+      }<br/> OR <br />#{baby.current_address_mother}, #{baby.current_village_or_location_mother
+      }<br/>"
+                      elsif !baby.current_address_father.nil?
+                        "#{baby.current_address_father}, #{baby.current_village_or_location_father}"
+                      else
+                        "#{baby.current_address_mother}<br />#{baby.current_village_or_location_mother}"
+                      end
+                    %>
+                    </td>
+
+                    <td style="vertical-align: top;">
+                      <%=
+                      if baby.nationality_father != baby.nationality_mother
+                        "#{baby.nationality_father}/#{baby.nationality_mother}"
+                      elsif !baby.nationality_father.nil?
+                        "#{baby.nationality_father}"
+                      else
+                        "#{baby.nationality_mother}"
+                      end
+                    %>
+                    </td>
+
+                    <td style="vertical-align: top;">
+                      <%= baby.name_mother %><br/>
+                      <%= baby.home_village_mother %><br/>
+                      <%= baby.home_ta_mother %><br />
+                      <%= baby.home_district_mother %>
+                    </td>
+
+                    <td style="vertical-align: top;">
+                      <%= baby.name_father %><br/>
+                      <%= baby.home_village_father %><br/>
+                      <%= baby.home_ta_father %><br />
+                      <%= baby.home_district_father %>
+                    </td>
+
+                    <td style="vertical-align: top;">
+                      <%= baby.date_of_birth.strftime("%d/%b/%Y") rescue "" %>
+                    </td>
+
+                    <td style="vertical-align: top;">
+                      <%= baby.name_of_child %>
+                    </td>
+
+                    <td style="vertical-align: top;">
+                      <%= baby.serial_number %>
+                    </td>
+
+                  </tr>
+
+                <% end %>
+              <%end%>
             </tbody>
           </table>
         </td>

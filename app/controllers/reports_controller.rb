@@ -2,6 +2,7 @@ class ReportsController < ActionController::Base
   
   def select
     @nationalities = []
+    @babies_map = {}
 
     BirthReport.find(:all).collect{|b|
       @nationalities << b.nationality_mother
@@ -68,14 +69,49 @@ class ReportsController < ActionController::Base
 
   def report_printable
     @babies = []
-   
+
+    if params[:select_by] && params[:select_by].downcase == "nationality"
+
+      @nationalities = []     
+    
+      @babies_map = {}
+
+      @babies = BirthReport.find(:all)
+
+      @babies.each do |baby|
+        
+        mother_nationality = baby.nationality_mother.blank?? "Unknown Nationality" : baby.nationality_mother
+        father_nationality = baby.nationality_father.blank?? "Unknown Nationality" : baby.nationality_father
+        
+        @nationalities << mother_nationality
+        @nationalities << father_nationality
+        
+        @babies_map["#{mother_nationality}"] = [] if  @babies_map["#{mother_nationality}"].class.to_s.downcase != "array"
+        @babies_map["#{mother_nationality}"] << baby.patient_id
+
+        if baby.nationality_mother.to_s.downcase != baby.nationality_father.to_s.downcase         
+          @babies_map["#{father_nationality}"] = [] if  @babies_map["#{father_nationality}"].class.to_s.downcase != "array"
+          @babies_map["#{father_nationality}"] << baby.patient_id
+        end
+        
+      end
+      
+      @nationalities.uniq!
+      
+      if @nationalities.include?("Uknown Nationality") && @nationalities.size > 1
+        @nationalities = @nationalities.insert(@nationalities.length - 1, @nationalities.delete_at(@nationalities.index("Unknown Nationality"))) rescue @results
+      end
+      # raise @babies_map.to_yaml
+    end
+     
     @facility = params["facility"] rescue ""
     if !params["start_date"].blank? && !params["end_date"].blank?
       @babies = BirthReport.find(:all, :conditions => ["DATE(date_of_birth) >= ? AND DATE(date_of_birth) <= ?",
-          params["start_date"], params["end_date"]])
+          params["start_date"], params["end_date"]])        
     elsif !params["nationality"].blank?
       @babies = BirthReport.find(:all, :conditions => ["nationality_mother = ? OR nationality_father = ?",
           params["nationality"], params["nationality"]])
+      
     elsif !params["current_district"].blank?
       @babies = BirthReport.find(:all, :conditions => ["current_district_mother = ? OR current_district_father = ?",
           params["current_district"], params["current_district"]])
@@ -89,8 +125,8 @@ class ReportsController < ActionController::Base
       @babies = BirthReport.find_by_sql("SELECT * FROM birth_report WHERE patient_id IN (SELECT person_id
         FROM person_attribute WHERE person_attribute_type_id = (SELECT person_attribute_type_id
         FROM person_attribute_type where name = 'Health Center') AND value = '#{@facility}')")  
-    end
-
+    end  
+    
     render :layout => false
   end
 

@@ -28,7 +28,7 @@
   <body id="mateme">
     <div id="container">
       <div id="content">
-        <iframe id="main" src="/reports/report_printable<%= @parameters %>"></iframe>
+        <iframe id="main" src="/reports/report_printable<%= @parameters.blank?? '?' : @parameters %>&select_by=<%= params[:select_by]%>"></iframe>
 
         <div style="z-index:11;bottom:0px; height: 82px; width: 100%; left: 0px;
              right: -66px; position: absolute; background-color: #333333; padding: 0px;">
