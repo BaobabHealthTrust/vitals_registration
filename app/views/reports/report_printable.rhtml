@@ -1,6 +1,11 @@
 <html>
   <head>
     <title>report</title>
+    <script>
+<%   if params[:select_by] && params[:select_by].downcase == "date of birth" && !params["start_date"].blank? && !params["end_date"].blank? %>
+    window.parent.location = "/reports/debugger?by_date=true&ids=<%= @babies.join(",") %>"
+<%end%>
+    </script>
     <style>
       table {
         font-family: verdana;
@@ -16,7 +21,7 @@
       td{
         text-align: center;
         font-size: 1.1em;
-        padding: 6px;      
+        padding: 6px;
       }
       .title {
         padding: 11px;

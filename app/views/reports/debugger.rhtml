@@ -2,6 +2,15 @@
   <head>
     <title>report</title>
     <script type="text/javascript" language="javascript" src="/lib/javascripts/touchScreenToolkit.js" defer  ></script>
+    <script>
+      function returnBack(){
+<%if (params[:by_date] == "true" rescue false)%>
+window.parent.location = "/"
+<%else%>
+back();
+<%end%>
+  }
+    </script>
     <style>
       table {
         font-family: verdana;
@@ -14,8 +23,8 @@
         background-color: #6281A7;
         color: #eee;
       }
-      
-     .blue {
+
+      .blue {
         background:url(/images/btn_blue.png) right no-repeat;
         font-size:1.3em;
         line-height:50px;
@@ -168,8 +177,8 @@
       </table>
   </body>
   <div id="navigation" style="background-color: #333333; position: absolute; bottom: 0px; width: 99%; height: 80px;">
-  
-    <button  class="button navButton blue" style="float: right; margin: 10px; width: 150px;" onclick="back()">
+
+    <button  class="button navButton blue" style="float: right; margin: 10px; width: 150px;" onclick="returnBack()">
       <span>
         Back
       </span>
@@ -177,6 +186,6 @@
   </div>
 </div>
 <script>
-  document.getElementById("nextButton").onmousedown = function(){back();};
+  document.getElementById("nextButton").onmousedown = function(){returnBack();};
 </script>
 </html>

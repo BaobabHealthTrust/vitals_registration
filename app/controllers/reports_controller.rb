@@ -157,11 +157,9 @@ class ReportsController < ActionController::Base
     end
     
    
-    if !params["start_date"].blank? && !params["end_date"].blank?
-      @babies = BirthReport.find(:all, :conditions => ["DATE(date_of_birth) >= ? AND DATE(date_of_birth) <= ?",
-          params["start_date"], params["end_date"]])
-
-      
+    if params[:select_by] && params[:select_by].downcase == "date of birth" && !params["start_date"].blank? && !params["end_date"].blank?
+      @babies = (BirthReport.find(:all, :conditions => ["DATE(date_of_birth) >= ? AND DATE(date_of_birth) <= ?",
+            params["start_date"], params["end_date"]]) rescue []).uniq.collect{|br| br.patient_id if !br.blank?} rescue []           
     end  
     
     render :layout => false
@@ -170,6 +168,7 @@ class ReportsController < ActionController::Base
   def debugger
     patients = params[:ids].split(",")
     @babies = BirthReport.find(:all, :conditions => ["patient_id IN (?)", patients])
+     render :layout => false
   end
 
   def print_note
