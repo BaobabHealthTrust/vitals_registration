@@ -146,7 +146,7 @@ class ReportsController < ActionController::Base
       @babies.each do |baby|
         facility = PersonAttribute.find(:first, :order => ["date_created DESC"],
           :conditions => ["person_attribute_type_id = ? AND person_id = ?",
-            prov_facility_attr, baby.patient_id]).value 
+            prov_facility_attr, baby.patient_id]).value rescue nil
         
         facility = facility.blank?? "Unknown Health Facility" : facility
 
