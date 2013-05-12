@@ -105,8 +105,9 @@
           <td><a href="edit_demographics?patient_id=<%=@patient.id%>&field=birthdate&person_id=<%=
                  @person.id %>&cat=<%= (params["cat"] rescue "") %>">Edit</a></td>
         </tr>
+         <%gender = params[:cat] == "baby"? "Sex" : "Gender"%>
         <tr>
-          <td class='title'>Gender</td>
+          <td class='title'><%=gender%></td>
           <td class='data'><%=@gender%></td>
           <td><a href="edit_demographics?patient_id=<%=@patient.id%>&field=gender&person_id=<%=
                  @person.id %>&cat=<%= (params["cat"] rescue "") %>&gender=<%= (@gender == "Male" ? "M" : "F") %>">Edit</a></td>

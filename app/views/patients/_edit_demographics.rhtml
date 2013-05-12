@@ -110,10 +110,11 @@
       :tt_onLoad => 'seen(tstCurrentPage);' } %>
 
   <%when 'gender'%>
+     <%gender = params[:cat] == "baby"? "Sex" : "Gender"%>
     Gender: <%= select_tag "gender", options_for_select([["",""], ["Male", "M"], ["Female", "F"]], params[:gender]),
       {
       :id => 'gender',
-      :helpText => 'Gender',
+      :helpText => "#{gender}",
       :tt_onLoad => 'seen(tstCurrentPage);' } %>
 
   <%when 'birthdate'%>
