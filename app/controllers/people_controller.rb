@@ -1,8 +1,15 @@
 class PeopleController < GenericPeopleController
    
   def create
-	
-    # raise params.to_yaml
+    
+    if params[:cat] && params[:cat].downcase == "mother"
+      params["gender"] = "F"
+      params["person"]["gender"] = "F"
+    elsif params[:cat] && params[:cat].downcase == "father"
+      params["gender"] = "M"
+      params["person"]["gender"] = "M"
+    end
+
     serial_number_check = PatientIdentifier.find(:all, :conditions => ["identifier = ? AND identifier_type = ?",
         params["person"]["patient"]["identifiers"]["serial number"], PatientIdentifierType.find_by_name("Serial Number").id]) rescue [] if params[:cat].downcase == "baby" && params["person"]["patient"]["identifiers"]["serial number"]
 
@@ -132,6 +139,12 @@ class PeopleController < GenericPeopleController
   end
 
   def search
+    #synthesize gender values using :cat
+    if params[:cat] && params[:cat].downcase == "mother"
+      params[:gender] = "F"
+    elsif params[:cat] && params[:cat].downcase == "father"
+      params[:gender] = "M"
+    end
     found_person = nil
     if params[:identifier]
       pdata = PatientService.search_by_identifier(params[:identifier])
@@ -438,7 +451,7 @@ class PeopleController < GenericPeopleController
 			url = "/relationships/new?patient_id=#{params[:session_patient_id]}&relation=#{patient.id}&cat=#{params[:cat]}"
 			redirect_to url and return
 		end     
-      redirect_to next_task(patient)
+    redirect_to next_task(patient)
   end
 
 =begin

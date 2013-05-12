@@ -150,7 +150,7 @@
     listSuggestions(tstCurrentPage);
   }
 
-   function checkMonthLimits(yearValue, currentYear, currentMonth){
+  function checkMonthLimits(yearValue, currentYear, currentMonth){
     yearValue = parseInt(yearValue);
     currentYear = parseInt(currentYear);
     currentMonth = parseInt(currentMonth);
@@ -181,7 +181,7 @@
       if(currentMonth == monthValue){
         for(i = 31; i > currentDay; i--){
           try{
-          $("" + i).style.display = "none";
+            $("" + i).style.display = "none";
           }catch(exx){}
         }
         $("clearButton").onmousedown = function(){
@@ -230,11 +230,20 @@
     :condition => '$("family_name").value == "" || skipped[tstCurrentPage] == 1',
     :tt_onLoad => 'seen(tstCurrentPage);' } %>
 
+  <%gender = ''
+  if params[:cat] && params[:cat] == 'mother'
+    gender = "F"
+  elsif params[:cat] && params[:cat] == 'father'
+    gender = "M"
+  end
+%>
+
   Gender: <%= f.select :gender, options_for_select([["", ""], ["Male", "M"], ["Female", "F"]], "F"),
     {:selected => params[:gender]}, {:id => 'gender',
     :helpText => "#{params[:cat].titleize} gender",
-    :condition => 'false/*$("gender").value == "" || skipped[tstCurrentPage] == 1*/',
-    :tt_onLoad => 'seen(tstCurrentPage);',
+    :condition => "false",
+    #:condition => 'false/*$("gender").value == "" || skipped[tstCurrentPage] == 1*/',
+    :tt_onLoad => "$('touchscreenInput'+tstCurrentPage).value = #{gender}; seen(tstCurrentPage);",
     :tt_onUnLoad => "if(__$('gender').value.toLowerCase() == 'm'){
     __$('person_birth_year').setAttribute('absoluteMin', #{(session[:datetime] || Date.today).to_date.year - 6});
     }"
@@ -292,14 +301,14 @@
     :field_type => 'number',
     :condition => '$("person_birth_year").value == "Unknown"',
     :tt_onLoad => "$('nextButton').style.display = 'block';",
-    :tt_pageStyleClass => "Numeric NumbersOnly"
+    :tt_pageStyleClass => "Numeric NumbersOnlyWithUnknown"
   } %>
 
   <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number',
     :helpText => "#{params[:cat].titleize} Birth Day",
     :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")',
     :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value, $('person_birth_month').value);$('nextButton').style.display = 'block';
-                   checkDayLimits($('person_birth_year').value, #{current_year}, #{current_month}, $('person_birth_month').value, #{current_day})" ,
+  checkDayLimits($('person_birth_year').value, #{current_year}, #{current_month}, $('person_birth_month').value, #{current_day})" ,
     :validationJS => "validateDOB()",
     :validationMessage => 'Please enter a valid date'%>
 
