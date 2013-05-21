@@ -223,7 +223,7 @@ function generateHomepage(){
 
     var scanlabel = document.createElement("div");
     scanlabel.id = "scanlabel";
-    scanlabel.innerHTML = "Scan Patient Barcode :";
+    scanlabel.innerHTML = "Scan Barcode :";
 
     bannerrow.appendChild(scanlabel);
 
