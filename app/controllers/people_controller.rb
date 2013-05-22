@@ -512,7 +512,13 @@ private
 
     redirect_to "/patients/show/#{patient_id}" if !patient_id.blank?
 
-    flash[:error] = "Couldnt Find Client With Serial Number #{params[:serial_number]}"
+    if patient_id.blank?
+  
+      params[:cancel_show] = params[:cancel_show]? params[:cancel_show] : "/clinic"
+      params[:cancel_destination] = params[:cancel_destination]? params[:cancel_destination] : "/clinic"
+   
+      redirect_to "/clinic/link_error?cancel_show=#{params[:cancel_show]}&cancel_destination=#{params[:cancel_destination]}&message=couldn't_find_person_with_serial_number_#{params[:serial_number]}" and return
+    end
 
     redirect_to "/clinic" if patient_id.blank?
     

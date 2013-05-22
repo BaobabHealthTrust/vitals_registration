@@ -5,5 +5,9 @@
  </script>
 
 <div style="padding-top: 20%;text-align:center;">
-  <h1 style="color: lightcoral;">Central Repository Not Found</br></br> Contact 0995 880 419 For Help</h1>
+  <%if params[:message]%>
+ <h1 style="color: lightcoral;"><%=  params[:message].humanize rescue "System Error" %></h1>
+  <%else%>
+  <h1 style="color: lightcoral;">Central Repository Not Found</br></br> Contact Admin For Help</h1>
+  <%end%>
 </div>
