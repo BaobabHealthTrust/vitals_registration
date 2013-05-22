@@ -89,7 +89,7 @@
       if(currentMonth == monthValue){
         for(i = 31; i > currentDay; i--){
           try{
-          $("" + i).style.display = "none";
+            $("" + i).style.display = "none";
           }catch(exx){}
         }
         $("clearButton").onmousedown = function(){
@@ -199,12 +199,14 @@
     :helpText => 'Birth Day',
     :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")',
     :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value, $('person_birth_month').value);$('nextButton').style.display = 'block';
-                      checkDayLimits($('person_birth_year').value, #{current_year}, #{current_month}, $('person_birth_month').value, #{current_day})" ,
-    :validationJS => "validateDOB()",   
+  checkDayLimits($('person_birth_year').value, #{current_year}, #{current_month}, $('person_birth_month').value, #{current_day})" ,
+    :validationJS => "validateDOB()",
     :validationMessage => 'Please enter a valid date'%>
 
   <%= text_field_tag "person[patient][identifiers][serial number]", nil, {
     :helpText => 'Serial Number',
+    :field_type => "number",
+    :tt_pageStyleClass => "Numeric NumbersOnly",
     :tt_onLoad => "$('nextButton').style.display = 'block';"
   } %>
 

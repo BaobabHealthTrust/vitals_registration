@@ -504,6 +504,19 @@ private
     else                                                                        
       birthdate.strftime("%d/%b/%Y")                                            
     end                                                                         
-  end 
+  end
+
+  def search_serial_number
+    patient_id = PatientIdentifier.find(:all, :order => ["date_created DESC"], :conditions =>["identifier_type = ? AND identifier = ?",
+        PatientIdentifierType.find_by_name("Serial Number").patient_identifier_type_id, params[:serial_number]]).last.patient_id rescue nil
+
+    redirect_to "/patients/show/#{patient_id}" if !patient_id.blank?
+
+    flash[:error] = "Couldnt Find Client With Serial Number #{params[:serial_number]}"
+
+    redirect_to "/clinic" if patient_id.blank?
+    
+  end
+  
 end
  

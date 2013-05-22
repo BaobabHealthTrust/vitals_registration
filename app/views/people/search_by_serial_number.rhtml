@@ -1,0 +1,9 @@
+<script>
+  tt_cancel_destination = "/";
+</script>
+<form id='batch_limits' action="/people/search_serial_number">
+ <%= text_field_tag("serial_number", nil, {:field_type => 'number', :tt_PageStyleClass => 'NumbersOnly', :helpText => 'Enter Serial Number'}) %> <br>
+ 
+
+  <%= submit_tag value="Submit"%>
+</form>
