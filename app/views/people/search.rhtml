@@ -348,14 +348,14 @@ end -%>
     tstDualViewOptions = people;
   }
 
-  function resetTimer(n){
-    if(n == 2){
+  function resetTimer(n, cat){
+    if((n == 2) && (cat.trim() == "baby")){
       var buttondiv = __$("buttons");
       buttondiv = document.getElementById("buttons");
       child = $("serialNumSearch");
       buttondiv.removeChild(child);
      
-    }else if (n == 1){
+    }else if ((n == 1) && (cat.trim() == "baby")){
       var buttondiv = __$("buttons");
       buttondiv = document.getElementById("buttons");
       buttondiv.innerHTML += "<div id='tt_extraButtons'></div>"
@@ -370,8 +370,8 @@ end -%>
     <% form_tag "search", :method => :get do %>
       <%= text_field_tag :given_name, params[:given_name],
         {:field_type => 'alpha',
-        :tt_onLoad => 'resetTimer(1);',
-        :tt_onUnLoad => "resetTimer(2)",
+        :tt_onLoad => "resetTimer(1, '#{params[:cat]}');",
+        :tt_onUnLoad => "resetTimer(2, '#{params[:cat]}');",
         :helpText => "#{params[:cat].titleize rescue nil} First name",
         :ajaxURL => '/person_names/given_names?search_string=',
         :allowFreeText => true }%>
