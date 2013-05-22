@@ -79,22 +79,23 @@ function generateGenerics(patient_id){
     var parent_container = document.createElement("div");
     parent_container.id = "parent_container";
     parent_container.style.position = "absolute";
-    parent_container.style.marginLeft = "-500px";
-    parent_container.style.marginTop = "-358px";
+    parent_container.style.marginLeft = "0.5%";
+    parent_container.style.marginRight = "0.5%";
+    parent_container.style.marginTop = "-370px";
     parent_container.style.top = "50%";
-    parent_container.style.left = "50%";
-    parent_container.style.height = "630px";
-    parent_container.style.width = "1000px";
+    // parent_container.style.left = "50%";
+    parent_container.style.height = "660px";
+    parent_container.style.width = "99%";
     parent_container.style.overflow = "hidden";
     parent_container.style.zIndex = "20";
-    parent_container.style.backgroundColor = "#FFFFFF";
+    parent_container.style.backgroundColor = "#ffffff";
 
     __$("content").appendChild(parent_container);
 
     var mainDiv = document.createElement("div");
     mainDiv.id = "mainDiv";
-    mainDiv.style.width = "960px";
-    mainDiv.style.height = "590px";
+    mainDiv.style.width = "97%";
+    mainDiv.style.height = "610px";
     mainDiv.style.margin = "10px";
 
     parent_container.appendChild(mainDiv);
@@ -603,7 +604,7 @@ function askPrescriptionType(){
                 showMessage("Please select a value first", false, false)
             } else {
                 if(__$("btnForwardPrescriptionType").innerHTML == "<span>Done</span>"){
-                    processDrug(current_concept_id);
+                    processDrug(current_concept_id, "true");
                 } else if(__$("editPrescriptionType").value == "Variable"){
                     askMorningDose();
                 } else {
@@ -1884,7 +1885,7 @@ function closePopUps(){
     clearTextInput();
 }
 
-function processDrug(concept_id){
+function processDrug(concept_id, statdose){
     var li = document.createElement("li");
     
     var pos = __$("ulDoses").getElementsByTagName("li").length % 2;
@@ -1895,14 +1896,14 @@ function processDrug(concept_id){
     
     var drug = "";
     
-    var duration = (__$("editDuration") ? __$("editDuration").value : "1");
+    var duration = (__$("editDuration") ? (typeof(statdose) != "undefined" ? "1" : __$("editDuration").value) : "1");
     var prn = (__$("editPRN") ? __$("editPRN").value : "No");
     var type = (__$("editPrescriptionType") ? (__$("editPrescriptionType").value == 
         "Stat Dose" ? "Standard" : __$("editPrescriptionType").value) : "Standard");
     var dose_strength = (__$("editDoseStrength") ? __$("editDoseStrength").value : 
         __$("editDosage").getAttribute("strength"));
     var frequency = (__$("editFrequency") ? __$("editFrequency").value : "1");
-    var morning = (__$("editMorningDose") ? __$("editMorningDose").value : null);
+    var morning = (__$("editMorningDose") ? __$("editMorningDose").value : (typeof(statdose) != "undefined" ? dose_strength : null));
     var afternoon = (__$("editAfternoonDose") ? __$("editAfternoonDose").value : null);
     var evening = (__$("editEveningDose") ? __$("editEveningDose").value : null);
     var night = (__$("editNightDose") ? __$("editNightDose").value : null);
@@ -2070,7 +2071,16 @@ function removeGenerics(){
             document.forms[0].appendChild(field);
         }
     }
-    
+
+    if(__$("parent_container")){
+        __$("content").removeChild(__$("parent_container"));
+    }
+
+    if(__$("clearButton")){
+        __$("clearButton").onmousedown = function(){
+            clearInput();
+        }
+    }
 }
 
 /*

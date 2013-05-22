@@ -143,7 +143,7 @@ class ClinicController < GenericClinicController
   end
   
   def no_males
-    render :layout => "menu"
+    render :layout => "error"
   end
   def serial_numbers
 	@remaining_serial_numbers = SerialNumber.find(:all, :conditions => ["national_id IS NULL"]).size

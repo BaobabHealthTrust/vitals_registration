@@ -1,13 +1,18 @@
-<script type="text/javascript" language="javascript">
-  <!--
-  tt_cancel_show = "<%=params[:cancel_show]%>";
-  tt_cancel_destination = "<%=params[:cancel_destination]%>";
- </script>
-
-<div style="padding-top: 20%;text-align:center;">
-  <%if params[:message]%>
- <h1 style="color: lightcoral;"><%=  params[:message].humanize rescue "System Error" %></h1>
-  <%else%>
-  <h1 style="color: lightcoral;">Central Repository Not Found</br></br> Contact Admin For Help</h1>
-  <%end%>
-</div>
+<html>
+  <head>
+    <script type="text/javascript" language="javascript">
+      <!--
+      tt_cancel_show = "<%=params[:cancel_show]%>";
+      tt_cancel_destination = "<%=params[:cancel_destination]%>";
+    </script>
+  </head>
+  <body>
+    <div style="padding-top: 20%;text-align:center; width:100%">
+      <%if params[:message]%>
+        <h1 style="color: lightcoral;"><%=  params[:message].humanize rescue "System Error" %></h1>
+      <%else%>
+        <h1 style="color: lightcoral;">Central Repository Not Found</br></br> Contact Admin For Help</h1>
+      <%end%>
+    </div>
+  </body>
+</html>
