@@ -67,7 +67,7 @@
                 </td>
                 <td>
                   <% @anc_father = ANCService::ANC.new(@father.relation.patient) %>
-                  <%= @anc_father.name  %>
+                  <%= @anc_father.name  rescue ""%>
                 </td>
               </tr>
               <tr>
@@ -78,7 +78,7 @@
                   <b>Person ID:</b>
                 </td>
                 <td>
-                  <%= @anc_father.national_id_with_dashes  %>
+                  <%= @anc_father.national_id_with_dashes rescue "" %>
                 </td>
               </tr>
               <tr>
@@ -89,7 +89,7 @@
                   <b>Age:</b>
                 </td>
                 <td>
-                  <%= @anc_father.age  %>
+                  <%= @anc_father.age rescue "" %>
                 </td>
               </tr>
               <tr>
@@ -100,7 +100,7 @@
                   <b>Nationality:</b>
                 </td>
                 <td>
-                  <%= @anc_father.nationality  %>
+                  <%= @anc_father.nationality rescue "" %>
                 </td>
               </tr>
               <tr>
@@ -111,8 +111,8 @@
                   <b>Current Address:</b>
                 </td>
                 <td>
-                  <%= @anc_father.current_address1 + ",<br />" + @anc_father.current_address2 + ", <br />" +
-                    @anc_father.current_district  %>
+                  <%= (@anc_father.current_address1 rescue "") + ",<br />" + (@anc_father.current_address2 rescue "") + ", <br />" +
+                    (@anc_father.current_district rescue "")  %>
                 </td>
               </tr>
               <tr>
