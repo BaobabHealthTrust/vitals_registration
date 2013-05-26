@@ -67,7 +67,7 @@
                 </td>
                 <td>
                   <% @anc_father = ANCService::ANC.new(@father.relation.patient) %>
-                  <%= @anc_father.name  %>
+                  <%= @anc_father.name  rescue ""%>
                 </td>
               </tr>
               <tr>
@@ -78,7 +78,7 @@
                   <b>Person ID:</b>
                 </td>
                 <td>
-                  <%= @anc_father.national_id_with_dashes  %>
+                  <%= @anc_father.national_id_with_dashes rescue "" %>
                 </td>
               </tr>
               <tr>
@@ -89,7 +89,7 @@
                   <b>Age:</b>
                 </td>
                 <td>
-                  <%= @anc_father.age  %>
+                  <%= @anc_father.age rescue "" %>
                 </td>
               </tr>
               <tr>
@@ -100,7 +100,7 @@
                   <b>Nationality:</b>
                 </td>
                 <td>
-                  <%= @anc_father.nationality  %>
+                  <%= @anc_father.nationality rescue "" %>
                 </td>
               </tr>
               <tr>
@@ -111,8 +111,8 @@
                   <b>Current Address:</b>
                 </td>
                 <td>
-                  <%= @anc_father.current_address1 + ",<br />" + @anc_father.current_address2 + ", <br />" +
-                    @anc_father.current_district  %>
+                  <%= @anc_father.current_address1.to_s + ",<br />" + @anc_father.current_address2.to_s + ", <br />" +
+                    @anc_father.current_district.to_s  rescue ""%>
                 </td>
               </tr>
               <tr>
@@ -123,10 +123,10 @@
                   <b>Home Address:</b>
                 </td>
                 <td>
-                  <%= @anc_father.home_village + (@anc_father.home_village.nil? ||
+                  <%= @anc_father.home_village.to_s + (@anc_father.home_village.nil? ||
                       @anc_father.home_village.blank? ? "" : ",<br />") +
-                    @anc_father.home_ta + (@anc_father.home_ta.nil? || @anc_father.home_ta.blank? ? "" : ",<br />") +
-                    @anc_father.home_district  %>&nbsp;
+                    @anc_father.home_ta.to_s + (@anc_father.home_ta.nil? || @anc_father.home_ta.blank? ? "" : ",<br />") +
+                    @anc_father.home_district.to_s  %>&nbsp;
                 </td>
               </tr>
             <% end %>
@@ -166,7 +166,7 @@
                 </td>
                 <td>
                   <% @anc_mother = ANCService::ANC.new(@mother.relation.patient) %>
-                  <%= @anc_mother.name + " (#{@anc_mother.maiden_name})"  %>
+                  <%= @anc_mother.name.to_s + " (#{@anc_mother.maiden_name})"  %>
                 </td>
               </tr>
               <tr>
@@ -210,8 +210,8 @@
                   <b>Current Address:</b>
                 </td>
                 <td>
-                  <%= @anc_mother.current_address1 + ",<br />" + @anc_mother.current_address2 + ", <br />" +
-                    @anc_mother.current_district  %>
+                  <%= @anc_mother.current_address1.to_s + ",<br />" + @anc_mother.current_address2.to_s + ", <br />" +
+                    @anc_mother.current_district.to_s  %>
                 </td>
               </tr>
               <tr>
@@ -222,10 +222,10 @@
                   <b>Home Address:</b>
                 </td>
                 <td>
-                  <%= @anc_mother.home_village + (@anc_mother.home_village.nil? ||
+                  <%= @anc_mother.home_village.to_s + (@anc_mother.home_village.nil? ||
                       @anc_mother.home_village.blank? ? "" : ",<br />") +
-                    @anc_mother.home_ta + (@anc_mother.home_ta.nil? || @anc_mother.home_ta.blank? ? "" : ",<br />") +
-                    @anc_mother.home_district  %>&nbsp;
+                    @anc_mother.home_ta.to_s + (@anc_mother.home_ta.nil? || @anc_mother.home_ta.blank? ? "" : ",<br />") +
+                    @anc_mother.home_district.to_s  %>&nbsp;
                 </td>
               </tr>
             <% end %>
