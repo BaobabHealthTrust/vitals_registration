@@ -21,12 +21,14 @@ class MissingTa
           ta_name = t_filename.split(".")[0]
           #create missing ta and villages
           district_of_interest = district_id(d_filename)
-          tr_authority_id = ta_id(ta_name, district_of_interest)
-          next if (village_id(village, tr_authority_id).present? rescue false)
-                   
+          next if district_of_interest.blank? || village.blank?
+
           write_ta(ta_name, district_of_interest) if ta_id(ta_name, district_of_interest).blank?
+          tr_authority_id = ta_id(ta_name, district_of_interest)
+          
+          next if tr_authority_id.blank? || (village_id(village, tr_authority_id).present? rescue false)
                    
-          write_village(village, tr_authority_id) if village_id(village, tr_authority_id).blank?
+          write_village(village, tr_authority_id) if village_id(village.strip, tr_authority_id).blank?
 
           
           puts "Added  #{d_filename} => #{ta_name} => #{village}"
@@ -64,12 +66,12 @@ class MissingTa
     district_full = District.find(district_id) rescue nil
 			
     if district_full.blank?
-      District.create(:name => ds,
+      District.create(:name => ds.strip,
         :region_id => region,
         :date_created => Date.today,
         :creator => usr)
     else
-      district_full.update_attributes(:name => ds,
+      district_full.update_attributes(:name => ds.strip,
         :region_id => region,
         :creator => usr)
     end
@@ -83,12 +85,12 @@ class MissingTa
     ta_full = TraditionalAuthority.find(ta_id) rescue nil
 			
     if ta_full.blank?
-      TraditionalAuthority.create(:name => ta,
+      TraditionalAuthority.create(:name => ta.strip,
         :district_id => district,
         :date_created => Date.today,
         :creator => usr)
     else
-      ta_full.update_attributes(:name => ds,
+      ta_full.update_attributes(:name => ta.strip,
         :district_id => district,
         :creator => usr)
     end
@@ -101,7 +103,7 @@ class MissingTa
     vg_full = Village.find(vg_id) rescue nil
 			
     if vg_full.blank?
-      Village.create(:name => vg,
+      Village.create(:name => vg.strip,
         :traditional_authority_id => ta,
         :date_created => Date.today,
         :creator => usr)
@@ -111,8 +113,6 @@ class MissingTa
         :creator => usr)
     end
   end
-		
-  startImport
 		
   start = Time.now
   puts "Started at #{start}"
