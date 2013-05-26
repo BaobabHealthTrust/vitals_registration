@@ -11,6 +11,8 @@
 
   <%= text_field_tag "serial_number", nil, {
     :helpText => 'Serial Number',
+    :field_type => 'number',
+    :tt_pageStyleClass => "NumbersOnly",
     :tt_onLoad => "$('nextButton').style.display = 'block';"
   } %>
 
