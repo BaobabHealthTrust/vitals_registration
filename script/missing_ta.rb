@@ -26,12 +26,12 @@ class MissingTa
           write_ta(ta_name, district_of_interest) if ta_id(ta_name, district_of_interest).blank?
           tr_authority_id = ta_id(ta_name, district_of_interest)
           
-          next if tr_authority_id.blank? || (village_id(village, tr_authority_id).present? rescue false)
-                   
-          write_village(village, tr_authority_id) if village_id(village.strip, tr_authority_id).blank?
+          next if tr_authority_id.blank? || (village_id(village, tr_authority_id).present? )
 
-          
-          puts "Added  #{d_filename} => #{ta_name} => #{village}"
+          if village_id(village.strip, tr_authority_id).blank?
+            write_village(village, tr_authority_id)
+            puts "Added  #{d_filename} => #{ta_name} => #{village}"
+          end
         }
         
       end    
