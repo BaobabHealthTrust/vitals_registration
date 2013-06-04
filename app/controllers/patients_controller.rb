@@ -57,7 +57,7 @@ class PatientsController < ApplicationController
 
     @baby = (!params[:cat].nil? ? (params[:cat].downcase == "baby" ? true : false) : false)
 
-    render :template => 'patients/demographics', :layout => 'menu'
+    render :template => 'patients/demographics'
 
   end
 
