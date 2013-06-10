@@ -1,0 +1,202 @@
+<script type="text/javascript">
+  tt_cancel_destination = "/clinic";
+  //tt_cancel_show = "/clinic";
+
+  //"/clinic/location_management?dashboard=clinic_administration";
+
+
+  var  edit_level = "<%= @act.sub(/create\_/, '').sub(/add\_/, '').sub(/view\_/, '')%>";
+  var edit_type = "<%= @act.split("_")[0] %>";
+    
+  function set_ajaxURL_for_suggestions(url, filter_value) {
+    $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', url + filter_value + "&admin=true" + "&search_string=");
+    listSuggestions(tstCurrentPage);
+  }
+
+  function createButton(text, typ, level, type){
+    var but = document.createElement("button");
+    but.id = "b_" + typ
+    but.setAttribute("class", "actionblue blue");
+    but.style.midth = "200px";
+    but.innerHTML = "<span>" + text + "</span>"
+    but.onclick = function(){
+      var url_str = "";
+      if (level.toLowerCase().trim() == "district"){
+        url_str = "&level=district&district=" + __$("district").value.trim() + "&region=" + __$("region_region_name").value.trim();
+      }else if (level.toLowerCase().trim() == "ta"){       
+        url_str = "&level=ta&ta=" + __$("ta").value.trim() + "&district=" + __$("district").value.trim() + "&region=" + __$("region_region_name").value.trim();
+      }
+      else if (level.toLowerCase().trim() == "village"){
+        url_str = "&level=village&village=" + __$("village").value.trim() + "&ta=" + __$("ta").value.trim() + "&district=" + __$("district").value.trim() + "&region=" + __$("region_region_name").value.trim();
+      }
+      var uurl = "/clinic/" + text.split(" ")[0].toLowerCase() + "?type="  + type +  "&value=" + __$("touchscreenInput" + tstCurrentPage).value + url_str;
+
+      ajaxify(uurl);
+
+    }
+
+    __$("page" + tstCurrentPage).appendChild(but);
+    return but;
+  }
+  
+  function displayButtons(level, type){
+    var prefix = level.replace("ta", "TA").replace("district", "District").replace("village", "Village");
+    var button1 = createButton("Rename " + prefix, 1, level, type);
+    var button2 = createButton("Delete " + prefix, 2, level, type);
+    var button3 = createButton("Add " + prefix, 3, level, type);
+  }
+
+  function ajaxify(aUrl) {
+    var httpRequest = new XMLHttpRequest();
+    httpRequest.onreadystatechange = function() {
+      handleResult(httpRequest);
+    };
+    try {
+      httpRequest.open('POST', aUrl, true);
+      httpRequest.send(null);
+    } catch(e){
+    }
+  }
+
+  function handleResult(aXMLHttpRequest) {
+    if (!aXMLHttpRequest) return;
+
+    if (aXMLHttpRequest.readyState == 4 && (aXMLHttpRequest.status == 200 ||
+      aXMLHttpRequest.status == 304)) {
+      var result = JSON.parse(aXMLHttpRequest.responseText);
+     
+    }
+  }
+
+  function checkInput(){
+    var value = $("touchscreenInput" + tstCurrentPage).value.toUpperCase().trim();
+    var listItems = $("options").getElementsByTagName("li");
+    var matched = false;
+
+    for(var i = 0; i < listItems.length; i ++){
+
+      var val = listItems[i].getAttribute("value").toUpperCase().trim();
+
+      if (val == value){
+        matched = true;
+      }
+    }
+
+    if ($("touchscreenInput" + tstCurrentPage).value.trim() == ""){
+
+      showMessage( "You must enter a value to continue", false, false)
+     
+    }else if ((matched == false) && (edit_type.match("view"))){
+      gotoNextPage();
+    }else if((matched == true) && (!edit_type.match("view"))){
+
+      showMessage( $("touchscreenInput" + tstCurrentPage).value + " Already Available on List", false, false)
+
+    }else{
+      var url_str = "";
+      var level = "";
+      if ((edit_level.toLowerCase().trim() == "district") || (edit_level.toLowerCase().trim() == "tas" && edit_type == "view")) {
+
+        level = (edit_type.trim().match("view")) ? "tas" : "district";
+        url_str = "&level=" + level + "&district=" + __$("district").value.trim() + "&region=" + __$("region_region_name").value.trim();
+
+      }else if (edit_level == "districts" && edit_type == "view"){
+
+        url_str = "&level=districts" + "&region=" + __$("region_region_name").value.trim();
+
+
+      }else if((edit_level.toLowerCase().trim() == "ta") || (edit_level.toLowerCase().trim() == "villages" && edit_type == "view")){
+
+        level = (edit_type.trim().match("view")) ? "villages" : "ta";
+        url_str = "&level=" + level + "&ta=" + __$("ta").value.trim() + "&district=" + __$("district").value.trim() + "&region=" + __$("region_region_name").value.trim();
+        
+      }
+      else if (edit_level.toLowerCase().trim().match("village")){
+        url_str = "&level=village&village=" + __$("village").value.trim() + "&ta=" + __$("ta").value.trim() + "&district=" + __$("district").value.trim() + "&region=" + __$("region_region_name").value.trim();
+      }
+
+      var uurl = "/location/<%= params[:act].match(/view/i)? 'view' : params[:act]%>?" + "&value=" + __$("touchscreenInput" + tstCurrentPage).value + url_str;
+      window.location = uurl;
+    }
+    //setTimeout('checkInput()', 100);
+  }
+
+  function assignEvent() {
+    var level = edit_level.replace("district", "District").replace("ta", "TA").replace("village", "Village");
+    var type = edit_type.replace("create", "Create").replace("add", "Add").replace("view", "View")
+    var name = "<span>" + type + " " + level + "</span>";
+  
+    $("nextButton").innerHTML = name;
+    $("helpText" + tstCurrentPage).innerHTML = "Type " + level +  " to " + type;
+    
+    if($("nextButton")){
+      $("nextButton").onmousedown = function(){
+        setTimeout('checkInput()', 100);
+      }
+    }else{
+      setTimeout('assignEvent()', 100);
+    }
+
+  } 
+
+  
+</script>
+
+
+<% form_tag :action => @act do -%>
+
+  <%  if ["create_district", "create_ta", "view_districts", "view_tas", "create_village", "view_villages"].include?(@act)%>
+    <p><label for="region_region_name">Select Region</label></br>
+      <%= text_field "region" , 'region_name',
+        :ajaxURL => '/people/region/Region?field=role&value=',
+        :tt_onLoad => "if(edit_level == 'districts' && edit_type == 'view'){setTimeout('assignEvent()', 100)}else{$('nextButton').onmousedown = function(){gotoNextPage()}}; __$('keyboard').style.display = 'none';"
+    %></p>
+
+    <%= select_tag "district",  nil, {
+      :helpText => 'Select District',
+      :id => "district",
+      :allowFreeText => false,
+      :ajaxURL => '/people/district?search_string=',
+      :tt_onLoad => "__$('keyboard').style.display = 'block';  if(edit_level == 'district' || (edit_level == 'tas' && edit_type == 'view')){setTimeout('assignEvent()', 100)}else{$('nextButton').onmousedown = function(){gotoNextPage()}}; set_ajaxURL_for_suggestions('/people/district/District?filter_value='," +
+        "document.getElementById('region_region_name').value);"
+    }%>
+
+
+  <%end%>
+
+  <%  if ["create_ta", "view_villages", "create_village"].include?(@act)%>
+
+    <%= text_field_tag "ta", nil,
+      {:field_type => 'alpha',
+      :id => 'ta',
+      :helpText => 'Select Traditional Authority',
+      :ajaxURL => '/search/ta?search_string=',
+      :allowFreeText => false,
+      :tt_onLoad => "__$('keyboard').style.display = 'block'; if(edit_level == 'ta' || (edit_level == 'villages' && edit_type == 'view')){setTimeout('assignEvent()', 100)}else{$('nextButton').onmousedown = function(){gotoNextPage()}}; set_ajaxURL_for_suggestions('/people/traditional_authority/TraditionalAuthority?filter_value=', document.getElementById('district').value);"
+    }%>
+
+  <%end%>
+
+  <%  if ["create_village"].include?(@act)%>
+    <%= text_field_tag "village", nil,
+      {
+      :id => "village",
+      :field_type => 'alpha',
+      :helpText => "Select Village",
+      :tt_pageStyleClass => "azButton",
+      :ajaxURL => '/people/village?search_string=',
+      :allowFreeText => false,
+      :tt_onLoad => "__$('keyboard').style.display = 'block';  if(edit_level == 'village'){setTimeout('assignEvent()', 100)}else{$('nextButton').onmousedown = function(){gotoNextPage()}};set_ajaxURL_for_suggestions('/people/village/Village?filter_value=', document.getElementById('ta').value);"}%>
+
+  <%end%>
+
+  <%  if !["create_district", "create_ta", "create_village"].include?(@act) && !@act.match(/view\_/)%>
+
+    <%= render :partial => 'form' %>
+    <%= submit_tag "Create" %>
+
+  <% end -%>
+
+<% end -%>
+
+<%= link_to 'Back',:controller=>'hospital', :action => 'menu' %>
