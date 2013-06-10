@@ -121,11 +121,11 @@ class ClinicController < GenericClinicController
         Date.today.strftime('%Y-01-01 00:00:00'),
         Date.today.strftime('%Y-12-31 23:59:59')])
         
-	@year["REGISTRATION"] = (@males_year.length.to_i + @females_year.length.to_i).to_s
+    @year["REGISTRATION"] = (@males_year.length.to_i + @females_year.length.to_i).to_s
 
     @ever = Encounter.statistics(@types) rescue {}
 
-	@ever["REGISTRATION"] = (@males_ever.length.to_i + @females_ever.length.to_i).to_s
+    @ever["REGISTRATION"] = (@males_ever.length.to_i + @females_ever.length.to_i).to_s
     # end
 
     # raise current_user.to_yaml
@@ -146,12 +146,25 @@ class ClinicController < GenericClinicController
     render :layout => "error"
   end
   def serial_numbers
-	@remaining_serial_numbers = SerialNumber.find(:all, :conditions => ["national_id IS NULL"]).size
-	@print_string = (@remaining_serial_numbers ==1)?  "" + @remaining_serial_numbers.to_s + " Serial Number Remaining" : "" + @remaining_serial_numbers.to_s + " Serial Numbers Remaining"
-	@limited_serial_numbers = (SerialNumber.all.size  <= 100) rescue false
-	render :layout => false
+    @remaining_serial_numbers = SerialNumber.find(:all, :conditions => ["national_id IS NULL"]).size
+    @print_string = (@remaining_serial_numbers ==1)?  "" + @remaining_serial_numbers.to_s + " Serial Number Remaining" : "" + @remaining_serial_numbers.to_s + " Serial Numbers Remaining"
+    @limited_serial_numbers = (SerialNumber.all.size  <= 100) rescue false
+    render :layout => false
   end  
   def link_error
     render :layout => "menu"
+  end
+
+  def malawi_regions
+
+    @reports = []
+
+    @reports << ['/location/new?act=create_district','Add District']
+    @reports << ['/location/new?act=create_ta','Add TA']
+    @reports << ['/location/new?act=create_village','Add Village']
+    @reports << ['/location/new?act=view_villages','View Villages']
+    @reports << ["/location/new?act=view_tas","View TA's"]
+    @reports << ['/location/new?act=view_districts','View Districts']
+    render :layout => false
   end
 end

@@ -1,0 +1,20 @@
+<script type="text/javascript">
+  tt_cancel_destination = "/clinic";
+  //tt_cancel_show = "/clinic";
+
+  //"/clinic/location_management?dashboard=clinic_administration";
+	tt_cancel_destination = "<%= @return_url %>";
+
+  </script>
+
+<% form_tag :action => "merge", :id => params[:id], :type => params[:type], :return_url => @return_url do -%>  
+
+    <%= select_tag "name",  options_for_select(@list_names.sort), {
+      :helpText => "Select #{params[:type].gsub('tas', 'TAs')} to merge to #{@name}",
+      :multiple => true,
+      :tt_pageStyleClass => "longSelectList",
+      :tt_onLoad => "__$('nextButton').innerHTML='<span>Merge</span>'"   
+    }%>
+  
+<% end -%>
+

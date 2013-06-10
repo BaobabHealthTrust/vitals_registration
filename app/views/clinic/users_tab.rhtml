@@ -1,8 +1,8 @@
 <head>
 <style type="text/css">
-     button {
+    .button {
         min-height: 50px;
-        min-width: 350px;
+        min-width: 250px;
         margin: 5px;
         margin-bottom: 10px;
         font-size: 1.2em;
@@ -13,20 +13,28 @@
         border: 5px outset #000;
         padding: 10px;
         cursor: pointer;
+        text-decoration: none;
+        font-family:"Nimbus Sans L","Arial Narrow",sans-serif;
       }
  	 h2 {
 		padding-top: 50px;
 	  }
 </style>
+
 </head>
 <body>
   <center>
-    <h2 style="color: #6281a7;">Create/Edit User</h2>
-    <button onclick="parent.window.location = '/user/new/<%= current_user.user_id %>';">
+    <h2 style="color: #6281a7;"></h2>
+    <button class = "button"  onclick="parent.window.location = '/user/new/<%= current_user.user_id %>';">
       Create User
     </button>    
-    <button onclick="parent.window.location = '/user/select_user/<%= current_user.user_id %>';">
+    <button class = "button"  onclick="parent.window.location = '/user/select_user/<%= current_user.user_id %>';">
       Edit User
     </button>
+    
+     <a class = "button" href = "/clinic/malawi_regions">
+      Locations Management
+    </a>
+    
   </center>
 </body>
