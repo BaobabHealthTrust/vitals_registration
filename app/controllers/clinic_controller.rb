@@ -10,7 +10,9 @@ class ClinicController < GenericClinicController
 
     @roles = User.find(current_user.user_id).user_roles.collect{|r| r.role} rescue []
 
-    # raise session.to_yaml
+    #delete session values used in reports, if any
+    session.delete(:babies_map) if session[:babies_map]
+    session.delete(:ids) if session[:ids]
 
     render :layout => 'dynamic-dashboard'
   end

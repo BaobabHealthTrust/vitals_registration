@@ -107,7 +107,7 @@ back();
                   <tr>
 
                     <td style="vertical-align: top;">
-                      <%= baby.baby_id_number %>
+                      <%= Patient.find(baby.patient_id).national_id rescue "" %>
                     </td>
 
                     <td style="vertical-align: top;">
