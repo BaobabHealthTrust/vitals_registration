@@ -3,7 +3,7 @@
     <title>report</title>
     <script>
 <%   if params[:select_by] && params[:select_by].downcase == "date of birth" && !params["start_date"].blank? && !params["end_date"].blank? %>
-    window.parent.location = "/reports/debugger?by_date=true&ids=<%= @babies.join(",") %>"
+    window.parent.location = "/reports/debugger?by_date=true"
 <%end%>
     </script>
     <style>
@@ -109,7 +109,7 @@
                       <%=  group  %>
                     </td>
 
-                    <td class ="value" style="vertical-align: top; cursor: pointer;" onclick ="window.parent.location = '/reports/debugger?ids=<%=  @babies_map["#{group}"].uniq.join(",")%>'">
+                    <td class ="value" style="vertical-align: top; cursor: pointer;" onclick ="window.parent.location = '/reports/debugger?group=<%=group%>'">
                       <%=  @babies_map["#{group}"].uniq.length%>
                     </td>
                   </tr>

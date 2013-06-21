@@ -104,21 +104,18 @@ class ReportsController < ActionController::Base
 
           @babies_map["#{father_nationality}"] = [] if  @babies_map["#{father_nationality}"].class.to_s.downcase != "array"
           @babies_map["#{father_nationality}"] << baby.patient_id if !@babies_map["#{father_nationality}"].include?(baby.patient_id)
-        end
-        
-        #temp = @babies_map["#{father_nationality}"].concat(@babies_map["#{mother_nationality}"])
-        #@babies_map["Unknown Nationality"] = @babies_map["Unknown Nationality"] -  temp
+        end        
+       
         
       end
-      #raise @babies_map.to_yaml
+      
       @groups = @babies_map.keys
-      #raise @babies_map.to_yaml
 
+      #float some fields to margins
       @groups = @groups.insert(0, @groups.delete_at(@groups.index("Unknown Nationality"))) rescue @groups
                     
       @groups = @groups.insert(0, @groups.delete_at(@groups.index("Dual Nationality"))) rescue @groups
       
-      # raise @babies_map.to_yaml
     end
 
     if params[:select_by] && params[:select_by].downcase == "district of birth"
@@ -160,15 +157,30 @@ class ReportsController < ActionController::Base
     if params[:select_by] && params[:select_by].downcase == "date of birth" && !params["start_date"].blank? && !params["end_date"].blank?
       @babies = (BirthReport.find(:all, :conditions => ["DATE(date_of_birth) >= ? AND DATE(date_of_birth) <= ?",
             params["start_date"], params["end_date"]]) rescue []).uniq.collect{|br| br.patient_id if !br.blank?} rescue []           
-    end  
-    
+
+      session[:ids] = @babies.join(",") rescue ""
+      
+    else
+      
+      session[:babies_map] = @babies_map rescue {}
+      
+    end
+  
     render :layout => false
   end
 
   def debugger
-    patients = params[:ids].split(",")
+
+    if params[:group].blank?
+      patients = session[:ids].split(",") rescue nil if session[:ids]
+    else
+      patients = session[:babies_map]["#{params[:group]}"] #rescue nil if session[:babies_map]
+    end
+
     @babies = BirthReport.find(:all, :conditions => ["patient_id IN (?)", patients])
-     render :layout => false
+    
+    render :layout => false
+    
   end
 
   def print_note
