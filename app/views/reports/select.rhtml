@@ -25,13 +25,14 @@
           <option>Date of birth</option>         
           <option>District of birth</option>
           <option>Health Facility</option>
+          <option>Birth report source</option>
         </select>
 
         <input type="text" id="start_date" name="start_date" helpText="Start Date" 
-               field_type="date" condition="__$('select_by').value=='Date of birth'" />
+               field_type="date" condition="__$('select_by').value=='Date of birth' || __$('select_by').value=='Birth report source'" />
 
         <input type="text" id="end_date" name="end_date" helpText="End Date"
-               field_type="date" condition="__$('select_by').value=='Date of birth'" />
+               field_type="date" condition="__$('select_by').value=='Date of birth' || __$('select_by').value=='Birth report source'" />
         
 
       </form>

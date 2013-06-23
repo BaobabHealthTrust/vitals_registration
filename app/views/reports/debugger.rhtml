@@ -120,7 +120,7 @@ back();
                         "#{baby.current_address_father}, #{baby.current_village_or_location_father
     }<br/> OR <br />#{baby.current_address_mother}, #{baby.current_village_or_location_mother
     }<br/>"
-                      elsif !baby.current_address_father.nil?
+                      elsif !baby.current_address_father.blank?
                         "#{baby.current_address_father}, #{baby.current_village_or_location_father}"
                       else
                         "#{baby.current_address_mother}<br />#{baby.current_village_or_location_mother}"
@@ -132,7 +132,7 @@ back();
                       <%=
                       if baby.nationality_father != baby.nationality_mother
                         "#{baby.nationality_father}/#{baby.nationality_mother}"
-                      elsif !baby.nationality_father.nil?
+                      elsif !baby.nationality_father.blank?
                         "#{baby.nationality_father}"
                       else
                         "#{baby.nationality_mother}"
