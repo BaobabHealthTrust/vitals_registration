@@ -20,28 +20,34 @@
   var tt_cancel_destination = "/clinic"
 </script>
 
+<style>
+  #qwerty, #char{
+    display: none;
+  }
+</style>
+
 
 <form action = "/people/set_datetime" method = "post">
 
   <%= text_field_tag(:set_year,nil,{:field_type => 'number', :absoluteMin => "1940", :absoluteMax => Time.now.year, :helpText => 'Year'}) %>
 
   <% optionsString = "<option>" "" "</option>"
-  1.upto(12){ |number| 
-       optionsString += "<option value = '" + number.to_s + "'>" + Date::MONTHNAMES[number] + "</option>"
-      }
-      optionsString << "<option>" "Unknown" "</option>"
-  %>
+  1.upto(12){ |number|
+    optionsString += "<option value = '" + number.to_s + "'>" + Date::MONTHNAMES[number] + "</option>"
+  }
+  optionsString << "<option>" "Unknown" "</option>"
+%>
   <%= select_tag :set_month, optionsString, {:helpText => 'Month'}%>
 
-  <%day=Array.new(31){|d|d + 1 } 
-    unknown=Array.new
-    unknown[0]= "Unknown" 
-    days_with_unknown = day 
-    days = [""].concat day%>
-    <%= select_tag(:set_day, options_for_select(days), 
-        :field_type => 'number' , :absoluteMax => Date.today.to_s ,:helpText => 'Day' ,
-        :validationJS =>'validateDate()',
-        :validationMessage => "You must enter an earlier date than #{Date.today.strftime('%Y-%b-%d')}")  %>
+  <%day=Array.new(31){|d|d + 1 }
+  unknown=Array.new
+  unknown[0]= "Unknown"
+  days_with_unknown = day
+  days = [""].concat day%>
+  <%= select_tag(:set_day, options_for_select(days),
+    :field_type => 'number' , :absoluteMax => Date.today.to_s ,:helpText => 'Day' ,
+    :validationJS =>'validateDate()',   
+    :validationMessage => "You must enter an earlier date than #{Date.today.strftime('%Y-%b-%d')}")  %>
 
   <%= submit_tag "Set visit date" %>
 </form>

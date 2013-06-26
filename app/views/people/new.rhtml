@@ -61,6 +61,7 @@
 </style>
 
 <script>
+  var retrospective = "<%= session[:datetime].blank?? false : true %>"
 <% if params[:relation] %>
     var tt_cancel_destination = "/patients/show/<%=h params[:patient_id] -%>"
 <% else %>
@@ -98,6 +99,7 @@
   }
 
   function validateDOB() {
+    
     setDOB();
     curr_date = new Date();
 
@@ -151,6 +153,7 @@
   }
 
   function checkMonthLimits(yearValue, currentYear, currentMonth){
+    
     yearValue = parseInt(yearValue);
     currentYear = parseInt(currentYear);
     currentMonth = parseInt(currentMonth);
@@ -194,15 +197,13 @@
       }
     }
 
-  }
+  }  
   
-
 </script>
 
 <% form_for :person, @person, :url => { :action => "create" } do |f| %>
 
-  %>
-    <%= hidden_field_tag "encounter[encounter_type_name]", "REGISTRATION" %>
+  <%= hidden_field_tag "encounter[encounter_type_name]", "REGISTRATION" %>
   <%= hidden_field_tag "encounter[encounter_datetime]", (session[:datetime] ?
       session[:datetime].to_date.strftime("%Y-%m-%d %H:%M:%S") : Time.now) %>
   <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
@@ -271,6 +272,7 @@
   <%= text_field_tag "person[birth_year]", nil, {
     :helpText => "#{params[:cat].titleize} Year of Birth",
     :field_type => 'number',
+    :condition => "#{session[:datetime].blank?}",
     :absoluteMin => ((session[:datetime] || Date.today).to_date.year - 100),
     :min => ((session[:datetime] || Date.today).to_date.year - 50),
     :max => ((session[:datetime] || Date.today).to_date.year),
@@ -288,9 +290,9 @@
 
   <%= select_tag "person[birth_month]", month_name_options,
     {:helpText => "#{params[:cat].titleize} Month of Birth",
-    :condition => '$("person_birth_year").value.toLowerCase() != "unknown"',
+    :condition => "$('person_birth_year').value.toLowerCase() != 'unknown' && #{session[:datetime].blank?}",
     :validationJS => "validateDOB();",
-    :tt_onLoad => "checkMonthLimits($('person_birth_year').value, #{current_year}, #{current_month})",
+    :tt_onLoad => "if (#{!session[:datetime].blank?}){$('touchscreenInput' + tstCurrentPage).value = 'Jan'}; checkMonthLimits($('person_birth_year').value, #{current_year}, #{current_month})",
     :validationMessage => 'Please enter a valid date',
     :tt_pageStyleClass => "NoKeyboard"}%>
 
@@ -299,14 +301,14 @@
     :absoluteMin => 0,
     :absoluteMax => 100,
     :field_type => 'number',
-    :condition => '$("person_birth_year").value == "Unknown"',
+    :condition => "$('person_birth_year').value == 'Unknown'  && #{session[:datetime].blank?}",
     :tt_onLoad => "$('nextButton').style.display = 'block';",
     :tt_pageStyleClass => "Numeric NumbersOnlyWithUnknown"
   } %>
 
   <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number',
     :helpText => "#{params[:cat].titleize} Birth Day",
-    :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")',
+    :condition => "($('person_birth_year').value != 'Unknown') && ($('person_birth_month').value != 'Unknown')  && #{session[:datetime].blank?}",
     :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value, $('person_birth_month').value);$('nextButton').style.display = 'block';
   checkDayLimits($('person_birth_year').value, #{current_year}, #{current_month}, $('person_birth_month').value, #{current_day})" ,
     :validationJS => "validateDOB()",
