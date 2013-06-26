@@ -89,19 +89,19 @@
             Serial Number
           </span>
         </div>
-
+        <% session_date = session[:datetime].to_date rescue Date.today %>
         <span id='patient_age'>
           <%=
-          if @anc_patient.age_in_days == 0
+          if @anc_patient.age_in_days(session_date) == 0
             "Born Today"
-          elsif @anc_patient.age_in_days <= 14
-            @anc_patient.age_in_days.to_s + (@anc_patient.age_in_days == 1 ? " day" : " days")
-          elsif @anc_patient.age_in_weeks <= 6
-            @anc_patient.age_in_weeks.to_s + " weeks"
-          elsif @anc_patient.age_in_months <= 18
-            @anc_patient.age_in_months.to_s + " months"
+          elsif @anc_patient.age_in_days(session_date) <= 14
+            @anc_patient.age_in_days(session_date).to_s + (@anc_patient.age_in_days(session_date) == 1 ? " day" : " days")
+          elsif @anc_patient.age_in_weeks(session_date) <= 6
+            @anc_patient.age_in_weeks(session_date).to_s + " weeks"
+          elsif @anc_patient.age_in_months(session_date) <= 18
+            @anc_patient.age_in_months(session_date).to_s + " months"
           else
-            @anc_patient.age.to_s + " years"
+            @anc_patient.age(session_date).to_s + " years"
           end
         %>
         </span>

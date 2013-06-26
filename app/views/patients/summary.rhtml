@@ -31,6 +31,7 @@
     </style>
   </head>
   <body>
+    <%session_date = session[:datetime].to_date rescue Date.today%>
     <table style="margin: 2px; width: 100%;" cellspacing="5">
       <tr>
         <td style="vertical-align: top; width: 50%; border: 1px solid #ccc; border-radius: 10px; height: 300px;">
@@ -89,7 +90,7 @@
                   <b>Age:</b>
                 </td>
                 <td>
-                  <%= @anc_father.age rescue "" %>
+                  <%= @anc_father.age(session_date) rescue "" %>
                 </td>
               </tr>
               <tr>
@@ -188,7 +189,7 @@
                   <b>Age:</b>
                 </td>
                 <td>
-                  <%= @anc_mother.age  %>
+                  <%= @anc_mother.age(session_date)  %>
                 </td>
               </tr>
               <tr>
