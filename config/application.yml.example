@@ -17,6 +17,7 @@ production:
  demographics.home_village: true
  portal_url: 192.100.100.200:80
  report.zoom.percentage: 100
+ maternity.links: Bwaila|localhost:3000
  
 development:
  create_from_remote: no
@@ -38,6 +39,7 @@ development:
  demographics.home_village: true
  portal_url: 192.100.100.200:80
  report.zoom.percentage: 100
+ maternity.links: Bwaila|localhost:3000
  
 test: &TEST
  create_from_remote: no
