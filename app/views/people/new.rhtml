@@ -284,7 +284,7 @@
   <%if CoreService.get_global_property_value("optional.birthdate.capture").to_s == "true"%>
     <%= select_tag "available", options_for_select(["Yes", "No"]),
       {:id => "available",
-      :helpText => "Is #{params[:cat].titleize} Birthdate Known?"
+      :helpText => "Is #{params[:cat].titleize}'s Birthdate Known?"
     }  %>
   <%end%>
 

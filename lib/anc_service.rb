@@ -1300,6 +1300,8 @@ module ANCService
           self.person.birthdate.strftime("??/???/%Y")
         elsif self.person.birthdate.day == 15 
           self.person.birthdate.strftime("??/%b/%Y")
+        elsif self.person.birthdate.day == 1 and self.person.birthdate.month == 1 and self.person.birthdate.year == 1900
+          self.person.birthdate.strftime("??/??/????")
         end
       else
         self.person.birthdate.strftime("%d/%b/%Y")
