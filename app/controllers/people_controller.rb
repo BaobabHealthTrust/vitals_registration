@@ -1,11 +1,11 @@
 class PeopleController < GenericPeopleController
    
   def create
- 
-    unless ((session[:datetime].blank? || params[:cat].downcase.strip == "baby") rescue true)
+
+    unless (((params[:available] and params[:available].upcase == "YES") || params[:cat].downcase.strip == "baby") rescue true)
       params["person"]["birth_year"] = "1900"
       params["person"]["birth_month"] = "01"
-      params["person"]["birth_day"] = "01"
+      params["person"]["birth_day"] = "01"     
     end
        
     if params[:cat] && params[:cat].downcase == "mother"
