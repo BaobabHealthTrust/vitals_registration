@@ -18,6 +18,7 @@ production:
  portal_url: 192.100.100.200:80
  report.zoom.percentage: 100
  maternity.links: Bwaila|localhost:3000
+ optional.birthdate.capture: true
  
 development:
  create_from_remote: no
@@ -40,6 +41,7 @@ development:
  portal_url: 192.100.100.200:80
  report.zoom.percentage: 100
  maternity.links: Bwaila|localhost:3000
+ optional.birthdate.capture: true
  
 test: &TEST
  create_from_remote: no

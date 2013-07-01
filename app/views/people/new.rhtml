@@ -197,7 +197,18 @@
       }
     }
 
-  }  
+  }
+  function captureDate(){
+    try{
+      if ($('available').value.toUpperCase().trim() == 'YES'){
+        return true;
+      }else{
+        return false;
+      }
+    }catch(ex){
+      return true;
+    }
+  }
   
 </script>
 
@@ -270,15 +281,18 @@
     :tt_pageStyleClass => "azButton",
     :tt_onLoad => 'seen(tstCurrentPage);' } if ask_middle_name %>
 
-  <%= select_tag "available", options_for_select(["Yes", "No"]),
-    {:id => "available",
-    :helpText => "Is #{params[:cat].titleize} Birthdate Known?"
-  }  %>
+  <%if CoreService.get_global_property_value("optional.birthdate.capture").to_s == "true"%>
+    <%= select_tag "available", options_for_select(["Yes", "No"]),
+      {:id => "available",
+      :helpText => "Is #{params[:cat].titleize} Birthdate Known?"
+    }  %>
+  <%end%>
+
 
   <%= text_field_tag "person[birth_year]", nil, {
     :helpText => "#{params[:cat].titleize} Year of Birth",
     :field_type => 'number',
-    :condition => "$('available').value.toUpperCase().trim() == 'YES'",
+    :condition => "captureDate()",
     :absoluteMin => ((session[:datetime] || Date.today).to_date.year - 100),
     :min => ((session[:datetime] || Date.today).to_date.year - 50),
     :max => ((session[:datetime] || Date.today).to_date.year),
@@ -296,7 +310,7 @@
 
   <%= select_tag "person[birth_month]", month_name_options,
     {:helpText => "#{params[:cat].titleize} Month of Birth",
-    :condition => "$('person_birth_year').value.toLowerCase() != 'unknown' && $('available').value.toUpperCase().trim() == 'YES'",
+    :condition => "$('person_birth_year').value.toLowerCase() != 'unknown' && captureDate()",
     :validationJS => "validateDOB();",
     :tt_onLoad => "if (#{!session[:datetime].blank?}){$('touchscreenInput' + tstCurrentPage).value = 'Jan'}; checkMonthLimits($('person_birth_year').value, #{current_year}, #{current_month})",
     :validationMessage => 'Please enter a valid date',
@@ -307,14 +321,14 @@
     :absoluteMin => 0,
     :absoluteMax => 100,
     :field_type => 'number',
-    :condition => "$('person_birth_year').value == 'Unknown'  && $('available').value.toUpperCase().trim() == 'YES'",
+    :condition => "$('person_birth_year').value == 'Unknown' && captureDate()",
     :tt_onLoad => "$('nextButton').style.display = 'block';",
     :tt_pageStyleClass => "Numeric NumbersOnlyWithUnknown"
   } %>
 
   <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number',
     :helpText => "#{params[:cat].titleize} Birth Day",
-    :condition => "($('person_birth_year').value != 'Unknown') && ($('person_birth_month').value != 'Unknown')  && $('available').value.toUpperCase().trim() == 'YES'",
+    :condition => "($('person_birth_year').value != 'Unknown') && ($('person_birth_month').value != 'Unknown')  && captureDate()",
     :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value, $('person_birth_month').value);$('nextButton').style.display = 'block';
   checkDayLimits($('person_birth_year').value, #{current_year}, #{current_month}, $('person_birth_month').value, #{current_day})" ,
     :validationJS => "validateDOB()",
