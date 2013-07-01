@@ -212,10 +212,7 @@
       (CoreService.get_global_property_value("create_from_remote") == "yes")? true :
       (CoreService.get_global_property_value("create.from.remote") == true)? true : false)%>
 
-  <%= select_tag "available", options_for_select(["Yes", "No"]),
-    {:id => "available",
-    :helpText => "Is #{params[:cat].titleize} Available?"
-  }  %>
+
 
   <%= text_field_tag "person[names][given_name]", params[:given_name],
     {:id => 'given_name',
@@ -272,6 +269,11 @@
     :condition => '$("middle_name").value == "" || skipped[tstCurrentPage] == 1',
     :tt_pageStyleClass => "azButton",
     :tt_onLoad => 'seen(tstCurrentPage);' } if ask_middle_name %>
+
+  <%= select_tag "available", options_for_select(["Yes", "No"]),
+    {:id => "available",
+    :helpText => "Is #{params[:cat].titleize} Birthdate Known?"
+  }  %>
 
   <%= text_field_tag "person[birth_year]", nil, {
     :helpText => "#{params[:cat].titleize} Year of Birth",
