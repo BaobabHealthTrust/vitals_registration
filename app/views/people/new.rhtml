@@ -337,10 +337,11 @@
   <%= select_tag("person[citizenship]",
     options_for_select([" ", "Malawian", "Other"], params[:citizenship]),
     :helpText =>"#{params[:cat].titleize}'s Nationality",
-    :tt_onLoad => 'seen(tstCurrentPage);') %>
+    :tt_onLoad => "$('nextButton').style.display = 'block'; seen(tstCurrentPage);") %>
 
   <%= text_field_tag "person[race]",  nil, :field_type => 'text',
     :helpText => "#{params[:cat].titleize}: Other Nationality",
+    :tt_onLoad => "$('nextButton').style.display = 'block';",
     :condition => '($("person_citizenship").value != "Malawian")'%>
 
   <p><label for="region_region_name">Region of Origin</label></br>
