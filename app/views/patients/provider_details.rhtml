@@ -22,18 +22,22 @@
 
   <%= select_tag "ProviderTitle", options_for_select(["","Nurse","Clinician","Midwife","Clerk"]),
     {
-    :helptext => "Provider Title"
+    :helptext => "Provider Title",
+    :tt_onLoad => "$('nextButton').style.display = 'block'; ",
   } %>
 
   <p><label for="region_region_name">Region</label></br>
     <%= text_field "region" , 'region_name',
       :helpText => "Region",
+      :tt_requireNextClick => false,
+      :tt_onLoad => "$('nextButton').style.display = 'none'; ",
       :ajaxURL => '/people/region/Region?value=' %></p>
 
   <%= text_field_tag "district", nil, {
     :ajaxURL => '', :field_type => 'alpha',    
     :helpText => "District",
-    :tt_onLoad => "set_ajaxURL_for_suggestions('/people/district/District?filter_value=',document.getElementById('region_region_name').value);" } %>
+    :tt_requireNextClick => false,
+    :tt_onLoad => "set_ajaxURL_for_suggestions('/people/district/District?filter_value=',document.getElementById('region_region_name').value); $('nextButton').style.display = 'none';"  } %>
 
   <%= text_field_tag "Hospital", nil,
     {
