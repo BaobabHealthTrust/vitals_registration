@@ -60,7 +60,12 @@ class PeopleController < GenericPeopleController
       person.update_attributes(:birthdate_estimated => 1)  unless (((params[:available] and params[:available].upcase == "YES") || params[:cat].downcase.strip == "baby") rescue true)
       redirect_to "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}" and return if !person.nil?
     end
-    person = ANCService.create_patient_from_dde(params) if create_from_dde_server
+
+    if create_from_dde_server
+      person = ANCService.create_patient_from_dde(params)
+      DDEService.create_footprint(person.patient.national_id, Location.find(session[:location_id]).name) rescue nil
+    end
+
     person.update_attributes(:birthdate_estimated => 1)  unless (((params[:available] and params[:available].upcase == "YES") || params[:cat].downcase.strip == "baby") rescue true)
     if params[:cat] == "baby"
       redirect_to "/patients/show?patient_id=#{person.id}?cat=#{params[:cat]}" and return if !person.nil?
@@ -186,7 +191,10 @@ class PeopleController < GenericPeopleController
             return
           end
         end
+        
         found_person = local_results.first
+        DDEService.create_footprint(found_person.patient.national_id, Location.find(session[:location_id]).name) rescue nil
+        
       else
         # TODO - figure out how to write a test for this
         # This is sloppy - creating something as the result of a GET
@@ -197,11 +205,6 @@ class PeopleController < GenericPeopleController
       end
 
       if found_person
-=begin
-        patient = DDEService::Patient.new(found_person.patient)
-
-        patient.check_old_national_id(params[:identifier])
-=end
 
         if params[:cat] && params[:cat] != "baby" && params[:patient_id]
           redirect_to "/relationships/new?patient_id=#{params[:patient_id]}&relation=#{found_person.id
