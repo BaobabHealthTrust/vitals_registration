@@ -17,14 +17,14 @@ class GenericPeopleController < ApplicationController
 			"cell_phone_number"=> params['cell_phone']['identifier'],
 			"birth_month"=> params[:patient_month],
 			"addresses"=>{ "address2" => params['p_address']['identifier'],
-						"address1" => params['p_address']['identifier'],
-			"city_village"=> params['patientaddress']['city_village'],
-			"county_district"=> params[:birthplace] },
+        "address1" => params['p_address']['identifier'],
+        "city_village"=> params['patientaddress']['city_village'],
+        "county_district"=> params[:birthplace] },
 			"gender" => params['patient']['gender'],
 			"birth_day" => params[:patient_day],
 			"names"=> {"family_name2"=>"Unknown",
-			"family_name"=> params['patient_name']['family_name'],
-			"given_name"=> params['patient_name']['given_name'] },
+        "family_name"=> params['patient_name']['family_name'],
+        "given_name"=> params['patient_name']['given_name'] },
 			"birth_year"=> params[:patient_year] }
 
 		#raise person_params.to_yaml
@@ -280,8 +280,8 @@ class GenericPeopleController < ApplicationController
       unless params[:set_day]== "" or params[:set_month]== "" or params[:set_year]== ""
         # set for 1 second after midnight to designate it as a retrospective date
         date_of_encounter = Time.mktime(params[:set_year].to_i,
-                                        params[:set_month].to_i,                                
-                                        params[:set_day].to_i,0,0,1) 
+          params[:set_month].to_i,
+          params[:set_day].to_i,0,0,1)
         session[:datetime] = date_of_encounter #if date_of_encounter.to_date != Date.today
       end
       unless params[:id].blank?
@@ -311,7 +311,7 @@ class GenericPeopleController < ApplicationController
   
   # List traditional authority containing the string given in params[:value]
   def traditional_authority
-    district_id = District.find_by_name("#{params[:filter_value]}").id
+    district_id = District.find_by_name("#{params[:filter_value]}").id rescue nil
     traditional_authority_conditions = ["name LIKE (?) AND district_id = ?", "%#{params[:search_string]}%", district_id]
 
     traditional_authorities = TraditionalAuthority.find(:all,:conditions => traditional_authority_conditions, :order => 'name')
@@ -321,7 +321,7 @@ class GenericPeopleController < ApplicationController
     render :text => traditional_authorities.join('') + "<li value='Other'>Other</li>" and return
   end
 
-    # Regions containing the string given in params[:value]
+  # Regions containing the string given in params[:value]
   def region
     region_conditions = ["name LIKE (?)", "%#{params[:value]}%"]
 
@@ -332,12 +332,12 @@ class GenericPeopleController < ApplicationController
     render :text => regions.join('') and return
   end
 
-    # Districts containing the string given in params[:value]
+  # Districts containing the string given in params[:value]
   def district
-    region_id = Region.find_by_name("#{params[:filter_value]}").id
+    region_id = Region.find_by_name("#{params[:filter_value]}").id rescue nil
     region_conditions = ["name LIKE (?) AND region_id = ? ", "%#{params[:search_string]}%", region_id]
 
-    districts = District.find(:all,:conditions => region_conditions, :order => 'name')
+    districts = District.find(:all,:conditions => region_conditions, :order => 'name') rescue []
     districts = districts.map do |d|
       "<li value='#{d.name}'>#{d.name}</li>"
     end
@@ -352,9 +352,22 @@ class GenericPeopleController < ApplicationController
     render :text => districts.join('') + "<li value='Other'>Other</li>" and return
   end
 
-    # Villages containing the string given in params[:value]
+  def district_village
+
+    district_id = District.find_by_name("#{params[:filter_value]}").id rescue nil
+    traditional_authority_conditions = ["name LIKE (?) AND district_id = ?", "%#{params[:search_string]}%", district_id]
+
+    traditional_authorities = TraditionalAuthority.find(:all,:conditions => traditional_authority_conditions, :order => 'name').collect{|tr| tr.id}
+    villages = Village.find(:all, :conditions => ["traditional_authority_id IN (?)",  traditional_authorities])
+    villages = villages.map do |t_a|
+      "<li value='#{t_a.name}'>#{t_a.name}</li>"
+    end
+    render :text => villages.join('') and return
+  end
+
+  # Villages containing the string given in params[:value]
   def village
-    traditional_authority_id = TraditionalAuthority.find_by_name("#{params[:filter_value]}").id
+    traditional_authority_id = TraditionalAuthority.find_by_name("#{params[:filter_value]}").id rescue nil
     village_conditions = ["name LIKE (?) AND traditional_authority_id = ?", "%#{params[:search_string]}%", traditional_authority_id]
 
     villages = Village.find(:all,:conditions => village_conditions, :order => 'name')
@@ -467,7 +480,7 @@ class GenericPeopleController < ApplicationController
       last_given_drugs = patient.person.observations.recent(1).question("ARV REGIMENS RECEIVED ABSTRACTED CONSTRUCT").last rescue nil
       last_given_drugs = last_given_drugs.value_text rescue 'Uknown'
 
-     program_id = Program.find_by_name('HIV PROGRAM').id
+      program_id = Program.find_by_name('HIV PROGRAM').id
       outcome = PatientProgram.find(:first,:conditions =>["program_id = ? AND patient_id = ?",program_id,patient.id],:order => "date_enrolled DESC")
       art_clinic_outcome = outcome.patient_states.last.program_workflow_state.concept.fullname rescue 'Unknown'
 
@@ -485,7 +498,7 @@ class GenericPeopleController < ApplicationController
         'art_start_date' => art_start_date,
         'date_tested_positive' => date_tested_positive,
         'first_visit_date' => first_encounter_date,
-         'last_visit_date' => last_encounter_date,
+        'last_visit_date' => last_encounter_date,
         'cd4_data' => cd4_data_and_date_hash,
         'last_given_drugs' => last_given_drugs,
         'art_clinic_outcome' => art_clinic_outcome,
@@ -499,8 +512,8 @@ class GenericPeopleController < ApplicationController
   
   def occupations
     ['','Driver','Housewife','Messenger','Business','Farmer','Salesperson','Teacher',
-     'Student','Security guard','Domestic worker', 'Police','Office worker',
-     'Preschool child','Mechanic','Prisoner','Craftsman','Healthcare Worker','Soldier'].sort.concat(["Other","Unknown"])
+      'Student','Security guard','Domestic worker', 'Police','Office worker',
+      'Preschool child','Mechanic','Prisoner','Craftsman','Healthcare Worker','Soldier'].sort.concat(["Other","Unknown"])
   end
 
   def edit
@@ -520,8 +533,8 @@ class GenericPeopleController < ApplicationController
           @person.set_birthdate_by_age(params[:person]["age_estimate"])
         else
           PatientService.set_birthdate(@person, params[:person]["birth_year"],
-                                params[:person]["birth_month"],
-                                params[:person]["birth_day"])
+            params[:person]["birth_month"],
+            params[:person]["birth_day"])
         end
         @person.birthdate_estimated = 1 if params[:person]["birthdate_estimated"] == 'true'
         @person.save
@@ -558,7 +571,7 @@ class GenericPeopleController < ApplicationController
 		render :layout => 'menu'
   end
   
-private
+  private
   
 	def search_complete_url(found_person_id, primary_person_id)
 		unless (primary_person_id.blank?)

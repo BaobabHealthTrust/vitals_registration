@@ -361,18 +361,30 @@
     :tt_onUnLoad => '$("address2").value = $("address2_a").value',
     :condition => '$("address2").value == "Other" && ($("person_citizenship").value == "Malawian")', :id => 'address2_a',
     :tt_requireNextClick => true, :ajaxURL => '/person_addresses/address2?search_string=',
-    :allowFreeText => true, :field_type => 'alpha', :helpText => "#{params[:cat].titleize} Specify Home District",
+    :allowFreeText => true, :field_type => 'alpha', :optional => "true",
+    :helpText => "Specify #{params[:cat].titleize} Home District",
     :tt_onLoad => "$('nextButton').style.display = 'block';" } if ask_home_village %>
 
   <%= text_field "person[addresses]" , 'county_district',
     :helpText => "#{params[:cat].titleize} Ancestral Traditional Authority (T/A) or area of residence",
     :tt_requireNextClick => false, :ajaxURL => '', :tt_pageStyleClass => "azButton",
-    :condition => '($("person_citizenship").value == "Malawian") && $("address2").value != "Other"',
+    :condition => '($("person_citizenship").value == "Malawian")',
     :tt_onLoad => "set_ajaxURL_for_suggestions('/people/traditional_authority/TraditionalAuthority?filter_value=' ,document.getElementById('address2').value);$('nextButton').style.display = 'none';" if ask_home_village  %></p>
 
+
+  <%= text_field "person[addresses_2a]" , 'county_district2',
+    :id => "h_add2",
+    :optional => true,
+    :tt_onUnLoad => '$("person_addresses_county_district").value = $("h_add2").value',
+    :helpText => "Specify #{params[:cat].titleize} Ancestral Traditional Authority (T/A) or area of residence",
+    :tt_requireNextClick => true, :ajaxURL => '', :tt_pageStyleClass => "azButton", :allowFreeText => true,
+    :condition => '($("person_citizenship").value == "Malawian") && ($("person_addresses_county_district").value == "Other" ||
+  $("person_addresses_county_district").value == "Unknown" || $("person_addresses_county_district").value == "")',
+    :tt_onLoad => "$('nextButton').style.display = 'block'; set_ajaxURL_for_suggestions('/people/district_village?filter_value=' ,document.getElementById('address2').value);" if ask_home_village  %></p>
+
   <%= text_field_tag "person[addresses][neighborhood_cell]", params[:city_village],
-    {
-    :field_type => 'alpha',
+    {:field_type => 'alpha',
+    :id => "h_vg",
     :helpText => "#{params[:cat].titleize}'s Home Village",
     :tt_requireNextClick => false,
     :condition => '($("person_citizenship").value == "Malawian")',
@@ -380,6 +392,20 @@
     :ajaxURL => '/people/village?search_string=',
     :allowFreeText => false ,
     :tt_onLoad => "set_ajaxURL_for_suggestions('/people/village/Village?filter_value=' ,document.getElementById('person_addresses_county_district').value);$('nextButton').style.display = 'none';"}%>
+
+
+  <%= text_field_tag "h_village_2a", nil,
+    {
+    :id => "h_village2",
+    :tt_onUnLoad => '$("h_vg").value = $("h_village2").value',
+    :field_type => 'alpha',
+    :helpText => "Specify #{params[:cat].titleize}'s Home Village",
+    :tt_requireNextClick => true,
+    :condition => '($("person_citizenship").value == "Malawian") && ($("h_vg").value.trim() == "Other")',
+    :tt_pageStyleClass => "azButton",
+    :ajaxURL => '/people/village?search_string=',
+    :allowFreeText => true ,
+    :tt_onLoad => "set_ajaxURL_for_suggestions('/people/village/Village?filter_value=' ,document.getElementById('person_addresses_county_district').value);$('nextButton').style.display = 'block';"}%>
 
   <%= text_field "p[addresses]" , 'county_district_a', :tt_onUnLoad => '$("person_addresses_county_district").value = $("p_addresses_county_district_a").value', :condition => '$("address2").value == "Other"', :ajaxURL => '/person_addresses/traditional_authority?search_string=' , :helpText => 'Specify Ancestral Traditional Authority (T/A) or area of residence' , :tt_pageStyleClass => "azButton", :allowFreeText => true, :tt_onLoad => "$('nextButton').style.display = 'block';" if ask_home_village   %></p>
 
@@ -393,14 +419,14 @@
 
   <p><label for="filter_t_a">Traditional Authority (T/A) or area of residence</label></br>
 
-    <%= text_field "filter" , 't_a', :condition => '$("filter_district").value != "Other"',
+    <%= text_field "filter" , 't_a', :optional => true, :condition => '$("filter_district").value != "Other"',
       :helpText => "#{params[:cat].titleize} Traditional Authority (T/A) or area of residence", :tt_requireNextClick => false, :ajaxURL => '', :tt_pageStyleClass => "azButton", :tt_onLoad => "set_ajaxURL_for_suggestions('/people/traditional_authority/TraditionalAuthority?filter_value=' ,document.getElementById('filter_district').value);$('nextButton').style.display = 'none';" %></p>
 
   <%= text_field "filter" , 't_a_a', :tt_onUnLoad => 'if ($("t_a_a")) {$("t_a").value = $("t_a_a").value}',
     :condition => '$("filter_district").value == "Other"',
     :ajaxURL => '/person_addresses/traditional_authority?search_string=',
     :tt_pageStyleClass => "azButton", :allowFreeText => true,
-    :helpText => "#{params[:cat].titleize} Specify Traditional Authority (T/A) or area of residence",
+    :helpText => "Specify #{params[:cat].titleize} Traditional Authority (T/A) or area of residence",
     :tt_onLoad => "$('nextButton').style.display = 'block';" %></p>
 
   <%= text_field_tag "person[addresses][city_village]", params[:city_village],
@@ -417,7 +443,7 @@
     :condition => '$("filter_t_a").value == "Other"' ,
     :ajaxURL => '/person_addresses/village?search_string=',
     :allowFreeText => true, :field_type => 'alpha',
-    :helpText => "#{params[:cat].titleize} Specify Location/Village",
+    :helpText => "Specify #{params[:cat].titleize} Location/Village",
     :tt_pageStyleClass => "azButton",
     :tt_requireNextClick => true, :tt_onLoad => "$('nextButton').style.display = 'block';"}%>
 
@@ -479,7 +505,8 @@
     :helpText =>"Occupation",
     :id => "occupation",
     :allowFreeText => false,
-    :tt_onLoad => 'seen(tstCurrentPage);',
+    :tt_pageStyleClass => "longSelectList",
+    :tt_onLoad => 'seen(tstCurrentPage); $("keyboard").style.display = "none"',
     :ttMatchFromBeginning => "true")%>
 
   <!-- Make sure patient is created -->
