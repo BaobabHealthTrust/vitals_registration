@@ -316,7 +316,7 @@ class GenericPeopleController < ApplicationController
 
     traditional_authorities = TraditionalAuthority.find(:all,:conditions => traditional_authority_conditions, :order => 'name')
     traditional_authorities = traditional_authorities.map do |t_a|
-      "<li value='#{t_a.name}'>#{t_a.name}</li>"
+       "<li value='#{t_a.name.gsub(/\'/, "`")}'>#{t_a.name.gsub(/\'/, '`')}</li>"
     end
     render :text => traditional_authorities.join('') + "<li value='Other'>Other</li>" and return
   end
@@ -339,7 +339,7 @@ class GenericPeopleController < ApplicationController
 
     districts = District.find(:all,:conditions => region_conditions, :order => 'name') rescue []
     districts = districts.map do |d|
-      "<li value='#{d.name}'>#{d.name}</li>"
+      "<li value='#{d.name.gsub(/\'/, "`")}'>#{d.name.gsub(/\'/, '`')}</li>"
     end
     render :text => districts.join('') + "<li value='Other'>Other</li>" and return
   end
@@ -360,7 +360,7 @@ class GenericPeopleController < ApplicationController
     traditional_authorities = TraditionalAuthority.find(:all,:conditions => traditional_authority_conditions, :order => 'name').collect{|tr| tr.id}
     villages = Village.find(:all, :conditions => ["traditional_authority_id IN (?)",  traditional_authorities])
     villages = villages.map do |t_a|
-      "<li value='#{t_a.name}'>#{t_a.name}</li>"
+      "<li value='#{t_a.name.gsub(/\'/, "`")}'>#{t_a.name.gsub(/\'/, '`')}</li>"
     end
     render :text => villages.join('') and return
   end
@@ -372,7 +372,7 @@ class GenericPeopleController < ApplicationController
 
     villages = Village.find(:all,:conditions => village_conditions, :order => 'name')
     villages = villages.map do |v|
-      "<li value='#{v.name}'>#{v.name}</li>"
+      "<li value='#{v.name.gsub(/\'/, "`")}'>#{v.name.gsub(/\'/, '`')}</li>"
     end
     render :text => villages.join('') + "<li value='Other'>Other</li>" and return
   end
