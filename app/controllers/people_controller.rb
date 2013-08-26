@@ -539,6 +539,39 @@ private
     redirect_to "/clinic" if patient_id.blank?
     
   end
-  
+
+  def export_birth_reports
+    #@type = file_type
+    header  = ["SERIAL NUMBER", "NAME OF CHILD", "DATE OF BIRTH", "SEX", "DISTRICT OF BIRTH", "MOTHER NAME", "MOTHER NATIONALITY", "MOTHER HOME VILLAGE",
+      "MOTHER HOME TA", "MOTHER HOME DISTRICT", "FATHER NAME", "FATHER NATIONALITY", "FATHER HOME VILLAGE", "FATHER HOME TA", "FATHER HOME DISTRICT"]
+    csv_string = []
+    header_added = false
+    ( BirthReport.find(:all) || [] ).each do | birth_report |
+    
+      csv_string << FasterCSV.generate do |csv|
+
+        unless header_added
+          csv << header
+          header_added = true
+        end
+        
+        gender = Person.find(birth_report.patient_id).gender
+        birthdate = birth_report.date_of_birth.strftime("%d/%b/%Y")
+        
+        csv << [birth_report.serial_number, birth_report.name_of_child, birthdate, gender, birth_report.district_of_birth,
+          birth_report.name_mother, birth_report.nationality_mother, birth_report.home_village_mother, birth_report.home_ta_mother, birth_report.home_district_mother,
+          birth_report.name_father, birth_report.nationality_father, birth_report.home_village_father, birth_report.home_ta_father, birth_report.home_district_father]
+      
+      end
+
+    end
+   
+    send_data(csv_string.to_s,
+      :type => 'text/xls; charset=utf-8;',
+      :stream=> false,
+      :disposition => 'inline',
+      :filename => "birth_reports.xls") and return
+  end
+
 end
  

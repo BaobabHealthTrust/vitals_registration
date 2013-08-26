@@ -7,8 +7,8 @@
       </div>
     </div>
   </h1>
-	<%= flash[:error] if flash[:error]%>
-	<%= flash[:notice] if flash[:notice]%>
+  <%= flash[:error] if flash[:error]%>
+  <%= flash[:notice] if flash[:notice]%>
   <select id="tabs">
     <option value="/clinic/overview">
       Overview
@@ -16,16 +16,16 @@
     <option value="/clinic/reports">
       Reports
     </option>
-     <option value="/clinic/user_activities/?user_id=<%= current_user.user_id %>" >My Preferences</option>
+    <option value="/clinic/user_activities/?user_id=<%= current_user.user_id %>" >My Preferences</option>
 <%#=  raise (current_user).to_yaml%>
     <% if current_user.admin?%>
-     <option value="/clinic/users_tab">
+      <option value="/clinic/users_tab">
         Administration
-      </option>      
+      </option>
     <% end %>
 
-   
-	 
+
+
   </select>
 
   <div id="facility"><%= @facility rescue "" %></div>
@@ -42,6 +42,12 @@
                 "/people/reset_datetime" : "/people/set_datetime") %>'  ttSize="100px">
               <%= ((session[:datetime].to_date.strftime("%Y-%m-%d") rescue Date.today.strftime("%Y-%m-%d") !=
             Date.today.strftime("%Y-%m-%d")) ? "Reset Date" : "Set Date") %></option>
+
+    <% if current_user.admin?%>
+      <option  value="/people/export_birth_reports" ttSize="250px">
+        Export Birth Reports</option>
+    <%end%>
+
   </select>
 
 </div>
