@@ -567,10 +567,10 @@ private
     end
    
     send_data(csv_string.to_s,
-      :type => 'text/xls; charset=utf-8;',
+      :type => 'text/csv; unicode;',
       :stream=> false,
       :disposition => 'inline',
-      :filename => "birth_reports.xls") and return
+      :filename => "birth_reports.csv") and return
   end
 
 end
