@@ -43,11 +43,6 @@
               <%= ((session[:datetime].to_date.strftime("%Y-%m-%d") rescue Date.today.strftime("%Y-%m-%d") !=
             Date.today.strftime("%Y-%m-%d")) ? "Reset Date" : "Set Date") %></option>
 
-    <% if current_user.admin?%>
-      <option  value="/people/export_birth_reports" ttSize="250px">
-        Export Birth Reports</option>
-    <%end%>
-
   </select>
 
 </div>

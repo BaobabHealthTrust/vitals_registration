@@ -15,25 +15,37 @@
           filter_value.replace(/\s/g, "+") + "&search_string=");
       }
 
-      //-->
+      function addExtraButtons(){
+<% if ((current_user.admin?) rescue false) %>
+      var buttondiv = __$("buttons");
+      buttondiv = document.getElementById("buttons");
+      buttondiv.innerHTML += "<div id='tt_extraButtons'></div>"
+      buttondiv.innerHTML+= "<button class='button navButton' id='export_to_csv' onmousedown='exportData();'><span>Export All Birth Reports</span></button>"
+<%end%>
+  }
+
+  function exportData(){
+    window.location = "/people/export_birth_reports"
+  }
+  //-->
     </script>
   </head>
-  <body><div id='content'>
+  <body onload="setTimeout('addExtraButtons()', 200)"><div id='content'>
       <form  action='/reports/report' method="post">
         <select id="select_by" name="select_by" helpText="Report By:">
           <option></option>
-          <option>Date of birth</option>         
+          <option>Date of birth</option>
           <option>District of birth</option>
           <option>Health Facility</option>
           <option>Birth report source</option>
         </select>
 
-        <input type="text" id="start_date" name="start_date" helpText="Start Date" 
+        <input type="text" id="start_date" name="start_date" helpText="Start Date"
                field_type="date" condition="__$('select_by').value=='Date of birth' || __$('select_by').value=='Birth report source'" />
 
         <input type="text" id="end_date" name="end_date" helpText="End Date"
                field_type="date" condition="__$('select_by').value=='Date of birth' || __$('select_by').value=='Birth report source'" />
-        
+
 
       </form>
     </div>
