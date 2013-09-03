@@ -546,7 +546,9 @@ private
       "MOTHER HOME TA", "MOTHER HOME DISTRICT", "FATHER NAME", "FATHER NATIONALITY", "FATHER HOME VILLAGE", "FATHER HOME TA", "FATHER HOME DISTRICT"]
     csv_string = []
     header_added = false
-    ( BirthReport.find(:all) || [] ).each do | birth_report |
+    
+    ( BirthReport.find(:all, :conditions => ["date_of_birth BETWEEN ? AND ?",
+          params[:start_date].to_date, params[:end_date].to_date ]) || [] ).each do | birth_report |
     
       csv_string << FasterCSV.generate do |csv|
 

@@ -3,7 +3,7 @@
     <title>report</title>
     <script>
 <%   if params[:select_by] && params[:select_by].downcase == "date of birth" && !params["start_date"].blank? && !params["end_date"].blank? %>
-    window.parent.location = "/reports/debugger?by_date=true"
+    window.parent.location = "/reports/debugger?by_date=true&start_date=<%= params[:start_date].to_date.strftime("%d/%b/%Y") rescue nil %>&end_date=<%= params[:end_date].to_date.strftime("%d/%b/%Y") rescue nil %>"
 <%end%>
     </script>
     <style>

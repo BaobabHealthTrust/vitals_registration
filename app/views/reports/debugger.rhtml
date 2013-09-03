@@ -5,11 +5,26 @@
     <script>
       function returnBack(){
 <%if (params[:by_date] == "true" rescue false)%>
-window.parent.location = "/"
+      window.parent.location = "/"
 <%else%>
-back();
+      back();
 <%end%>
   }
+
+  function addExtraButtons(){
+
+<% if ((current_user.admin?) rescue false) && (params[:by_date] == "true" rescue false)%>
+      var buttondiv = document.getElementById("navigation");
+      buttondiv.innerHTML += "<div id='tt_extraButtons'></div>"
+      buttondiv.innerHTML+= "<button class='blueButton' id='export_to_csv' onmousedown='exportData();'><span>Export Birth Reports</span></button>"
+<%end%>
+  
+  }
+
+  function exportData(){
+    window.location = "/people/export_birth_reports?start_date=<%= params[:start_date] %>&end_date=<%= params[:end_date] %>"
+  }
+  
     </script>
     <style>
       table {
@@ -24,6 +39,18 @@ back();
         color: #eee;
       }
 
+      .blueButton{
+        background:url(/images/btn_blue.png) repeat;
+        font-size:1.3em;
+        line-height:50px;
+        float: right;
+        margin-top: 10px;
+        -moz-radius: 5px;
+        max-width:300px;
+        color: white;
+        font-weight:bold;
+      }
+
       .blue {
         background:url(/images/btn_blue.png) right no-repeat;
         font-size:1.3em;
@@ -35,7 +62,7 @@ back();
     </style>
 
   </head>
-  <body>
+  <body  onload="setTimeout('addExtraButtons()', 200)">
     <div style="width: auto; height: 90%; overflow: auto; width: 100%;">
       <table cellpadding="5" width="100%" style="font-family: verdana;">
         <tr>
@@ -186,6 +213,7 @@ back();
   </div>
 </div>
 <script>
+
   document.getElementById("nextButton").onmousedown = function(){returnBack();};
 </script>
 </html>

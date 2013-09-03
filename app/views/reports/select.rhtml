@@ -15,22 +15,10 @@
           filter_value.replace(/\s/g, "+") + "&search_string=");
       }
 
-      function addExtraButtons(){
-<% if ((current_user.admin?) rescue false) %>
-      var buttondiv = __$("buttons");
-      buttondiv = document.getElementById("buttons");
-      buttondiv.innerHTML += "<div id='tt_extraButtons'></div>"
-      buttondiv.innerHTML+= "<button class='button navButton' id='export_to_csv' onmousedown='exportData();'><span>Export All Birth Reports</span></button>"
-<%end%>
-  }
-
-  function exportData(){
-    window.location = "/people/export_birth_reports"
-  }
-  //-->
+      //-->
     </script>
   </head>
-  <body onload="setTimeout('addExtraButtons()', 200)"><div id='content'>
+  <body ><div id='content'>
       <form  action='/reports/report' method="post">
         <select id="select_by" name="select_by" helpText="Report By:">
           <option></option>
