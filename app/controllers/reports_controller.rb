@@ -15,6 +15,10 @@ class ReportsController < ActionController::Base
     
   end
 
+  def cohort_report
+
+  end
+  
   def report
     @parameters = ""
 
@@ -70,15 +74,64 @@ class ReportsController < ActionController::Base
     end
   end
 
+  def facility_report
+
+    @start_date = params[:start_date].to_date
+    @end_date = params[:end_date].to_date
+    @link_data = {}
+    nat_id_type = PatientIdentifierType.find_by_name("National id").patient_identifier_type_id  rescue []
+    urls = CoreService.get_global_property_value("maternity.links").split(",") rescue []
+
+    baby_id = nil
+    remote_ids = []
+
+    urls.each{|link|
+      uri = "#{link.split("|")[1]}/report/issue_baby_ids"
+      source = link.split("|")[0]
+      national_ids = JSON.parse(RestClient.post(uri, params))["ids"] rescue []
+
+      national_ids.collect{|n_id|
+
+        baby_id = PatientIdentifier.find_by_identifier_and_identifier_type(n_id, nat_id_type).patient_id rescue nil
+        @link_data["#{source}"] = [] if @link_data["#{source}"].class.to_s.downcase != "array"
+        @link_data["#{source}"] << baby_id if !@link_data["#{source}"].include?(baby_id) && !baby_id.blank?
+        remote_ids << baby_id if @link_data["#{source}"].include?(baby_id)
+
+      }
+
+    }
+    
+    @babies_data = BirthReport.cohort_data(@link_data, @start_date, @end_date)
+    @data = BirthReport.filter_fields(@babies_data)
+
+    if @data["Source"]
+      @data["Source"]["Current Site"] = [] if @data["Source"]["Current Site"].nil?
+    end
+
+    @results = @results.insert(@results.length - 1, @results.delete_at(@results.index("Other"))) rescue @results
+    keys =  @data.keys
+    @ordered_data_keys = keys.insert(0,  keys.delete_at(keys.index("Sex"))) rescue keys
+    session[:data] = @data
+    render :layout => false
+  end
+  
   def report_printable
+
     @babies = []
-
+    @start_date = params[:start_date].to_date
+    @end_date = params[:end_date].to_date
+    
+    if params[:type] == "cohort"   
+      redirect_to :controller => "reports", :action => "facility_report", :type=> params[:type],
+        :start_date => params[:start_date], :end_date => params[:end_date], :select_by => params[:select_by] and return
+    end
+    
     if params[:select_by] && params[:select_by].downcase == "nationality"
-
+   
       @groups = []
       @header = "Nationality"
       @babies_map = {}
-      @babies = BirthReport.find(:all)      
+      @babies = BirthReport.find(:all)
       
       @babies.each do |baby|
         
@@ -94,8 +147,8 @@ class ReportsController < ActionController::Base
         else mother_nationality.to_s.downcase != father_nationality.to_s.downcase
           
           if  @babies_map["Dual Nationality"].class.to_s.downcase != "array"
-            @babies_map["Dual Nationality"] = []           
-          end          
+            @babies_map["Dual Nationality"] = []
+          end
           @babies_map["Dual Nationality"]<< baby.patient_id if ![mother_nationality, father_nationality].include?("Unknown Nationality")
           next if [mother_nationality, father_nationality].include?("Unknown Nationality")
           #nationality = (mother_nationality != "Unknown Nationality")? mother_nationality : father_nationality
@@ -104,7 +157,7 @@ class ReportsController < ActionController::Base
 
           @babies_map["#{father_nationality}"] = [] if  @babies_map["#{father_nationality}"].class.to_s.downcase != "array"
           @babies_map["#{father_nationality}"] << baby.patient_id if !@babies_map["#{father_nationality}"].include?(baby.patient_id)
-        end        
+        end
        
         
       end
@@ -208,13 +261,25 @@ class ReportsController < ActionController::Base
   end
 
   def debugger
+    patients = []
+  
+    if session[:data]
+      
+      if params[:level_1] && params[:level_2] && params[:num]
+        
+        patients = session[:data][params[:level_1]][params[:level_2]][params[:num].to_i] rescue patients
+       
+      end
 
-    if params[:group].blank?
-      patients = session[:ids].split(",") rescue nil if session[:ids]
     else
-      patients = session[:babies_map]["#{params[:group]}"] #rescue nil if session[:babies_map]
-    end
+      if params[:group].blank?
+        patients = session[:ids].split(",") rescue nil if session[:ids]
+      else
+        patients = (session[:babies_map]["#{params[:group]}"] || params[:ids])#rescue nil if session[:babies_map]
+      end
 
+      patients = params[:ids] if params[:ids].present? && patients.blank?
+    end
     @babies = BirthReport.find(:all, :conditions => ["patient_id IN (?)", patients])
     
     render :layout => false
@@ -264,6 +329,13 @@ class ReportsController < ActionController::Base
         @parameters = "nationality=#{params["nationality"]}"
       end
     end
+    @return_link = nil
+    if params["type"]
+      @parameters += "&type=#{params[:type]}"
+      @name = "facility_report" #for cohort report
+      @xtraz = "-T 25mm"
+      @return_link = "cohort_report"
+    end
 
     if !@parameters.blank?
       @parameters = "?" + @parameters
@@ -279,10 +351,13 @@ class ReportsController < ActionController::Base
       current_printer = ward.split(":")[1] if ward.split(":")[0].upcase == location
     } rescue []
 
+    @name = "report_printable" if @name.blank?
+    @xtraz = "" if @xtraz.blank?
+    
     t1 = Thread.new{
 
-      Kernel.system "wkhtmltopdf -s A4 http://" +
-        request.env["HTTP_HOST"] + "\"/reports/report_printable#{@parameters}" +
+      Kernel.system "wkhtmltopdf #{@xtraz} -s A4 http://" +
+        request.env["HTTP_HOST"] + "\"/reports/#{@name}#{@parameters}&printing=true" +
         "\" /tmp/output-" + session[:user_id].to_s + ".pdf \n"
     }
 
@@ -297,7 +372,7 @@ class ReportsController < ActionController::Base
       Kernel.system "rm /tmp/output-" + session[:user_id].to_s + ".pdf\n"
     }
 
-    redirect_to "/reports/select" and return
+    redirect_to "/reports/#{@return_link || @name}#{@parameters}" and return
   end
 
 end

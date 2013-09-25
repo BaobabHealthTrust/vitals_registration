@@ -28,21 +28,22 @@
   <body id="mateme">
     <div id="container">
       <div id="content">
-        <iframe id="main" src="/reports/report_printable<%= @parameters.blank?? '?' : @parameters %>&select_by=<%= params[:select_by]%>&type=<%= params[:type] %>"></iframe>
-
-        <div style="z-index:11;bottom:0px; height: 82px; width: 100%; left: 0px;
+        <iframe id="main" src="/reports/facility_report?start_date=<%= params[:start_date]%>&end_date=<%= params[:end_date]%>&type=<%= params[:type]%>&select_by=<%= params[:select_by]%>"></iframe>
+        <%  request.request_uri.match(/debugger/) %>
+        <div class="footer" style="z-index:1;bottom:0px; height: 82px; width: 100%; left: 0px;
              right: -66px; position: absolute; background-color: #333333; padding: 0px;">
-          <button onclick="window.location = '/reports/select/?type=<%= params[:type] %>';" class="button navButton red"
+          <button onclick="window.location = '/clinic';" class="button navButton red"
                   id="cancelButton" style="position: absolute; z-index: 100; margin-top: 10px;"><span>Cancel</span>
           </button>
 
           <button onclick="window.location = '/clinic';" class="button navButton green"
                   id="nextButton" style="margin-top: 10px; margin-right: 20px;" ><span>Finish</span>
           </button>
-          <button onclick="window.location = '/reports/print_note<%= @parameters %>';" class="button navButton blue"
+          <button onclick="window.location = '/reports/print_note?type=cohort&start_date=<%= params[:start_date] %>&end_date=<%= params[:end_date] %>&select_by=<%= params[:select_by] %>';" class="button navButton blue"
                   id="nextButton" style="margin-top: 10px; margin-right: 20px;" ><span>Print</span>
           </button>
         </div>
+
       </div>
     </div>
   </body>

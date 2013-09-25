@@ -13,13 +13,15 @@ class ClinicController < GenericClinicController
     #delete session values used in reports, if any
     session.delete(:babies_map) if session[:babies_map]
     session.delete(:ids) if session[:ids]
+    session.delete(:data) if session[:data]
 
     render :layout => 'dynamic-dashboard'
   end
 
   def reports
-    @reports = [['/reports/select/','Report']]
-    # render :template => 'clinic/reports', :layout => 'clinic'
+    @reports = [['/reports/select/','Report'],
+      ['/reports/select/?type=cohort','Cohort']
+    ]
     render :layout => false
   end
 

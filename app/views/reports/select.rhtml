@@ -19,23 +19,29 @@
     </script>
   </head>
   <body ><div id='content'>
-      <form  action='/reports/report' method="post">
-        <select id="select_by" name="select_by" helpText="Report By:">
-          <option></option>
-          <option>Date of birth</option>
-          <option>District of birth</option>
-          <option>Health Facility</option>
-          <option>Birth report source</option>
-        </select>
+      <%if params[:type] != "cohort"%>
+        <form  action='/reports/report' method="post">
+        <%else%>
+          <form  action='/reports/cohort_report' method="post">
+          <%end%>
+          <select id="select_by" name="select_by" helpText="Report By:" condition="<%= params[:type] != 'cohort' %>">
+            <option></option>
+            <option>Date of birth</option>
+            <option>District of birth</option>
+            <option>Health Facility</option>
+            <option>Birth report source</option>
+          </select>
 
-        <input type="text" id="start_date" name="start_date" helpText="Start Date"
-               field_type="date" condition="__$('select_by').value=='Date of birth' || __$('select_by').value=='Birth report source'" />
+          <input type="text" id="start_date" name="start_date" helpText="Start Date"
+                 field_type="date" condition="<%= params[:type] == 'cohort' %> || __$('select_by').value=='Date of birth' || __$('select_by').value=='Birth report source'" />
 
-        <input type="text" id="end_date" name="end_date" helpText="End Date"
-               field_type="date" condition="__$('select_by').value=='Date of birth' || __$('select_by').value=='Birth report source'" />
+          <input type="text" id="end_date" name="end_date" helpText="End Date"
+                 field_type="date" condition="<%= params[:type] == 'cohort' %> || __$('select_by').value=='Date of birth' || __$('select_by').value=='Birth report source'" />
+
+          <input type="hidden" id="type" name="type" value ="<%= params[:type] %>" />
 
 
-      </form>
+        </form>
     </div>
   </body>
 </html>

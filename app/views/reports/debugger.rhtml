@@ -19,10 +19,22 @@
       buttondiv.innerHTML+= "<button class='blueButton' id='export_to_csv' onmousedown='exportData();'><span>Export Birth Reports</span></button>"
 <%end%>
   
-  }
-
+  } 
+ 
+  
   function exportData(){
     window.location = "/people/export_birth_reports?start_date=<%= params[:start_date] %>&end_date=<%= params[:end_date] %>"
+  }
+
+  function checkFooter(){
+   
+    try{
+      div  = document.body.getElementsByClassName("footer")[0];
+
+    }catch(ex){
+      
+    }
+    setTimeout("checkFooter()", 100)
   }
   
     </script>
@@ -59,10 +71,11 @@
         color: white;
         font-weight:bold;
       }
+
     </style>
 
   </head>
-  <body  onload="setTimeout('addExtraButtons()', 200)">
+  <body  onload="setTimeout('addExtraButtons()', 200); checkFooter()">
     <div style="width: auto; height: 90%; overflow: auto; width: 100%;">
       <table cellpadding="5" width="100%" style="font-family: verdana;">
         <tr>
