@@ -63,7 +63,7 @@ class PeopleController < GenericPeopleController
 
     if create_from_dde_server
       person = ANCService.create_patient_from_dde(params)
-      DDEService.create_footprint(person.patient.national_id, Location.find(session[:location_id]).name) rescue nil
+      DDEService.create_footprint(person.patient.national_id, "Facility Vitals Registration") rescue nil
     end
 
     person.update_attributes(:birthdate_estimated => 1)  unless (((params[:available] and params[:available].upcase == "YES") || params[:cat].downcase.strip == "baby") rescue true)
@@ -160,9 +160,10 @@ class PeopleController < GenericPeopleController
     found_person = nil
     if params[:identifier]
       pdata = PatientService.search_by_identifier(params[:identifier])
+      
       local_results = pdata ? pdata : []
 	
-      if (pdata.nil?) && create_from_dde_server
+      if (pdata.blank?) && create_from_dde_server
         if ["", "baby"].include?(params[:cat]) || !params[:cat]
           params[:cancel_show] = params[:cancel_show]? params[:cancel_show] : "/"
           params[:cancel_destination] = params[:cancel_destination]? params[:cancel_destination] : "/"
@@ -173,6 +174,7 @@ class PeopleController < GenericPeopleController
         #redirect_to :controller => :clinic, :action => :link_error, :link => dde_server
         redirect_to "/clinic/link_error?cancel_show=#{params[:cancel_show]}&cancel_destination=#{params[:cancel_destination]}" and return
       end
+      
       if local_results.length > 1
         redirect_to :action => 'duplicates' ,:search_params => params
         return
@@ -193,11 +195,11 @@ class PeopleController < GenericPeopleController
         end
         
         found_person = local_results.first
-        DDEService.create_footprint(found_person.patient.national_id, Location.find(session[:location_id]).name) rescue nil
+        
+        DDEService.create_footprint(found_person.patient.national_id, "Facility Vitals Registration") rescue nil
         
       else
-        # TODO - figure out how to write a test for this
-        # This is sloppy - creating something as the result of a GET
+       
         if create_from_remote
           found_person_data = PatientService.find_remote_person_by_identifier(params[:identifier])
           found_person = PatientService.create_from_form(found_person_data['person']) unless found_person_data.nil?
@@ -298,15 +300,24 @@ class PeopleController < GenericPeopleController
 
   # This method is just to allow the select box to submit, we could probably do this better
   def select
-  
-    if params[:person][:id] != '0' && (Person.find(params[:person][:id]).dead == 1 rescue false)
+   
+    related_person = PatientService.search_by_identifier(params[:identifier]).last.patient rescue nil
 
-      redirect_to :controller => :patients, :action => :show, :id => params[:person]
+    if params[:cat] == "baby" and related_person.present? #related_person is prime client (baby)
+     
+      redirect_to :controller => :people, :cat => params[:cat], :gender => params[:gender], :action => :search, :identifier => params[:identifier] and return
+
+    end
+    
+    if params[:person][:id] != '0' && (Person.find(params[:person][:id]).dead == 0 rescue false)
+
+      redirect_to :controller => :patients, :action => :show, :id => params[:person][:id] and return
+      
     else
       redirect_to search_complete_url(params[:person][:id], params[:relation],
-        params[:cat]) and return if params[:person][:id] != "0" && params[:cat] == "baby"
+        params[:cat]) and return if (params[:person][:id].match(/\d+/) rescue false) && params[:person][:id] != "0" && params[:cat] == "baby"
       
-      related_person = PatientService.search_by_identifier(params[:identifier]).first.patient rescue nil
+      
       params[:person][:id] = related_person.id if related_person
      
       redirect_to "/relationships/new?patient_id=#{params[:patient_id]}&relation=#{params[:person][:id]

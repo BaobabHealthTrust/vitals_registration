@@ -27,9 +27,11 @@
           <select id="select_by" name="select_by" helpText="Report By:" condition="<%= params[:type] != 'cohort' %>">
             <option></option>
             <option>Date of birth</option>
-            <option>District of birth</option>
-            <option>Health Facility</option>
-            <option>Birth report source</option>
+            <% if false %>
+              <option>District of birth</option>
+              <option>Health Facility</option>
+              <option>Birth report source</option>
+            <%end%>
           </select>
 
           <input type="text" id="start_date" name="start_date" helpText="Start Date"

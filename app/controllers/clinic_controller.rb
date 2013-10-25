@@ -81,28 +81,28 @@ class ClinicController < GenericClinicController
         Date.today.strftime('%Y-%m-%d 23:59:59'),
         'M', ids]) rescue []
 					 
-    @males_year = Person.find(:all, :conditions => ["date_created BETWEEN ? AND ? AND gender = ? AND person_id IN (?)",
+    @males_year = Person.find(:all, :joins => ["INNER JOIN birth_report ON person_id = patient_id"], :conditions => ["date_created BETWEEN ? AND ? AND gender = ? AND person_id IN (?)",
         Date.today.strftime('%Y-01-01 00:00:00'),
         Date.today.strftime('%Y-12-31 23:59:59'),
         'M', ids]) rescue [];
-    @males_ever = Person.find(:all, :conditions => ["gender =?  AND person_id IN (?)", "M", ids]) rescue [];
+    @males_ever = Person.find(:all, :joins => ["INNER JOIN birth_report ON person_id = patient_id"], :conditions => ["gender =?  AND person_id IN (?)", "M", ids]) rescue [];
 
-    @females_me = Person.find(:all, :conditions => ['date_created BETWEEN ? AND ? AND creator =? AND gender =? AND person_id IN (?)',
+    @females_me = Person.find(:all, :joins => ["INNER JOIN birth_report ON person_id = patient_id"], :conditions => ['date_created BETWEEN ? AND ? AND creator =? AND gender =? AND person_id IN (?)',
         Date.today.strftime('%Y-%m-%d 00:00:00'),
         Date.today.strftime('%Y-%m-%d 23:59:59'),
         current_user.user_id, "F", ids]).collect{|baby|
       baby if ((baby.date_created.year - baby.birthdate.year) <= 1)
     } rescue [];
     
-    @females_today = Person.find(:all, :conditions => ["date_created BETWEEN ? AND ? AND gender = ? AND person_id IN (?)",
+    @females_today = Person.find(:all, :joins => ["INNER JOIN birth_report ON person_id = patient_id"], :conditions => ["date_created BETWEEN ? AND ? AND gender = ? AND person_id IN (?)",
         Date.today.strftime('%Y-%m-%d 00:00:00'),
         Date.today.strftime('%Y-%m-%d 23:59:59'),
         'F', ids]) rescue [];
-    @females_year = Person.find(:all, :conditions => ["date_created BETWEEN ? AND ? AND gender = ? AND person_id IN (?)",
+    @females_year = Person.find(:all, :joins => ["INNER JOIN birth_report ON person_id = patient_id"], :conditions => ["date_created BETWEEN ? AND ? AND gender = ? AND person_id IN (?)",
         Date.today.strftime('%Y-01-01 00:00:00'),
         Date.today.strftime('%Y-12-31 23:59:59'),
         'F', ids]) rescue [];
-    @females_ever = Person.find(:all, :conditions => ["gender =? AND person_id IN (?)", "F", ids]) rescue [];
+    @females_ever = Person.find(:all, :joins => ["INNER JOIN birth_report ON person_id = patient_id"], :conditions => ["gender =? AND person_id IN (?)", "F", ids]) rescue [];
 	
     @me = Encounter.statistics(@types,
       :conditions => ['encounter_datetime BETWEEN ? AND ? AND encounter.creator = ?',

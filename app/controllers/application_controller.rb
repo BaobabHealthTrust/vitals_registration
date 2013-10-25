@@ -12,7 +12,7 @@ class ApplicationController < GenericApplicationController
     'remote_demographics', 'get_token', 'single_sign_in', 'birth_report_printable', "facility_report", "report_printable"]
 
   def next_task(patient)
-    return "/patients/show/#{patient.id}"     
+    return "/patients/show/#{patient.id}?patient_id=#{patient.id}"
   end
 
   private

@@ -6,17 +6,19 @@ class GenericDispensationsController < ApplicationController
     type = EncounterType.find_by_name('TREATMENT')
     session_date = session[:datetime].to_date rescue Date.today
     @prescriptions = Order.find(:all,
-                     :joins => "INNER JOIN encounter e USING (encounter_id)", 
-                     :conditions => ["encounter_type = ? AND e.patient_id = ? AND DATE(encounter_datetime) = ?",
-                     type.id,@patient.id,session_date]) 
+      :joins => "INNER JOIN encounter e USING (encounter_id)",
+      :conditions => ["encounter_type = ? AND e.patient_id = ? AND DATE(encounter_datetime) = ?",
+        type.id,@patient.id,session_date])
     @options = @prescriptions.map{|presc| [presc.drug_order.drug.name, presc.drug_order.drug_inventory_id]}
   end
 
   def create
+    
     if (params[:identifier])
       params[:drug_id] = params[:identifier].match(/^\d+/).to_s
       params[:quantity] = params[:identifier].match(/\d+$/).to_s
     end
+    
     @patient = Patient.find(params[:patient_id] || session[:patient_id]) rescue nil
     unless params[:location]
       session_date = session[:datetime] || Time.now()
@@ -45,7 +47,7 @@ class GenericDispensationsController < ApplicationController
     @encounter = current_dispensation_encounter(@patient, session_date, user_person_id)
 
     @order = PatientService.current_treatment_encounter( @patient, session_date, user_person_id).drug_orders.find(:first,:conditions => ['drug_order.drug_inventory_id = ?', 
-             params[:drug_id]]).order rescue []
+        params[:drug_id]]).order rescue []
 
     # Do we have an order for the specified drug?
     if @order.blank?
@@ -73,16 +75,16 @@ class GenericDispensationsController < ApplicationController
       :obs_datetime => session_date || Time.now())
     if obs.save
       @patient.patient_programs.find_last_by_program_id(Program.find_by_name("HIV PROGRAM")).transition(
-               :state => "On antiretrovirals",:start_date => session_date || Time.now()) if MedicationService.arv(@drug) rescue nil
+        :state => "On antiretrovirals",:start_date => session_date || Time.now()) if MedicationService.arv(@drug) rescue nil
 
       @patient.patient_programs.find_last_by_program_id(Program.find_by_name("DIABETES PROGRAM")).transition(
-               :state => "On treatment",:start_date => session_date || Time.now()) if MedicationService.diabetes_medication(@drug) rescue nil
+        :state => "On treatment",:start_date => session_date || Time.now()) if MedicationService.diabetes_medication(@drug) rescue nil
                
 			@tb_programs = @patient.patient_programs.in_uncompleted_programs(['TB PROGRAM', 'MDR-TB PROGRAM'])
 
       if !@tb_programs.blank?
         @patient.patient_programs.find_last_by_program_id(Program.find_by_name("TB PROGRAM")).transition(
-               :state => "Currently in treatment",:start_date => session_date || Time.now()) if   MedicationService.tb_medication(@drug)
+          :state => "Currently in treatment",:start_date => session_date || Time.now()) if   MedicationService.tb_medication(@drug)
       end
 
       unless @order.blank?
@@ -180,33 +182,33 @@ EOF
     regimen_prescribed = regimen_drug_order.first['concept_id'].to_i rescue ConceptName.find_by_name('UNKNOWN ANTIRETROVIRAL DRUG').concept_id
 
 
-	if (Observation.find(:first,:conditions => ["person_id = ? AND encounter_id = ? AND concept_id = ?",
+    if (Observation.find(:first,:conditions => ["person_id = ? AND encounter_id = ? AND concept_id = ?",
             patient.id,encounter.id,ConceptName.find_by_name('ARV REGIMENS RECEIVED ABSTRACTED CONSTRUCT').concept_id])).blank?
 
-		regimen_value_text = Concept.find(regimen_prescribed).shortname rescue nil
-		if regimen_value_text.blank?
-			regimen_value_text = ConceptName.find_by_concept_id(regimen_prescribed).name rescue nil
-		end
+      regimen_value_text = Concept.find(regimen_prescribed).shortname rescue nil
+      if regimen_value_text.blank?
+        regimen_value_text = ConceptName.find_by_concept_id(regimen_prescribed).name rescue nil
+      end
 
-		return if regimen_value_text.blank?
+      return if regimen_value_text.blank?
 
-		selected_regimen = Regimen.find(regimen_drug_order.first['regimen_id'].to_i) rescue nil
+      selected_regimen = Regimen.find(regimen_drug_order.first['regimen_id'].to_i) rescue nil
 
-		obs = Observation.create(
-			:concept_name => "REGIMEN CATEGORY",
-			:person_id => patient.id,
-			:encounter_id => encounter.id,
-			:value_text => selected_regimen.regimen_index,
-			:obs_datetime => encounter.encounter_datetime) if !selected_regimen.blank?
+      obs = Observation.create(
+        :concept_name => "REGIMEN CATEGORY",
+        :person_id => patient.id,
+        :encounter_id => encounter.id,
+        :value_text => selected_regimen.regimen_index,
+        :obs_datetime => encounter.encounter_datetime) if !selected_regimen.blank?
 
-		obs = Observation.new(
-			:concept_name => "ARV REGIMENS RECEIVED ABSTRACTED CONSTRUCT",
-			:person_id => patient.id,
-			:encounter_id => encounter.id,
-			:value_coded => regimen_prescribed,
-			:obs_datetime => encounter.encounter_datetime)
+      obs = Observation.new(
+        :concept_name => "ARV REGIMENS RECEIVED ABSTRACTED CONSTRUCT",
+        :person_id => patient.id,
+        :encounter_id => encounter.id,
+        :value_coded => regimen_prescribed,
+        :obs_datetime => encounter.encounter_datetime)
 
-      	obs.save
+      obs.save
       return obs.value_text
     end
   end

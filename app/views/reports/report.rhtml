@@ -32,11 +32,11 @@
 
         <div style="z-index:11;bottom:0px; height: 82px; width: 100%; left: 0px;
              right: -66px; position: absolute; background-color: #333333; padding: 0px;">
-          <button onclick="window.location = '/reports/select/?type=<%= params[:type] %>';" class="button navButton red"
+          <button onclick="window.location = '/clinic' " class="button navButton red"
                   id="cancelButton" style="position: absolute; z-index: 100; margin-top: 10px;"><span>Cancel</span>
           </button>
 
-          <button onclick="window.location = '/clinic';" class="button navButton green"
+          <button onclick=" back(); " class="button navButton green"
                   id="nextButton" style="margin-top: 10px; margin-right: 20px;" ><span>Finish</span>
           </button>
           <button onclick="window.location = '/reports/print_note<%= @parameters %>';" class="button navButton blue"
