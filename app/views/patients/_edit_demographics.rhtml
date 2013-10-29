@@ -194,7 +194,6 @@
       {:condition => '$("filter_t_a").value != "Other"',
       :field_type => 'alpha',
       :helpText => "Location/Village",
-      :tt_requireNextClick => false,
       :tt_pageStyleClass => "azButton",
       :ajaxURL => '/people/village?search_string=',
       :allowFreeText => false ,
@@ -202,7 +201,7 @@
 
     <%= text_field_tag "p[addresses][city_village_a]", params[:city_village_a],
       {:tt_onUnLoad => '$("person_addresses_city_village").value = $("p_addresses_city_village_a").value',
-      :condition => '$("filter_t_a").value == "Other"' ,
+      :condition => '$("filter_t_a").value == "Other" || $("person_addresses_city_village").value == "Other"' ,
       :ajaxURL => '/person_addresses/village?search_string=',
       :allowFreeText => true, :field_type => 'alpha',
       :helpText => "Specify Location/Village",
