@@ -62,7 +62,7 @@
 </style>
 
 <script type="text/javascript">
-   tt_cancel_destination = "/patients/show/<%= @patient.patient_id%>";
+  tt_cancel_destination = "/patients/show/<%= @patient.patient_id%>";
 </script>
 
 <div class="container">
@@ -91,6 +91,18 @@
           <td><a href="edit_demographics?patient_id=<%=@patient.id%>&field=last_name&person_id=<%=
                  @person.id %>&cat=<%= (params["cat"] rescue "") %>&family_name=<%= @last_name %>">Edit</a></td>
         </tr>
+
+        <%  if @baby == true && params[:cat] == "baby" %>
+
+          <tr>
+            <td class='title'>Serial Number</td>
+            <td class='data'><%=@serial_number%></td>
+            <td><a href="edit_demographics?patient_id=<%=@patient.id%>&field=serial_number&person_id=<%=
+                   @person.id %>&cat=<%= (params["cat"] rescue "") %>&serial_number=<%= @serial_number %>">Edit</a></td>
+          </tr>
+
+        <% end %>
+
         <% if @update_patient.gender == "F" and @update_patient.age > 10 %>
           <tr>
             <td class='title'>Maiden Name</td>
@@ -105,7 +117,7 @@
           <td><a href="edit_demographics?patient_id=<%=@patient.id%>&field=birthdate&person_id=<%=
                  @person.id %>&cat=<%= (params["cat"] rescue "") %>">Edit</a></td>
         </tr>
-         <%gender = params[:cat] == "baby"? "Sex" : "Gender"%>
+        <%gender = params[:cat] == "baby"? "Sex" : "Gender"%>
         <tr>
           <td class='title'><%=gender%></td>
           <td class='data'><%=@gender%></td>

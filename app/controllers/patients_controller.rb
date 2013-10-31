@@ -3,9 +3,9 @@ class PatientsController < ApplicationController
   
   def show 
     @patient = Patient.find(params[:id] || params[:patient_id]) rescue nil  
-	identifier = PatientIdentifier.find(:last, :conditions => ["patient_id = ? AND identifier_type = ? AND voided = 0", @patient.id, PatientIdentifierType.find_by_name("National id").id]).identifier rescue ""
+    identifier = PatientIdentifier.find(:last, :conditions => ["patient_id = ? AND identifier_type = ? AND voided = 0", @patient.id, PatientIdentifierType.find_by_name("National id").id]).identifier rescue ""
 
-	if((CoreService.get_global_property_value("create.from.dde.server") == true) && !@patient.nil? && identifier.strip.length != 6)
+    if((CoreService.get_global_property_value("create.from.dde.server") == true) && !@patient.nil? && identifier.strip.length != 6)
       dde_patient = DDEService::Patient.new(@patient)
       identifier = dde_patient.get_full_identifier("National id").identifier rescue nil
       national_id_replaced = dde_patient.check_old_national_id(identifier)
@@ -37,6 +37,7 @@ class PatientsController < ApplicationController
     @update_patient = ANCService::ANC.new(@person) rescue nil
 
     @national_id = @update_patient.national_id_with_dashes rescue nil
+    @serial_number = @update_patient.get_identifier("Serial Number") rescue nil
 
     @first_name = @person.person.names.first.given_name rescue nil
     @middle_name = @person.person.names.first.middle_name rescue nil
@@ -62,13 +63,33 @@ class PatientsController < ApplicationController
   end
 
   def edit_demographics
-    @person = Patient.find(params[:person_id]) rescue nil
+    @person = Patient.find(params[:person_id] || params[:patient_id]) rescue nil
     @field = params[:field]
     render :partial => "edit_demographics", :field =>@field, :layout => true and return
   end
 
   def update_demographics
-    ANCService.update_demographics(params)
+    
+    if params[:serial_number].present?
+
+      serial_number_check = PatientIdentifier.find(:all, :conditions => ["identifier = ? AND identifier_type = ?",
+          params[:serial_number], PatientIdentifierType.find_by_name("Serial Number").id]) rescue [] if params[:cat].downcase == "baby"
+
+      if serial_number_check && serial_number_check.length > 0
+        @return_uri = request.referrer
+        redirect_to "/patients/no_serial_number?serial_number=#{params[:serial_number]}&return_uri=#{@return_uri}" and return
+      end
+
+      PatientIdentifier.find_last_by_patient_id_and_identifier_type(params[:patient_id],
+        PatientIdentifierType.find_by_name("Serial Number").id).update_attributes(:identifier => params[:serial_number],
+        :date_created => (session[:datetime].to_date rescue Date.today)) rescue nil
+      
+    else
+
+      ANCService.update_demographics(params)
+
+    end
+    
     redirect_to :action => 'demographics', :patient_id => params['patient_id'], 
       :person_id => params['person_id'], :cat => params['cat'] and return
   end
@@ -156,7 +177,7 @@ class PatientsController < ApplicationController
 
         t3 = Thread.new{
           sleep(10)
-         Kernel.system "rm /tmp/output-#{Regexp.escape(name)}"+ ".pdf\n"
+          Kernel.system "rm /tmp/output-#{Regexp.escape(name)}"+ ".pdf\n"
         }if !rec.blank?
         sleep(3)
       end
@@ -224,7 +245,7 @@ class PatientsController < ApplicationController
 
   def serial_number
 		if  @anc_patient.age >= 5           
-     redirect_to "/patients/no_serial_number?message=Cant Assign Serial Number Due To Age Restrictions" and return
+      redirect_to "/patients/no_serial_number?message=Cant Assign Serial Number Due To Age Restrictions" and return
     end rescue nil
 
     @patient = Patient.find(params[:patient_id] || params[:id] || session[:patient_id]) rescue nil
