@@ -69,14 +69,16 @@ class ClinicController < GenericClinicController
     @types = CoreService.get_global_property_value("statistics.show_encounter_types") rescue EncounterType.all.map(&:name).join(",")
     @types = @types.split(/,/)
 
-    @males_me = Person.find(:all, :conditions => ['date_created BETWEEN ? AND ? AND creator =? AND gender =? AND person_id IN (?)',
+    @males_me = Person.find(:all,  :joins => ["INNER JOIN birth_report ON person_id = patient_id"],
+      :conditions => ['date_created BETWEEN ? AND ? AND creator =? AND gender =? AND person_id IN (?)',
         Date.today.strftime('%Y-%m-%d 00:00:00'),
         Date.today.strftime('%Y-%m-%d 23:59:59'),
         current_user.user_id, "M", ids]).collect{|baby|
       baby if ((baby.date_created.year - baby.birthdate.year) <= 1)
     } rescue [];
   
-    @males_today = Person.find(:all, :conditions => ["date_created BETWEEN ? AND ? AND gender = ? AND person_id IN (?)",
+    @males_today = Person.find(:all,  :joins => ["INNER JOIN birth_report ON person_id = patient_id"],
+      :conditions => ["date_created BETWEEN ? AND ? AND gender = ? AND person_id IN (?)",
         Date.today.strftime('%Y-%m-%d 00:00:00'),
         Date.today.strftime('%Y-%m-%d 23:59:59'),
         'M', ids]) rescue []
