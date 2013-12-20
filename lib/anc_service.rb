@@ -1530,13 +1530,27 @@ module ANCService
     end
 
     def mother
-      self.patient.relationships.find(:last, :conditions => ["relationship = ?",
+      m = self.patient.relationships.find(:last, :conditions => ["relationship = ?",
           RelationshipType.find_by_b_is_to_a("Mother").id]) rescue nil
+
+      if !m.blank?
+        m = nil if Patient.find(m.person_b).nil?
+      end
+
+      m
+      
     end
 
     def father
-      self.patient.relationships.find(:last, :conditions => ["relationship = ?",
+      f = self.patient.relationships.find(:last, :conditions => ["relationship = ?",
           RelationshipType.find_by_b_is_to_a("Father").id]) rescue nil
+      
+      if !f.blank?
+        f = nil if Patient.find(f.person_b).nil?
+      end
+
+      f
+      
     end
 
     def siblings
