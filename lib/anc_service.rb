@@ -1978,6 +1978,13 @@ module ANCService
       end
     } if person_attribute_params
 
+    create_from_dde_server = CoreService.get_global_property_value('create.from.dde.server').to_s == "true" rescue false
+
+    if create_from_dde_server
+      patient_bean = PatientService.get_patient(person)
+      DDEService.update_demographics(patient_bean)
+    end
+
   end
 
   def self.import_person(person)

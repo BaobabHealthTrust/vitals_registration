@@ -85,7 +85,7 @@ class PatientsController < ApplicationController
         :date_created => (session[:datetime].to_date rescue Date.today)) rescue nil
       
     else
-
+      
       ANCService.update_demographics(params)
 
     end

@@ -15,53 +15,55 @@ module PatientService
     return JSON.parse(RestClient.post(uri,params))                              
   end
 
- def self.search_from_dde_by_identifier(identifier)
-      dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
-      dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
-      dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
-      uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json"
-      uri += "?value=#{identifier}"
-      people = JSON.parse(RestClient.get(uri)) rescue nil
-      return [] if people.blank?
+  def self.search_from_dde_by_identifier(identifier)
+    dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
+    dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
+    dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
+    uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json"
+    uri += "?value=#{identifier}"
+    people = JSON.parse(RestClient.get(uri)) rescue nil
+    return [] if people.blank?
 
-      local_people = []
-      people.each do |person|
-        national_id = person['person']["value"] rescue nil
-        old_national_id = person["person"]["old_identification_number"] rescue nil
+    local_people = []
+    people.each do |person|
+      national_id = person['person']["value"] rescue nil
+      old_national_id = person["person"]["old_identification_number"] rescue nil
 
-        birthdate_year = person["person"]["data"]["birthdate"].to_date.year rescue "Unknown"
-        birthdate_month = person["person"]["data"]["birthdate"].to_date.month rescue nil
-        birthdate_day = person["person"]["data"]["birthdate"].to_date.day rescue nil
-        birthdate_estimated = person["person"]["data"]["birthdate_estimated"]
-        gender = person["person"]["data"]["gender"] == "F" ? "Female" : "Male"
-        passed_person = {
-         "person"=>{"occupation"=>person["person"]["data"]["attributes"]["occupation"],
-         "age_estimate"=> birthdate_estimated ,
-         "birthdate" => person["person"]["data"]["birthdate"],
-         "cell_phone_number"=>person["person"]["data"]["attributes"]["cell_phone_number"],
-         "birth_month"=> birthdate_month ,
-         "addresses"=>{"address1"=> person["person"]["data"]["addresses"]["county_district"],
-                       "address2"=> person["person"]["data"]["addresses"]["address2"],
-                       "city_village"=> person["person"]["data"]["addresses"]["city_village"],
-                       "county_district"=> person["person"]["data"]["addresses"]["county_district"],
-                       "state_province" => person["person"]["data"]["addresses"]["state_province"],
-                       "neighborhood_cell" => person["person"]["data"]["addresses"]["neighborhood_cell"]},
-         "gender"=> gender ,
-         "patient"=>{"identifiers"=>{"National id" => national_id ,"Old national id" => old_national_id}},
-         "birth_day"=>birthdate_day,
-         "home_phone_number"=>person["person"]["data"]["attributes"]["home_phone_number"],
-         "names"=>{"family_name"=>person["person"]["data"]["names"]["family_name"],
-         "given_name"=>person["person"]["data"]["names"]["given_name"],
-         "middle_name"=>""},
-         "birth_year"=>birthdate_year,
-         "id" => person["person"]["id"]},
-         "filter_district"=>"",
-         "filter"=>{"region"=>"",
-         "t_a"=>""},
-         "relation"=>""
-        }
-        local_people << passed_person
-      end
+      birthdate_year = person["person"]["data"]["birthdate"].to_date.year rescue "Unknown"
+      birthdate_month = person["person"]["data"]["birthdate"].to_date.month rescue nil
+      birthdate_day = person["person"]["data"]["birthdate"].to_date.day rescue nil
+      birthdate_estimated = person["person"]["data"]["birthdate_estimated"]
+      gender = person["person"]["data"]["gender"] == "F" ? "Female" : "Male"
+      passed_person = {
+        "person"=>{"occupation"=>person["person"]["data"]["attributes"]["occupation"],
+          "age_estimate"=> birthdate_estimated ,
+          "birthdate" => person["person"]["data"]["birthdate"],
+          "cell_phone_number"=>person["person"]["data"]["attributes"]["cell_phone_number"],
+          "race"=>person["person"]["data"]["attributes"]["race"],
+          "citizenship"=>person["person"]["data"]["attributes"]["citizenship"],
+          "birth_month"=> birthdate_month ,
+          "addresses"=>{"address1"=> person["person"]["data"]["addresses"]["county_district"],
+            "address2"=> person["person"]["data"]["addresses"]["address2"],
+            "city_village"=> person["person"]["data"]["addresses"]["city_village"],
+            "county_district"=> person["person"]["data"]["addresses"]["county_district"],
+            "state_province" => person["person"]["data"]["addresses"]["state_province"],
+            "neighborhood_cell" => person["person"]["data"]["addresses"]["neighborhood_cell"]},
+          "gender"=> gender ,
+          "patient"=>{"identifiers"=>{"National id" => national_id ,"Old national id" => old_national_id}},
+          "birth_day"=>birthdate_day,
+          "home_phone_number"=>person["person"]["data"]["attributes"]["home_phone_number"],
+          "names"=>{"family_name"=>person["person"]["data"]["names"]["family_name"],
+            "given_name"=>person["person"]["data"]["names"]["given_name"],
+            "middle_name"=>""},
+          "birth_year"=>birthdate_year,
+          "id" => person["person"]["id"]},
+        "filter_district"=>"",
+        "filter"=>{"region"=>"",
+          "t_a"=>""},
+        "relation"=>""
+      }
+      local_people << passed_person
+    end
     return local_people
   end
 
@@ -134,18 +136,18 @@ module PatientService
             "given_name"=> names_params["given_name"]
           }}}}
 
-      @dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
-      @dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
-      @dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
+    @dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
+    @dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
+    @dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
 
-      uri = "http://#{@dde_server_username}:#{@dde_server_password}@#{@dde_server}/people.json/"
-      received_params = RestClient.post(uri,passed_params)
+    uri = "http://#{@dde_server_username}:#{@dde_server_password}@#{@dde_server}/people.json/"
+    received_params = RestClient.post(uri,passed_params)
 
-      return JSON.parse(received_params)["npid"]["value"]
+    return JSON.parse(received_params)["npid"]["value"]
   end
   
 
- def self.get_dde_person(person, current_date = Date.today)
+  def self.get_dde_person(person, current_date = Date.today)
     patient = PatientBean.new('')
     patient.person_id = person["person"]["id"]
     patient.patient_id = 0
@@ -169,6 +171,8 @@ module PatientService
     patient.occupation = person["person"]["occupation"]
     patient.cell_phone_number = person["person"]["cell_phone_number"]
     patient.home_phone_number = person["person"]["home_phone_number"]
+    patient.citizenship = person["person"]["citizenship"]
+    patient.race = person["person"]["race"]
     patient.old_identification_number = person["person"]["patient"]["identifiers"]["Old national id"]
     patient.national_id  = patient.old_identification_number if patient.national_id.blank?
     patient
@@ -186,7 +190,7 @@ module PatientService
     estimate = birthdate_estimated == 1                                         
     patient_age += (estimate && birth_date.month == 7 && birth_date.day == 1  &&
         today.month < birth_date.month && date_created.year == today.year) ? 1 : 0
-    end                                                                           
+  end
                                                                               
   def self.get_birthdate_formatted(birthdate,birthdate_estimated)                        
     if birthdate_estimated == 1                                                 
@@ -205,7 +209,7 @@ module PatientService
   
   
    
-   def self.create_patient_from_dde(params)
+  def self.create_patient_from_dde(params)
     old_identifier = params["identifier"] rescue nil
 	  address_params = params["person"]["addresses"]
 		names_params = params["person"]["names"]
@@ -378,9 +382,9 @@ module PatientService
   def self.current_treatment_encounter(patient, date = Time.now(), provider = user_person_id)
     type = EncounterType.find_by_name("TREATMENT")
     encounter = patient.encounters.find(:first,:conditions =>["encounter_datetime BETWEEN ? AND ? AND encounter_type = ?",
-    									date.to_date.strftime('%Y-%m-%d 00:00:00'),
-    									date.to_date.strftime('%Y-%m-%d 23:59:59'),
-    									type.id])
+        date.to_date.strftime('%Y-%m-%d 00:00:00'),
+        date.to_date.strftime('%Y-%m-%d 23:59:59'),
+        type.id])
     encounter ||= patient.encounters.create(:encounter_type => type.id,:encounter_datetime => date, :provider_id => provider)
   end
 
@@ -389,9 +393,9 @@ module PatientService
     # that some of the encounters on the specific date may have been voided
     ActiveRecord::Base.connection.select_all("SELECT count(*) as number, encounter_type FROM encounter GROUP BY encounter_type")
     todays_encounters = Encounter.find(:all, :include => "type", :conditions => ["encounter_datetime BETWEEN TIMESTAMP (?) AND TIMESTAMP (?)",
-		date.to_date.strftime('%Y-%m-%d 00:00:00'),
-		date.to_date.strftime('%Y-%m-%d 23:59:59')
-    ])
+        date.to_date.strftime('%Y-%m-%d 00:00:00'),
+        date.to_date.strftime('%Y-%m-%d 23:59:59')
+      ])
     encounters_by_type = Hash.new(0)
     todays_encounters.each{|encounter|
       next if encounter.type.nil?
@@ -732,12 +736,12 @@ module PatientService
 
     appointment_date_concept_id = Concept.find_by_name("APPOINTMENT DATE").concept_id rescue nil
 
-     appointments = Observation.find(:all,
+    appointments = Observation.find(:all,
       :conditions => ["obs.value_datetime BETWEEN TIMESTAMP(?) AND TIMESTAMP(?) AND " +
           "obs.concept_id = ? AND obs.voided = 0 AND obs.person_id = ?", 
-			start_date.to_date.strftime('%Y-%m-%d 00:00:00'),
-			end_date.to_date.strftime('%Y-%m-%d 23:59:59'),
-			appointment_date_concept_id, patient.id])
+        start_date.to_date.strftime('%Y-%m-%d 00:00:00'),
+        end_date.to_date.strftime('%Y-%m-%d 23:59:59'),
+        appointment_date_concept_id, patient.id])
 
     appointments
   end
@@ -904,9 +908,9 @@ EOF
       :joins => 'INNER JOIN obs USING (encounter_id)',
       :conditions => ["encounter_type = ? AND concept_id = ? AND person_id = ? AND value_coded = ? AND obs_datetime BETWEEN ? AND ?",
         encounter_type.id,refer_concept,patient.id,yes_concept,
-		date.to_date.strftime('%Y-%m-%d 00:00:00'),
-		date.to_date.strftime('%Y-%m-%d 23:59:59')
-        ],
+        date.to_date.strftime('%Y-%m-%d 00:00:00'),
+        date.to_date.strftime('%Y-%m-%d 23:59:59')
+      ],
       :order => 'encounter_datetime DESC,date_created DESC')
     return false if refer_patient.blank?
     return true
@@ -928,10 +932,10 @@ EOF
                                        
     concept_id = Concept.find_by_name('AMOUNT DISPENSED').id
     Order.find(:all,:joins =>"INNER JOIN obs ON obs.order_id = orders.order_id",
-        :conditions =>["obs.person_id = ? AND obs.concept_id = ?                    
+      :conditions =>["obs.person_id = ? AND obs.concept_id = ?
         AND obs_datetime >=? AND obs_datetime <=?",
         patient.id,concept_id,start_date,end_date],
-        :order =>"obs_datetime")
+      :order =>"obs_datetime")
   end
 
   def self.drugs_given_on(patient, date = Date.today)
@@ -940,11 +944,11 @@ EOF
     encounter_type_ids = EncounterType.find_all_by_name(clinic_encounters).collect{|e|e.id}
 
     latest_encounter_date = Encounter.find(:first,
-        :conditions =>["patient_id = ? AND encounter_datetime >= ? 
+      :conditions =>["patient_id = ? AND encounter_datetime >= ?
         AND encounter_datetime <=? AND encounter_type IN(?)",
         patient.id,date.strftime('%Y-%m-%d 00:00:00'),
         date.strftime('%Y-%m-%d 23:59:59'),encounter_type_ids],
-        :order =>"encounter_datetime DESC").encounter_datetime rescue nil
+      :order =>"encounter_datetime DESC").encounter_datetime rescue nil
                         
     return [] if latest_encounter_date.blank?
 
@@ -953,10 +957,10 @@ EOF
                                        
     concept_id = Concept.find_by_name('AMOUNT DISPENSED').id
     Order.find(:all,:joins =>"INNER JOIN obs ON obs.order_id = orders.order_id",
-        :conditions =>["obs.person_id = ? AND obs.concept_id = ?                    
+      :conditions =>["obs.person_id = ? AND obs.concept_id = ?
         AND obs_datetime >=? AND obs_datetime <=?",
         patient.id,concept_id,start_date,end_date],
-        :order =>"obs_datetime")
+      :order =>"obs_datetime")
   end
 
   def self.get_patient(person, current_date = Date.today)
@@ -992,6 +996,8 @@ EOF
     patient.office_phone_number = get_attribute(person, 'Office phone number')
     patient.home_phone_number = get_attribute(person, 'Home phone number')
     patient.guardian = art_guardian(person.patient) rescue nil
+    patient.race = get_attribute(person, 'Race')
+    patient.citizenship = get_attribute(person, 'Citizenship')
     patient
   end
   
@@ -1233,18 +1239,18 @@ EOF
 
     if people.length < 15
       matching_people = people.collect{| person |
-                              person.person_id
-                          }
-                          # raise matching_people.to_yaml
+        person.person_id
+      }
+      # raise matching_people.to_yaml
       people_like = Person.find(:all, :limit => 15, :include => [{:names => [:person_name_code]}, :patient], :conditions => [
-        "gender = ? AND \
+          "gender = ? AND \
      person_name_code.given_name_code LIKE ? AND \
      person_name_code.family_name_code LIKE ? AND person.person_id NOT IN (?)",
-        gender,
-        (given_name || '').soundex,
-        (family_name || '').soundex,
-        matching_people
-      ], :order => "person_name.given_name ASC, person_name_code.family_name_code ASC")
+          gender,
+          (given_name || '').soundex,
+          (family_name || '').soundex,
+          matching_people
+        ], :order => "person_name.given_name ASC, person_name_code.family_name_code ASC")
       people = people + people_like
     end
 =begin
@@ -1298,7 +1304,7 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
       passed_national_id = (p["person"]["patient"]["identifiers"]["National id"]) rescue nil
       passed_national_id = (p["person"]["value"]) if passed_national_id.blank? rescue nil
       if passed_national_id.blank?
-       return [DDEService.get_remote_person(p["person"]["id"])]
+        return [DDEService.get_remote_person(p["person"]["id"])]
       end
 
       birthdate_year = p["person"]["birthdate"].to_date.year rescue "Unknown"
@@ -1308,28 +1314,30 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
       gender = p["person"]["gender"] == "F" ? "Female" : "Male"
 
       passed = {
-       "person"=>{"occupation"=>p["person"]["data"]["attributes"]["occupation"],
-       "age_estimate"=> birthdate_estimated,
-       "cell_phone_number"=>p["person"]["data"]["attributes"]["cell_phone_number"],
-       "birth_month"=> birthdate_month ,
-       "addresses"=>{"address1"=>p["person"]["data"]["addresses"]["address1"],
+        "person"=>{"occupation"=>p["person"]["data"]["attributes"]["occupation"],
+          "age_estimate"=> birthdate_estimated,
+          "cell_phone_number"=>p["person"]["data"]["attributes"]["cell_phone_number"],
+          "race"=>p["person"]["data"]["attributes"]["race"],
+          "citizenship"=>p["person"]["data"]["attributes"]["citizenship"],
+          "birth_month"=> birthdate_month ,
+          "addresses"=>{"address1"=>p["person"]["data"]["addresses"]["address1"],
             "address2"=>p["person"]["data"]["addresses"]["address2"],
             "city_village"=>p["person"]["data"]["addresses"]["city_village"],
             "state_province"=>p["person"]["data"]["addresses"]["state_province"],
             "neighborhood_cell"=>p["person"]["data"]["addresses"]["neighborhood_cell"],
             "county_district"=>p["person"]["data"]["addresses"]["county_district"]},
-       "gender"=> gender ,
-       "patient"=>{"identifiers"=>{"National id" => p["person"]["value"]}},
-       "birth_day"=>birthdate_day,
-       "home_phone_number"=>p["person"]["data"]["attributes"]["home_phone_number"],
-       "names"=>{"family_name"=>p["person"]["family_name"],
-       "given_name"=>p["person"]["given_name"],
-       "middle_name"=>""},
-       "birth_year"=>birthdate_year},
-       "filter_district"=>"",
-       "filter"=>{"region"=>"",
-       "t_a"=>""},
-       "relation"=>""
+          "gender"=> gender ,
+          "patient"=>{"identifiers"=>{"National id" => p["person"]["value"]}},
+          "birth_day"=>birthdate_day,
+          "home_phone_number"=>p["person"]["data"]["attributes"]["home_phone_number"],
+          "names"=>{"family_name"=>p["person"]["family_name"],
+            "given_name"=>p["person"]["given_name"],
+            "middle_name"=>""},
+          "birth_year"=>birthdate_year},
+        "filter_district"=>"",
+        "filter"=>{"region"=>"",
+          "t_a"=>""},
+        "relation"=>""
       }
 
       unless passed_national_id.blank?                                          
@@ -1369,7 +1377,7 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
     end
   end
   
- def self.birthdate_formatted(person)
+  def self.birthdate_formatted(person)
     if person.birthdate_estimated==1
       if person.birthdate.day == 1 and person.birthdate.month == 7
         person.birthdate.strftime("??/???/%Y")
@@ -1453,7 +1461,7 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
     if first_vitals.blank?
       encounter = Encounter.find(:first,:order => "encounter_datetime DESC",
         :conditions =>["patient_id = ? AND encounter_type = ?",patient.id,
-        EncounterType.find_by_name('LAB ORDERS').id])
+          EncounterType.find_by_name('LAB ORDERS').id])
       
       sup_result = self.next_lab_encounter(patient , encounter, session_date)
 
@@ -1491,8 +1499,8 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
 
     vitals = Encounter.find(:first,:order => "encounter_datetime DESC",
       :conditions =>["encounter_datetime BETWEEN ? AND ? AND patient_id = ? AND encounter_type = ?",
-		session_date.to_date.strftime('%Y-%m-%d 00:00:00'),
-		session_date.to_date.strftime('%Y-%m-%d 23:59:59'),
+        session_date.to_date.strftime('%Y-%m-%d 00:00:00'),
+        session_date.to_date.strftime('%Y-%m-%d 23:59:59'),
         patient.id,
         EncounterType.find_by_name('VITALS').id])
 
