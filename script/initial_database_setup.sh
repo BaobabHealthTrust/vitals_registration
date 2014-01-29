@@ -34,7 +34,6 @@ echo "CREATE DATABASE $DATABASE;" | mysql --user=$USERNAME --password=$PASSWORD
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/openmrs_1_7_2_concept_server_full_db.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/schema_bart2_additions.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/defaults.sql
-# mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/user_schema_modifications.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/malawi_regions.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/mysql_functions.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/drug_ingredient.sql
@@ -45,19 +44,15 @@ mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/data/${SITE}/${SITE}.
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/data/${SITE}/tasks.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/data/${SITE}/anc_tasks.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/moh_regimens_only.sql
-#mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/serial_number.sql
-#mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/regimen_indexes.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/retrospective_station_entries.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/create_dde_server_connection.sql
-
-#mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/privilege.sql
-#mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/bart2_role_privileges.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/migrate/create_weight_height_for_ages.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/migrate/insert_weight_for_ages.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/migrate/global_property.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/relationships.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/custom.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/triggers/birth_report.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/triggers/birth_report_details.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/triggers/relationship_after_delete.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/triggers/relationship_after_insert.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/triggers/person_attribute_after_delete.sql
