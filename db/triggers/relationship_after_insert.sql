@@ -82,6 +82,15 @@ BEGIN
         
   END IF;
 
+  IF (new.relationship = @father) OR (new.relationship = @mother) THEN
+
+     INSERT INTO birth_report_details (patient_id, date_created, date_updated) 
+      VALUES(new.person_a, new.date_created, new.date_created) ON DUPLICATE KEY UPDATE patient_id = new.person_a;
+
+     UPDATE birth_report_details SET date_updated = (SELECT (CURRENT_TIMESTAMP())) WHERE patient_id = new.person_a;
+
+  END IF;
+
 END$$
 
 DELIMITER ;

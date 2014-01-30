@@ -2088,7 +2088,8 @@ module ANCService
 
       found_person_data = self.search_by_identifier(child["patient"]["identifiers"]["national_id"], false)
 
-      mother = Relationship.find(:first, :order => ["date_created DESC"], :conditions => ["person_a =? AND voided = 0 AND relationship = ?",
+      mother = Relationship.find(:first, :order => ["date_created DESC"],
+        :conditions => ["person_a =? AND voided = 0 AND relationship = ?",
           found_person_data.last.person_id, RelationshipType.find_by_b_is_to_a("Mother").relationship_type_id]) if !found_person_data.blank?
    
       if mother.present? && (Patient.find(mother.person_b).national_id == person["mother"]["patient"]["identifiers"]["national_id"])
@@ -2193,6 +2194,22 @@ module ANCService
           patient.get_full_attribute("#{field}").void rescue nil
           patient.set_attribute("#{field}", "#{person["facility"][field]}")
         end
+      end
+
+      #******************************Update BirthReportDetail for baby birth report*********************************#
+      details = BirthReportDetails.find_by_patient_id(child_id)
+
+      if details.present?
+        details.update_attributes(:date_updated => Time.now)
+        details.update_attributes(:date_received => Time.now) if details.date_received.blank?
+        details.update_attributes(:source => person["facility"]["Health Center"]) if !(person["facility"]["Health Center"]).blank?
+      else
+        BirthReportDetail.create(:patient_id => child_id,
+          :date_created => Time.now,
+          :date_received => Time.now,
+          :date_updated => Time.now,
+          :source => person["facility"]["Health Center"]
+        )
       end
 
       return "Baby Added"
