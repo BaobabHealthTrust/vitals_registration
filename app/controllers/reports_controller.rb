@@ -79,33 +79,24 @@ class ReportsController < ActionController::Base
     @start_date = params[:start_date].to_date
     @end_date = params[:end_date].to_date
     @link_data = {}
-    nat_id_type = PatientIdentifierType.find_by_name("National id").patient_identifier_type_id  rescue []
-    urls = CoreService.get_global_property_value("maternity.links").split(",") rescue []
-
-    baby_id = nil
-    remote_ids = []
-
-    urls.each{|link|
-      uri = "#{link.split("|")[1]}/report/issue_baby_ids"
-      source = link.split("|")[0]
-      national_ids = JSON.parse(RestClient.post(uri, params))["ids"] rescue []
-
-      national_ids.collect{|n_id|
-
-        baby_id = PatientIdentifier.find_by_identifier_and_identifier_type(n_id, nat_id_type).patient_id rescue nil
-        @link_data["#{source}"] = [] if @link_data["#{source}"].class.to_s.downcase != "array"
-        @link_data["#{source}"] << baby_id if !@link_data["#{source}"].include?(baby_id) && !baby_id.blank?
-        remote_ids << baby_id if @link_data["#{source}"].include?(baby_id)
-
-      }
-
-    }
+      
+    sources = BirthReportDetails.find_by_sql("SELECT DISTINCT(source) FROM birth_report_details").collect{|s|
+      s.source
+    }.delete_if{|sc| sc.blank?}
     
+    sources.each{|source|      
+            
+      @link_data["#{source}"] = BirthReportDetails.find_by_sql(["SELECT patient_id FROM  birth_report_details
+          WHERE source = '#{source}' AND DATE(date_created) BETWEEN ? AND ?",
+          @start_date, @end_date]).map(&:patient_id)      
+    }
+
+      
     @babies_data = BirthReport.cohort_data(@link_data, @start_date, @end_date)
     @data = BirthReport.filter_fields(@babies_data)
 
     if @data["Source"]
-      @data["Source"]["Current Site"] = [] if @data["Source"]["Current Site"].nil?
+      @data["Source"]["Current Site"] = [] if @data["Source"]["Current Site"].blank?
     end
 
     @results = @results.insert(@results.length - 1, @results.delete_at(@results.index("Other"))) rescue @results
@@ -211,30 +202,23 @@ class ReportsController < ActionController::Base
       @groups = []
       @header = "Birth Report Source"
       @babies_map = {}
+      @start_date = params[:start_date].to_date rescue Date.today
+      @end_date = params[:end_date].to_date rescue Date.today
       
-      nat_id_type = PatientIdentifierType.find_by_name("National id").patient_identifier_type_id  rescue []
+      sources = BirthReportDetails.find_by_sql("SELECT DISTINCT(source) FROM birth_report_details").collect{|s|
+        s.source
+      }.delete_if{|sc| sc.blank?}
 
-      urls = CoreService.get_global_property_value("maternity.links").split(",") rescue []
+      sources.each{|source|
 
-      baby_id = nil
-      remote_ids = []
-      
-      urls.each{|link|
-        uri = "#{link.split("|")[1]}/report/issue_baby_ids"
-        source = link.split("|")[0]
-        national_ids = JSON.parse(RestClient.post(uri, params))["ids"] rescue []
-        
-        national_ids.collect{|n_id|
-          
-          baby_id = PatientIdentifier.find_by_identifier_and_identifier_type(n_id, nat_id_type).patient_id rescue nil
-          @babies_map["#{source}"] = [] if @babies_map["#{source}"].class.to_s.downcase != "array"
-          @babies_map["#{source}"] << baby_id if !@babies_map["#{source}"].include?(baby_id) && !baby_id.blank?
-          remote_ids << baby_id if @babies_map["#{source}"].include?(baby_id)
-
-        }
-        
+        @babies_map["#{source}"] = BirthReportDetails.find_by_sql(["SELECT patient_id FROM  birth_report_details
+          WHERE source = '#{source}' AND DATE(date_created) BETWEEN ? AND ?",
+            @start_date, @end_date]).map(&:patient_id)
       }
 
+      remote_ids = BirthReportDetails.find_by_sql(["SELECT patient_id FROM birth_report_details WHERE source IS NOT NULL AND date_created BETWEEN ? AND ?",
+          @start_date, @end_date]).map(&:patient_id)
+      
       all_reports_in_range = BirthReport.find_by_sql("SELECT r.patient_id FROM birth_report r
         WHERE DATE_FORMAT((SELECT rl.date_created FROM relationship rl WHERE rl.person_a = r.patient_id LIMIT 1), '%Y-%m-%d') >= '#{params[:start_date]}'
         AND DATE_FORMAT((SELECT l.date_created FROM relationship l WHERE l.person_a = r.patient_id LIMIT 1), '%Y-%m-%d') <= '#{params[:end_date]}'").collect{|br|

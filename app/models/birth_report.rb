@@ -17,7 +17,8 @@ class BirthReport < ActiveRecord::Base
                                           COALESCE((#{@center}), 'Unknown') AS health_center, COALESCE(DATE(br.date_of_birth), '') AS dob, COALESCE(br.district_of_birth, 'Unknown') AS birth_district
                                         FROM birth_report br
                                               INNER JOIN person prsn ON br.patient_id = prsn.person_id AND prsn.voided = 0
-                                              WHERE DATE(prsn.date_created) BETWEEN ? AND ?", start_date.to_date, end_date.to_date]
+                                              INNER JOIN birth_report_details details ON details.patient_id = br.patient_id
+                                              WHERE DATE(details.date_created) BETWEEN ? AND ?", start_date.to_date, end_date.to_date]
     ).collect{|report|
       source = links_ids.invert[links_ids.invert.keys.delete_if{|key| !key.include?(report.pid.to_i)}[0]]
       report.source = source if source.present?

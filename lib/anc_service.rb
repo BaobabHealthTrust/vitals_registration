@@ -2204,12 +2204,15 @@ module ANCService
         details.update_attributes(:date_received => Time.now) if details.date_received.blank?
         details.update_attributes(:source => person["facility"]["Health Center"]) if !(person["facility"]["Health Center"]).blank?
       else
-        BirthReportDetail.create(:patient_id => child_id,
-          :date_created => Time.now,
-          :date_received => Time.now,
-          :date_updated => Time.now,
-          :source => person["facility"]["Health Center"]
+       
+        date_created = Time.now
+        date_received = Time.now
+        date_updated = Time.now
+
+        ActiveRecord::Base.connection.execute("INSERT INTO birth_report_details(patient_id, date_created, date_received, date_updated, source)
+              VALUES (#{child_id}, '#{date_created}', '#{date_received}', '#{date_updated}', '#{person["facility"]["Health Center"]}');"
         )
+      
       end
 
       return "Baby Added"

@@ -36,7 +36,7 @@
                   id="cancelButton" style="position: absolute; z-index: 100; margin-top: 10px;"><span>Cancel</span>
           </button>
 
-          <button onclick=" back();" class="button navButton green"
+          <button onclick="window.location = '/clinic';" class="button navButton green"
                   id="nextButton" style="margin-top: 10px; margin-right: 20px;" ><span>Finish</span>
           </button>
           <button onclick="window.location = '/reports/print_note?type=cohort&start_date=<%= params[:start_date] %>&end_date=<%= params[:end_date] %>&select_by=<%= params[:select_by] %>';" class="button navButton blue"
