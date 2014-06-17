@@ -6,7 +6,7 @@ usage(){
   echo "ENVIRONMENT should be: development|test|production"
   echo "Available SITES:"
   ls -1 db/data
-} 
+}
 
 ENV=$1
 SITE=$2

@@ -155,6 +155,7 @@ class GenericUserController < ApplicationController
     @user = RawUser.new(params[:user])
     @user.person_id = person.id
     if @user.save
+     
       # if params[:user_role_admin][:role] == "Yes"
       #  @roles = Array.new.push params[:user_role][:role_id] 
       # @roles << "superuser"
@@ -172,7 +173,8 @@ class GenericUserController < ApplicationController
       user_role.save
       # end
       flash[:notice] = 'User was successfully created.'
-      redirect_to :action => 'show'
+      
+      redirect_to :action => 'show', :id => @user.id
     else
       flash[:notice] = 'OOps! User was not created!.'
       render :action => 'new'
