@@ -30,7 +30,7 @@
 
   <%when "add_role"%>
          <p><label for="user_role_role">User Role</label></br>
-  <%= select(:user_role ,:role_id, @roles,:include_blank => "true", :value =>   @user_role)%>
+  <%= select(:user_role ,:role_id, @roles,:include_blank => true, :value =>   @user_role)%>
   <%when "delete_role"%>
   <p><label for="user_role_role_id">Delete User Role</label>
   <%= select(:user_role ,:role_id, @roles,:include_blank => true, :value => @user_role)%>
