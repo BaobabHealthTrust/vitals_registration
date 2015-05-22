@@ -320,4 +320,9 @@ module ApplicationHelper
   def ask_gender
     GlobalProperty.find_by_property("ask_gender").property_value rescue false
   end
+  
+  def version_tag
+  	BART_VERSION
+  end
+  
 end
